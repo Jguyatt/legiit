@@ -1,7 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Search, TrendingUp, Phone, Eye, CheckCircle } from 'lucide-react';
-import { Link as RouterLink } from 'react-router-dom';
+import { ArrowLeft, Search, TrendingUp, Phone, Eye } from 'lucide-react';
 
 const PerformanceReporting = () => {
   const waysToSeeResults = [

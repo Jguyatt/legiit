@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Star, TrendingUp, Zap, CheckCircle } from 'lucide-react';
+import { Star, CheckCircle } from 'lucide-react';
 
 const features = [
   'Everything in Map PowerBoost',

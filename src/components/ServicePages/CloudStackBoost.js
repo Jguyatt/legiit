@@ -1,6 +1,6 @@
 import React from 'react';
-import { CheckCircle, ExternalLink, Shield } from 'lucide-react';
-import { Link as RouterLink, useNavigate } from 'react-router-dom';
+import { ExternalLink, Shield } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const CloudStackBoost = () => {
   const navigate = useNavigate();

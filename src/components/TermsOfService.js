@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, FileText, Scale, AlertTriangle, CreditCard, Shield } from 'lucide-react';
+import { ArrowLeft, FileText, Scale, AlertTriangle, CreditCard } from 'lucide-react';
 
 const TermsOfService = () => {
   return (
