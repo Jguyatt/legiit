@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
@@ -23,8 +23,19 @@ import MapPowerBoost from './components/ServicePages/MapPowerBoost';
 import CloudStackBoost from './components/ServicePages/CloudStackBoost';
 import ScrollToTop from './components/ScrollToTop';
 import PlatinumLocalSEO from './components/ServicePages/PlatinumLocalSEO';
+import { initMetaPixel, trackPageView } from './utils/metaPixel';
 
 function App() {
+  useEffect(() => {
+    // Initialize Meta Pixel with your pixel ID
+    // Replace 'YOUR_PIXEL_ID' with your actual Meta Pixel ID
+    const pixelId = process.env.REACT_APP_META_PIXEL_ID || 'YOUR_PIXEL_ID';
+    initMetaPixel(pixelId);
+    
+    // Track initial page view
+    trackPageView('Home');
+  }, []);
+
   return (
     <Router>
       <ScrollToTop />

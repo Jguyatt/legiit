@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { MessageCircle, X, Send } from 'lucide-react';
+import { trackContact, trackCustomEvent } from '../utils/metaPixel';
 
 const ChatWidget = () => {
   const [open, setOpen] = useState(false);
@@ -16,6 +17,13 @@ const ChatWidget = () => {
       setIsLoading(true);
 
       try {
+        // Track chat message sent
+        trackContact({
+          method: 'chat_widget',
+          value: 0,
+          currency: 'USD'
+        });
+
         const response = await fetch('http://localhost:5001/api/chat', {
           method: 'POST',
           headers: {
@@ -46,7 +54,14 @@ const ChatWidget = () => {
         <div className="flex flex-col items-center">
           <button
             className="bg-[#0F172A] hover:bg-[#1e3350] text-white rounded-full shadow-lg w-16 h-16 flex items-center justify-center transition-all duration-300 border-4 border-orange-500 animate-bounce"
-            onClick={() => setOpen(true)}
+            onClick={() => {
+              // Track chat widget open
+              trackCustomEvent('ChatWidgetOpen', {
+                widget_location: 'bottom_right',
+                content_category: 'support'
+              });
+              setOpen(true);
+            }}
             aria-label="Open chat"
           >
             <MessageCircle className="w-8 h-8 text-orange-500" />

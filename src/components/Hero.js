@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import { trackVideoView, trackButtonClick } from '../utils/metaPixel';
 
 const HERO_BG_GRADIENT = 'bg-gradient-to-b from-[#0f0f1a] to-[#09090f]';
 const HEADLINE = 'Dominate Google Maps. Win Local Leads.';
@@ -256,7 +257,16 @@ const Hero = () => {
         {/* CTA Buttons */}
         <motion.div {...fadeIn(0.5)} className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-center justify-center px-4 w-full">
           <button
-            onClick={() => navigate('/packages')}
+            onClick={() => {
+              // Track button click event
+              trackButtonClick('Get Started', {
+                button_location: 'hero_section',
+                content_category: 'cta',
+                value: 0,
+                currency: 'USD'
+              });
+              navigate('/packages');
+            }}
             className="w-full sm:w-auto px-6 sm:px-8 py-4 rounded-full bg-gradient-to-r from-[#3abef9] to-[#007bff] text-white text-base sm:text-lg font-medium shadow-xl transition-all duration-300 hover:shadow-[0_0_32px_0_rgba(58,190,249,0.5)] focus:outline-none focus:ring-2 focus:ring-[#3abef9] focus:ring-offset-2 active:scale-95 touch-manipulation"
             style={{ fontFamily: "'Inter', 'Poppins', system-ui, sans-serif", minHeight: '48px' }}
           >
@@ -264,6 +274,13 @@ const Hero = () => {
           </button>
           <button
             onClick={() => {
+              // Track video view event
+              trackVideoView('Overview Video', {
+                video_name: 'Rankly360 Overview',
+                content_category: 'video',
+                content_type: 'overview'
+              });
+              
               const videoUrl = '/video.mp4';
               const newWindow = window.open('', '_blank', 'width=1200,height=800,scrollbars=yes,resizable=yes');
               newWindow.document.write(`
