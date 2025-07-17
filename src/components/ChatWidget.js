@@ -16,34 +16,16 @@ const ChatWidget = () => {
       setMessage('');
       setIsLoading(true);
 
-      try {
-        // Track chat message sent
-        trackContact({
-          method: 'chat_widget',
-          value: 0,
-          currency: 'USD'
-        });
+            // Track chat message sent
+      trackContact({
+        method: 'chat_widget',
+        value: 0,
+        currency: 'USD'
+      });
 
-        const response = await fetch(`${window.location.origin}/api/chat`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ message: userMessage }),
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          setMessages(prev => [...prev, { type: 'ai', content: data.answer }]);
-        } else {
-          setMessages(prev => [...prev, { type: 'ai', content: 'Sorry, I\'m having trouble connecting right now. Please try again later.' }]);
-        }
-      } catch (error) {
-        console.error('Chat error:', error);
-        setMessages(prev => [...prev, { type: 'ai', content: 'Sorry, I\'m having trouble connecting right now. Please try again later.' }]);
-      } finally {
-        setIsLoading(false);
-      }
+      // Temporarily disabled AI chat
+      setMessages(prev => [...prev, { type: 'ai', content: 'Chat feature is currently being updated. Please contact us directly for assistance.' }]);
+      setIsLoading(false);
     }
   };
 
