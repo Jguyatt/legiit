@@ -30,12 +30,11 @@ import { initMetaPixel, trackPageView } from './utils/metaPixel';
 function App() {
   useEffect(() => {
     // Initialize Meta Pixel with your pixel ID
-    // Replace 'YOUR_PIXEL_ID' with your actual Meta Pixel ID
-    const pixelId = process.env.REACT_APP_META_PIXEL_ID || 'YOUR_PIXEL_ID';
-    initMetaPixel(pixelId);
-    
-    // Track initial page view
-    trackPageView('Home');
+    const pixelId = process.env.REACT_APP_META_PIXEL_ID;
+    if (pixelId && pixelId !== 'YOUR_PIXEL_ID') {
+      initMetaPixel(pixelId);
+      trackPageView('Home');
+    }
   }, []);
 
   return (
