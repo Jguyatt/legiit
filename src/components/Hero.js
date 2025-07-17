@@ -24,17 +24,6 @@ const twinkleAnimation = {
   }
 };
 
-const sunRiseAnimation = {
-  animate: {
-    y: [20, 0],
-    opacity: [0.7, 1],
-  },
-  transition: {
-    duration: 3,
-    ease: "easeOut"
-  }
-};
-
 const BADGE_MESSAGES = [
   '⭐️ 500+ Businesses Helped',
   '🚀 200-500% More Local Leads',
@@ -344,7 +333,7 @@ const Hero = () => {
                     </video>
                   </div>
                   <div class="cta-container" style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 10;">
-                    <button onclick="window.opener.location.href='http://localhost:3000/packages'; window.close();" class="cta-btn" style="background: linear-gradient(135deg, #3abef9 0%, #007bff 100%); color: white; border: none; padding: 12px 24px; border-radius: 12px; font-weight: 600; font-size: 16px; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(58, 190, 249, 0.3);">
+                    <button onclick="window.opener.location.href='https://www.rankly360.com/packages'; window.close();" class="cta-btn" style="background: linear-gradient(135deg, #3abef9 0%, #007bff 100%); color: white; border: none; padding: 12px 24px; border-radius: 12px; font-weight: 600; font-size: 16px; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(58, 190, 249, 0.3);">
                       View Packages
                     </button>
                   </div>
