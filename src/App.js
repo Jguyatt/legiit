@@ -23,6 +23,8 @@ import MapPowerBoost from './components/ServicePages/MapPowerBoost';
 import CloudStackBoost from './components/ServicePages/CloudStackBoost';
 import ScrollToTop from './components/ScrollToTop';
 import PlatinumLocalSEO from './components/ServicePages/PlatinumLocalSEO';
+import PrivacyPolicy from './components/PrivacyPolicy';
+import TermsOfService from './components/TermsOfService';
 import { initMetaPixel, trackPageView } from './utils/metaPixel';
 
 function App() {
@@ -78,6 +80,10 @@ function App() {
           <Route path="/services/map-powerboost" element={<MapPowerBoost />} />
           <Route path="/services/cloud-stack-boost" element={<CloudStackBoost />} />
           <Route path="/services/platinum-local-seo" element={<PlatinumLocalSEO />} />
+          
+          {/* Legal pages */}
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/terms-of-service" element={<TermsOfService />} />
         </Routes>
       </div>
     </Router>

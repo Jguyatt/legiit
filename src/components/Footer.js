@@ -25,6 +25,10 @@ const Footer = () => {
       { name: 'Case Studies', href: '#results' },
       { name: 'Contact', href: '#contact' },
     ],
+    legal: [
+      { name: 'Privacy Policy', href: '/privacy-policy' },
+      { name: 'Terms of Service', href: '/terms-of-service' },
+    ],
   };
 
   const socialLinks = [
@@ -34,7 +38,7 @@ const Footer = () => {
   return (
     <footer className="bg-[#0f0f0f] text-white border-t border-[#3ABEF9]/20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
           {/* Company Info */}
           <div className="lg:col-span-2">
             <div className="flex items-center space-x-2 mb-4">
@@ -102,6 +106,23 @@ const Footer = () => {
                   <a
                     href={link.href}
                     className="text-gray-300 hover:text-[#a3e635] transition-colors duration-300"
+                  >
+                    {link.name}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Legal */}
+          <div>
+            <h3 className="text-lg font-semibold mb-4 text-[#00ffff]">Legal</h3>
+            <ul className="space-y-2">
+              {footerLinks.legal.map((link) => (
+                <li key={link.name}>
+                  <a
+                    href={link.href}
+                    className="text-gray-300 hover:text-[#00ffff] transition-colors duration-300"
                   >
                     {link.name}
                   </a>
