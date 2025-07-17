@@ -51,6 +51,27 @@ export default function PlatinumLocalSEO() {
               ← Back
             </button>
           </div>
+
+          {/* Professional Disclaimer */}
+          <div className="mt-16 mb-8">
+            <div className="bg-gradient-to-r from-gray-800/50 to-gray-900/50 rounded-2xl p-8 border border-gray-600/30 max-w-4xl mx-auto">
+              <h3 className="text-xl font-bold text-gray-300 mb-4 text-center">📋 Important Information & Disclaimers</h3>
+              <div className="space-y-4 text-gray-300 text-sm leading-relaxed">
+                <p>
+                  <strong>Results & Guarantees:</strong> While we are confident in our proven methodologies and have helped hundreds of businesses achieve significant ranking improvements, we cannot guarantee specific ranking positions or results. SEO success depends on various factors including market competition, website quality, and search engine algorithm changes. We commit to delivering our services with excellence and transparency.
+                </p>
+                <p>
+                  <strong>Service Delivery:</strong> We will work diligently to implement all promised features and strategies using our tested, white-hat techniques. Our team has extensive experience in local SEO and we stand behind the quality of our work. However, individual results may vary based on your specific market conditions and business factors.
+                </p>
+                <p>
+                  <strong>Client Responsibilities:</strong> To ensure optimal results, please ensure you have provided all required information accurately and have read through all service details. We're here to help guide you through the process, but your cooperation in providing necessary materials and information is essential for success.
+                </p>
+                <p>
+                  <strong>Our Commitment:</strong> We're committed to your success and will provide ongoing support throughout your service period. If you have any questions about our process or requirements, please don't hesitate to reach out before making your purchase decision.
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </section>
