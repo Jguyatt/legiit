@@ -24,7 +24,7 @@ const ChatWidget = () => {
           currency: 'USD'
         });
 
-        const response = await fetch('http://localhost:5001/api/chat', {
+        const response = await fetch('http://192.168.2.241:5001/api/chat', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
