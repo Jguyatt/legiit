@@ -1,180 +1,244 @@
 import React from 'react';
-import { motion } from 'framer-motion';
-import { ArrowLeft, Search, TrendingUp, Phone, Eye } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { ArrowLeft, TrendingUp, CheckCircle, Target, Shield, Users, FileText, Activity, BarChart } from 'lucide-react';
 
-const PerformanceReporting = () => {
-  const waysToSeeResults = [
-    {
-      icon: Search,
-      title: 'Search Your Business',
-      description: 'Simply search for your business name on Google and see your improved rankings in the Map Pack and organic results.'
-    },
-    {
-      icon: TrendingUp,
-      title: 'Google Business Profile',
-      description: 'Check your GBP dashboard to see increased views, clicks, and calls from local customers finding you online.'
-    },
-    {
-      icon: Phone,
-      title: 'More Phone Calls',
-      description: 'Notice an increase in phone calls from customers who found you through Google Maps and local search.'
-    },
-    {
-      icon: Eye,
-      title: 'Website Traffic',
-      description: 'See more visitors to your website from local search results and Google Maps clicks.'
-    }
-  ];
+const features = [
+  {
+    label: 'Comprehensive Analytics',
+    desc: 'Detailed tracking and analysis of your local SEO performance across all platforms.'
+  },
+  {
+    label: 'Monthly Performance Reports',
+    desc: 'Professional monthly reports showing your ranking improvements and progress.'
+  },
+  {
+    label: 'Ranking Tracking',
+    desc: 'Monitor your keyword rankings and local search visibility over time.'
+  },
+  {
+    label: 'Traffic Analysis',
+    desc: 'Analyze website traffic, clicks, and customer engagement from local searches.'
+  },
+  {
+    label: 'Competitor Analysis',
+    desc: 'Track your competitors\' performance and identify opportunities for improvement.'
+  },
+  {
+    label: 'Actionable Insights',
+    desc: 'Data-driven recommendations to improve your local SEO strategy.'
+  }
+];
 
-  const whatYoullNotice = [
-    {
-      title: 'Higher Rankings',
-      description: 'Your business appears higher in Google Maps and local search results for your target keywords.'
-    },
-    {
-      title: 'More Visibility',
-      description: 'Increased views and clicks on your Google Business Profile from local customers.'
-    },
-    {
-      title: 'Real Business Growth',
-      description: 'More phone calls, website visits, and inquiries from customers finding you online.'
-    },
-    {
-      title: 'Competitive Advantage',
-      description: 'Outrank your competitors in local search results and capture more local market share.'
-    }
-  ];
+const benefits = [
+  {
+    icon: TrendingUp,
+    title: 'Track Progress',
+    description: 'Monitor your ranking improvements and local SEO success'
+  },
+  {
+    icon: Target,
+    title: 'Data-Driven Decisions',
+    description: 'Make informed decisions based on comprehensive analytics'
+  },
+  {
+    icon: Shield,
+    title: 'ROI Measurement',
+    description: 'Measure the return on investment of your SEO campaigns'
+  },
+  {
+    icon: Users,
+    title: 'Customer Insights',
+    description: 'Understand how customers find and interact with your business'
+  }
+];
 
+const process = [
+  {
+    step: 1,
+    title: 'Setup & Configuration',
+    description: 'Configure tracking tools and establish baseline metrics'
+  },
+  {
+    step: 2,
+    title: 'Data Collection',
+    description: 'Collect and analyze performance data across all channels'
+  },
+  {
+    step: 3,
+    title: 'Reporting & Insights',
+    description: 'Generate comprehensive reports with actionable insights'
+  }
+];
+
+export default function PerformanceReporting() {
+  const navigate = useNavigate();
+  
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0f172a] via-[#10111a] to-black text-white">
+    <div className="min-h-screen bg-slate-900">
       {/* Header */}
-      <div className="bg-[#10111a]/90 backdrop-blur-sm border-b border-[#3abef9]/20 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 md:px-12 py-4 flex justify-between items-center">
-          <button
-            onClick={() => window.history.back()}
-            className="text-[#3abef9] hover:text-white font-semibold text-lg transition-colors duration-300 flex items-center gap-2"
-          >
-            <ArrowLeft className="w-5 h-5" />
-            Back
-          </button>
-          <div className="text-[#3abef9] font-bold text-xl">Rankly360</div>
-          <button
-            onClick={() => window.location.href = '/packages'}
-            className="bg-gradient-to-r from-[#3abef9] to-[#6366f1] hover:from-[#6366f1] hover:to-[#3abef9] text-white font-semibold px-6 py-2 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg"
-          >
-            View Packages
-          </button>
+      <header className="bg-slate-800 border-b border-slate-700">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex items-center justify-between">
+            <button
+              onClick={() => navigate('/packages')}
+              className="flex items-center gap-2 text-slate-300 hover:text-white transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>Back to Packages</span>
+            </button>
+            <div className="flex items-center gap-2">
+              <img 
+                src="/images/logo.png" 
+                alt="Rankly360 Logo" 
+                className="h-8 w-auto"
+              />
+              <span className="text-white font-semibold">Rankly360</span>
+            </div>
+          </div>
         </div>
-      </div>
+      </header>
 
-      <div className="w-full max-w-7xl mx-auto px-4 md:px-12 py-16">
-        {/* Hero Section */}
-        <div className="text-center mb-16">
-          <h1 className="text-5xl md:text-6xl font-extrabold mb-6 text-electric-blue drop-shadow-lg">How to See Your Results</h1>
-          <p className="text-2xl text-gray-200 mb-6 max-w-4xl mx-auto">We don't provide monthly reports, but the results speak for themselves. Here's how you can track your progress and see the real impact of our local SEO work.</p>
+      {/* Hero Section */}
+      <section className="py-16 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-4xl mx-auto text-center">
+          <div className="flex items-center justify-center gap-3 mb-6">
+            <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center">
+              <TrendingUp className="w-6 h-6 text-white" />
+            </div>
+            <h1 className="text-3xl sm:text-4xl font-bold text-white">
+              Performance Reporting
+            </h1>
+          </div>
+          <p className="text-xl text-slate-400 mb-8 max-w-3xl mx-auto">
+            Track your local SEO success with comprehensive performance reporting. 
+            Get detailed insights into your rankings, traffic, and ROI.
+          </p>
+          
+          {/* CTA Buttons */}
+          <div className="mb-12 flex flex-col sm:flex-row gap-4 justify-center">
+            <a
+              href="https://buy.stripe.com/5kQdR92gU7XieNM8CydAk06"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-4 rounded-lg transition-colors"
+            >
+              Get Started Now
+              <ArrowLeft className="w-4 h-4 rotate-180" />
+            </a>
+            <button
+              onClick={() => {
+                window.open('/onboarding-preview?service=Performance Reporting', '_blank');
+              }}
+              className="inline-flex items-center gap-2 bg-slate-700 hover:bg-slate-600 text-white font-semibold px-8 py-4 rounded-lg transition-colors"
+            >
+              Preview Onboarding Form
+            </button>
+          </div>
         </div>
+      </section>
 
-        {/* Ways to See Results */}
-        <div className="mb-16">
-          <h2 className="text-3xl font-bold mb-8 text-orange-400 text-center">How You'll See Your Progress</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {waysToSeeResults.map((way, index) => (
-              <motion.div
-                key={way.title}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-                viewport={{ once: true }}
-                className="bg-[#181c2a] rounded-2xl p-6 border-l-4 border-[#3abef9] shadow-lg hover:shadow-xl transition-all duration-300"
-              >
-                <div className="flex items-center gap-4 mb-4">
-                  <div className="w-12 h-12 bg-[#3abef9]/20 rounded-xl flex items-center justify-center">
-                    <way.icon className="w-6 h-6 text-[#3abef9]" />
-                  </div>
-                  <h3 className="text-xl font-bold text-white">{way.title}</h3>
+      {/* Benefits Grid */}
+      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-slate-800">
+        <div className="max-w-7xl mx-auto">
+          <h2 className="text-2xl font-bold text-white text-center mb-12">
+            Why Performance Reporting Matters
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {benefits.map((benefit, index) => (
+              <div key={index} className="bg-slate-700 rounded-lg p-6 border border-slate-600">
+                <div className="w-10 h-10 bg-blue-600/20 rounded-lg flex items-center justify-center mb-4">
+                  <benefit.icon className="w-5 h-5 text-blue-400" />
                 </div>
-                <p className="text-gray-300 leading-relaxed">{way.description}</p>
-              </motion.div>
+                <h3 className="text-lg font-semibold text-white mb-2">{benefit.title}</h3>
+                <p className="text-slate-400 text-sm">{benefit.description}</p>
+              </div>
             ))}
           </div>
         </div>
+      </section>
 
-        {/* What You'll Notice */}
-        <div className="mb-16">
-          <h2 className="text-3xl font-bold mb-8 text-orange-400 text-center">What You'll Notice</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {whatYoullNotice.map((item, index) => (
-              <motion.div
-                key={item.title}
-                initial={{ opacity: 0, x: -30 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-                viewport={{ once: true }}
-                className="bg-[#181c2a] rounded-2xl p-6 border-l-4 border-orange-400 shadow-lg"
-              >
-                <h3 className="text-xl font-bold text-orange-400 mb-3">{item.title}</h3>
-                <p className="text-gray-300 leading-relaxed">{item.description}</p>
-              </motion.div>
+      {/* Features Section */}
+      <section className="py-16 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-4xl mx-auto">
+          <h2 className="text-2xl font-bold text-white text-center mb-12">
+            What's Included
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {features.map((feature, index) => (
+              <div key={index} className="bg-slate-800 rounded-lg p-6 border border-slate-700">
+                <div className="flex items-start gap-3">
+                  <CheckCircle className="w-5 h-5 text-green-400 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <h3 className="font-semibold text-white mb-2">{feature.label}</h3>
+                    <p className="text-slate-400 text-sm">{feature.desc}</p>
+                  </div>
+                </div>
+              </div>
             ))}
           </div>
         </div>
+      </section>
 
-        {/* Key Message */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          viewport={{ once: true }}
-          className="bg-gradient-to-r from-[#181c2a]/80 to-[#23263a]/80 rounded-3xl p-8 border border-[#3abef9]/20 text-center mb-16"
-        >
-          <h3 className="text-2xl font-bold text-white mb-6">The Best Way to Track Progress</h3>
-          <p className="text-xl text-gray-300 mb-6">
-            Simply search for your business on Google and see the improvements for yourself! 
-            You'll notice your rankings getting better, more people clicking on your listing, 
-            and ultimately more phone calls and customers coming through your door.
-          </p>
-          <p className="text-lg text-blue-300">
-            <strong>No complicated reports needed - the results are visible every time someone searches for your business!</strong>
-          </p>
-        </motion.div>
+      {/* Process Section */}
+      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-slate-800">
+        <div className="max-w-4xl mx-auto">
+          <h2 className="text-2xl font-bold text-white text-center mb-12">
+            Our Process
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {process.map((step, index) => (
+              <div key={index} className="bg-slate-700 rounded-lg p-6 border border-slate-600 text-center">
+                <div className="w-12 h-12 bg-blue-600/20 rounded-lg flex items-center justify-center mx-auto mb-4">
+                  <span className="text-blue-400 font-bold text-lg">{step.step}</span>
+                </div>
+                <h3 className="font-semibold text-white mb-2">{step.title}</h3>
+                <p className="text-slate-400 text-sm">{step.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
-        {/* CTA */}
-        <div className="text-center">
-          <h3 className="text-3xl font-bold text-white mb-6">Ready to See Real Results?</h3>
-          <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
-            Start your local SEO campaign today and watch your business climb the Google Maps rankings.
+      {/* CTA Section */}
+      <section className="py-16 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-2xl font-bold text-white mb-4">
+            Ready to Track Your Success?
+          </h2>
+          <p className="text-slate-400 mb-8">
+            Join businesses that have improved their local rankings with our comprehensive reporting services.
           </p>
-          <button
-            onClick={() => window.location.href = '/packages'}
-            className="bg-gradient-to-r from-orange-500 to-electric-blue text-white px-12 py-5 rounded-2xl font-bold text-2xl shadow-lg hover:scale-105 hover:shadow-2xl transition-all duration-300"
+          <a
+            href="https://buy.stripe.com/5kQdR92gU7XieNM8CydAk06"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-4 rounded-lg transition-colors"
           >
-            Get Started Today
-          </button>
+            Start Your Campaign
+            <ArrowLeft className="w-4 h-4 rotate-180" />
+          </a>
         </div>
+      </section>
 
-        {/* Professional Disclaimer */}
-        <div className="mt-16 mb-8">
-          <div className="bg-gradient-to-r from-gray-800/50 to-gray-900/50 rounded-2xl p-8 border border-gray-600/30 max-w-4xl mx-auto">
-            <h3 className="text-xl font-bold text-gray-300 mb-4 text-center">📋 Important Information & Disclaimers</h3>
-            <div className="space-y-4 text-gray-300 text-sm leading-relaxed">
+      {/* Professional Disclaimer */}
+      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-slate-800">
+        <div className="max-w-4xl mx-auto">
+          <div className="bg-slate-700 rounded-lg p-8 border border-slate-600">
+            <h3 className="text-xl font-semibold text-white mb-6">Important Information</h3>
+            <div className="space-y-4 text-slate-400 text-sm">
               <p>
-                <strong>Results & Guarantees:</strong> While we are confident in our proven methodologies and have helped hundreds of businesses achieve significant ranking improvements, we cannot guarantee specific ranking positions or results. SEO success depends on various factors including market competition, website quality, and search engine algorithm changes. We commit to delivering our services with excellence and transparency.
+                <strong className="text-white">Results & Guarantees:</strong> While we are confident in our proven methodologies and have helped hundreds of businesses achieve significant ranking improvements, we cannot guarantee specific ranking positions or results. SEO success depends on various factors including market competition, website quality, and search engine algorithm changes.
               </p>
               <p>
-                <strong>Service Delivery:</strong> We will work diligently to implement all promised features and strategies using our tested, white-hat techniques. Our team has extensive experience in local SEO and we stand behind the quality of our work. However, individual results may vary based on your specific market conditions and business factors.
+                <strong className="text-white">Service Delivery:</strong> We will work diligently to implement all promised features and strategies using our tested, white-hat techniques. Our team has extensive experience in local SEO and we stand behind the quality of our work.
               </p>
               <p>
-                <strong>Client Responsibilities:</strong> To ensure optimal results, please ensure you have provided all required information accurately and have read through all service details. We're here to help guide you through the process, but your cooperation in providing necessary materials and information is essential for success.
-              </p>
-              <p>
-                <strong>Our Commitment:</strong> We're committed to your success and will provide ongoing support throughout your service period. If you have any questions about our process or requirements, please don't hesitate to reach out before making your purchase decision.
+                <strong className="text-white">Client Responsibilities:</strong> To ensure optimal results, please ensure you have provided all required information accurately and have read through all service details. We're here to help guide you through the process.
               </p>
             </div>
           </div>
         </div>
-      </div>
+      </section>
     </div>
   );
-};
-
-export default PerformanceReporting; 
+} 

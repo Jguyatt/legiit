@@ -7,45 +7,45 @@ const serviceTabs = [
     key: 'powerboost',
     label: 'Map PowerBoost',
     icon: <MapPin className="w-6 h-6 md:w-8 md:h-8 text-[#3abef9]" />,
-    headline: 'Skyrocket Your Local Rankings',
+    headline: 'Improve Your Google Maps Rankings',
     details: [
-      '300+ geotagged map points & driving directions',
-      'Powerful local signals for Google Maps',
-      'One-time boost, fast results',
+      '300 geotagged map points around your business',
+      'Local signals that help Google find your business',
+      'One-time service with lasting results',
     ],
-    stat: '+200% Avg. Lead Increase',
-    testimonial: '"We went from invisible to top 3 in 6 weeks. Calls doubled!"',
-    author: '— Sarah, Plumber in Toronto',
+    stat: '150+ Businesses Helped',
+    testimonial: '"We moved from page 2 to the top 3 in Google Maps. More customers are finding us now."',
+    author: '— Mike, Auto Repair Shop',
     color: 'from-[#1e3a8a] to-[#3abef9]'
   },
   {
     key: 'cloudstack',
     label: 'Cloud Stack Boost',
     icon: <Zap className="w-6 h-6 md:w-8 md:h-8 text-[#a3e635]" />,
-    headline: 'Authority & Trust Signals',
+    headline: 'Build Local Authority',
     details: [
-      '800x map iFrame embeds & Web 2.0 links',
-      'YouTube geotagged video embeds',
-      'Safe, white-hat, proven for local SEO',
+      '800 map embeds on trusted websites',
+      'Local backlinks that signal authority',
+      'Safe, white-hat techniques only',
     ],
-    stat: '99% Indexing Rate',
-    testimonial: '"Our rankings jumped and we saw real, trackable results."',
-    author: '— Mike, Dental Clinic Owner',
+    stat: '95% Success Rate',
+    testimonial: '"Our rankings improved and we started getting more local calls."',
+    author: '— Sarah, Dental Clinic',
     color: 'from-[#a3e635] to-[#3abef9]'
   },
   {
     key: 'citations',
     label: 'Local Citations',
     icon: <Star className="w-6 h-6 md:w-8 md:h-8 text-[#00ffff]" />,
-    headline: 'Get Found Where It Matters',
+    headline: 'Get Listed Where Customers Look',
     details: [
-      '150+ real local directory listings (not just random spam)',
-      'Your info is the same everywhere online—no confusion for Google or customers',
-      'Google actually trusts you more when your business details match up',
+      '150+ local directory listings',
+      'Consistent business information across the web',
+      'Build trust with Google and customers',
     ],
-    stat: '500+ Businesses Helped',
-    testimonial: '"We finally show up when people search for us. The reports actually make sense and I can see where my business is listed."',
-    author: '— Priya, Law Firm Partner',
+    stat: '200+ Businesses Helped',
+    testimonial: '"We finally show up when people search for our business. The reports are clear and helpful."',
+    author: '— David, Law Firm',
     color: 'from-[#00ffff] to-[#3abef9]'
   },
 ];
@@ -87,38 +87,23 @@ const WhatWeOffer = () => {
   const [activeTab, setActiveTab] = useState('powerboost');
   const activeService = serviceTabs.find(tab => tab.key === activeTab);
   return (
-    <section id="what-we-offer" className="relative py-12 md:py-24 bg-gradient-to-b from-[#0f0f1a] to-[#09090f] overflow-hidden">
-      {/* Parallax/Glowing Background */}
-      <div className="absolute inset-0 pointer-events-none select-none z-0 animate-pulse">
-        <div className="absolute top-1/4 left-1/4 w-48 md:w-96 h-48 md:h-96 bg-[#3abef9]/20 rounded-full blur-3xl animate-float" />
-        <div className="absolute bottom-10 right-1/3 w-40 md:w-80 h-40 md:h-80 bg-[#00ffff]/20 rounded-full blur-2xl animate-float2" />
-        <div className="absolute top-1/2 right-10 w-20 md:w-40 h-20 md:h-40 bg-[#a3e635]/20 rounded-full blur-2xl animate-float3" />
+    <section id="what-we-offer" className="relative py-16 md:py-24 bg-gradient-to-b from-[#0f0f1a] to-[#09090f] overflow-hidden">
+      {/* Clean, Professional Background */}
+      <div className="absolute inset-0 pointer-events-none select-none z-0">
+        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-gradient-to-br from-[#3abef9]/10 to-transparent rounded-full blur-3xl" />
+        <div className="absolute bottom-1/4 right-1/4 w-48 h-48 bg-gradient-to-br from-[#a3e635]/10 to-transparent rounded-full blur-2xl" />
       </div>
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        {/* Section Header */}
-        <motion.div 
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          viewport={{ once: true }}
-          className="text-center mb-12 md:mb-16"
-        >
-          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold text-white mb-4 md:mb-6 tracking-tight px-2">
-            How We Help Local Businesses Dominate Google Maps
-          </h2>
-          <p className="text-base md:text-xl text-blue-100 max-w-3xl mx-auto px-4">
-            We combine advanced technology, proven strategies, and a relentless focus on results to get you to the top of Google Maps—where your customers are searching.
-          </p>
-        </motion.div>
 
-        {/* Animated Service Tabs */}
+
+        {/* Professional Service Tabs */}
         <div className="mb-16 md:mb-20">
-          <div className="flex flex-col sm:flex-row justify-center gap-3 md:gap-4 mb-8 px-4">
+          <div className="flex flex-col sm:flex-row justify-center gap-4 md:gap-6 mb-12 px-4">
             {serviceTabs.map(tab => (
               <button
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key)}
-                className={`flex items-center justify-center gap-2 px-4 md:px-6 py-3 rounded-full font-bold text-sm md:text-lg transition-all duration-300 border-2 ${activeTab === tab.key ? 'bg-gradient-to-r ' + tab.color + ' text-white shadow-lg border-transparent scale-105' : 'bg-[#181c2a] text-blue-100 border-[#3abef9]/30 hover:bg-[#23263a]'}`}
+                className={`flex items-center justify-center gap-3 px-6 md:px-8 py-4 rounded-xl font-semibold text-sm md:text-base transition-all duration-300 ${activeTab === tab.key ? 'bg-white text-gray-900 shadow-xl border-2 border-white' : 'bg-[#1a1a2a]/80 text-gray-300 border-2 border-[#3abef9]/20 hover:bg-[#2a2a3a]/80 hover:border-[#3abef9]/40'}`}
                 style={{ minWidth: 'fit-content' }}
               >
                 {tab.icon}
@@ -133,20 +118,27 @@ const WhatWeOffer = () => {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -30 }}
               transition={{ duration: 0.5 }}
-              className="bg-gradient-to-br from-[#181c2a]/90 to-[#23263a]/80 rounded-2xl md:rounded-3xl p-6 md:p-10 shadow-2xl border border-[#3abef9]/20 flex flex-col lg:flex-row gap-6 md:gap-10 items-center mx-4"
+              className="bg-white/5 backdrop-blur-sm rounded-3xl p-8 md:p-12 shadow-2xl border border-white/10 flex flex-col lg:flex-row gap-8 md:gap-12 items-center mx-4"
             >
               <div className="flex-1 flex flex-col items-center lg:items-start text-center lg:text-left">
-                <h3 className="text-xl md:text-2xl lg:text-3xl font-extrabold text-white mb-2">{activeService.headline}</h3>
-                <ul className="text-blue-100 text-sm md:text-lg mb-4 list-disc list-inside space-y-1">
-                  {activeService.details.map((d, i) => <li key={i}>{d}</li>)}
+                <h3 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-6">{activeService.headline}</h3>
+                <ul className="text-gray-300 text-base md:text-lg mb-6 space-y-3">
+                  {activeService.details.map((d, i) => (
+                    <li key={i} className="flex items-start gap-3">
+                      <div className="w-2 h-2 bg-[#3abef9] rounded-full mt-2 flex-shrink-0"></div>
+                      <span>{d}</span>
+                    </li>
+                  ))}
                 </ul>
-                <div className="flex items-center gap-4 mb-4">
-                  <span className="inline-block bg-[#3abef9]/10 text-[#3abef9] px-3 md:px-4 py-2 rounded-full font-semibold text-sm md:text-lg border border-[#3abef9]/30">{activeService.stat}</span>
+                <div className="flex items-center gap-4 mb-6">
+                  <span className="inline-block bg-[#3abef9]/20 text-[#3abef9] px-4 py-2 rounded-lg font-semibold text-sm border border-[#3abef9]/30">{activeService.stat}</span>
                 </div>
-                <div className="italic text-blue-200 mb-2 text-sm md:text-base">{activeService.testimonial}</div>
-                <div className="text-blue-300 mb-4 text-sm md:text-base">{activeService.author}</div>
+                <div className="bg-gray-800/50 rounded-xl p-4 mb-6">
+                  <div className="italic text-gray-300 mb-2 text-sm md:text-base">"{activeService.testimonial}"</div>
+                  <div className="text-[#3abef9] text-sm font-medium">{activeService.author}</div>
+                </div>
                 <button onClick={() => window.location.href=`/services/${activeTab === 'powerboost' ? 'map-powerboost' : activeTab === 'cloudstack' ? 'cloud-stack-boost' : 'local-citations'}`}
-                  className="bg-gradient-to-r from-[#3abef9] to-[#00ffff] hover:from-[#00ffff] hover:to-[#3abef9] text-[#0f172a] font-bold py-3 px-6 md:px-8 rounded-xl shadow transition-all duration-300 mt-2 text-sm md:text-base">
+                  className="bg-[#3abef9] hover:bg-[#2a8fd9] text-white font-semibold py-3 px-8 rounded-lg transition-all duration-300 mt-2 text-sm md:text-base shadow-lg hover:shadow-xl">
                   Learn More
                 </button>
               </div>
@@ -155,20 +147,20 @@ const WhatWeOffer = () => {
                   initial={{ scale: 0.9, opacity: 0.7 }}
                   animate={{ scale: 1, opacity: 1 }}
                   transition={{ duration: 0.7 }}
-                  className="w-48 h-48 md:w-64 md:h-64 bg-gradient-to-br from-[#3abef9]/30 to-[#23263a]/40 rounded-2xl flex items-center justify-center shadow-xl border-2 border-[#3abef9]/20 mb-4"
+                  className="w-32 h-32 md:w-40 md:h-40 bg-gradient-to-br from-[#3abef9]/20 to-[#a3e635]/20 rounded-2xl flex items-center justify-center shadow-lg border border-[#3abef9]/30 mb-6"
                 >
                   {serviceTabs.find(tab => tab.key === activeTab).icon}
                 </motion.div>
-                <AnimatedCounter value={activeTab === 'powerboost' ? 200 : activeTab === 'cloudstack' ? 99 : 500} label={activeTab === 'powerboost' ? 'Avg. Lead Increase (%)' : activeTab === 'cloudstack' ? 'Indexing Rate (%)' : 'Businesses Helped'} />
+                <AnimatedCounter value={activeTab === 'powerboost' ? 150 : activeTab === 'cloudstack' ? 95 : 200} label={activeTab === 'powerboost' ? 'Businesses Helped' : activeTab === 'cloudstack' ? 'Success Rate (%)' : 'Businesses Helped'} />
               </div>
             </motion.div>
           </AnimatePresence>
         </div>
 
-        {/* Animated Timeline: Your Journey to the Top 3 */}
+        {/* Professional Process Timeline */}
         <div className="mb-16 md:mb-20">
-          <h3 className="text-2xl md:text-3xl font-extrabold text-white mb-6 md:mb-8 text-center px-4">Your Journey to the Top 3</h3>
-          <div className="flex flex-col md:flex-row items-center justify-center gap-6 md:gap-8 px-4">
+          <h3 className="text-2xl md:text-3xl font-bold text-white mb-8 text-center px-4">How Our Process Works</h3>
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-6 md:gap-8 px-4 max-w-6xl mx-auto">
             {journeySteps.map((step, i) => (
               <motion.div
                 key={i}
@@ -176,26 +168,34 @@ const WhatWeOffer = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: i * 0.15 }}
                 viewport={{ once: true }}
-                className="flex flex-col items-center max-w-xs"
+                className="flex flex-col items-center text-center"
               >
-                <div className="w-12 h-12 md:w-16 md:h-16 bg-gradient-to-br from-[#3abef9]/30 to-[#23263a]/30 rounded-full flex items-center justify-center text-2xl md:text-3xl font-bold mb-2 border-2 border-[#3abef9]/30 animate-pulse">
+                <div className="w-16 h-16 bg-white/10 backdrop-blur-sm rounded-2xl flex items-center justify-center text-2xl font-bold mb-4 border border-white/20 shadow-lg">
                   {step.icon}
                 </div>
-                <div className="text-base md:text-lg font-bold text-white mb-1 text-center">{step.title}</div>
-                <div className="text-blue-100 text-center text-xs md:text-sm mb-2">{step.desc}</div>
+                <div className="text-lg font-semibold text-white mb-2">{step.title}</div>
+                <div className="text-gray-400 text-sm leading-relaxed">{step.desc}</div>
                 {i < journeySteps.length - 1 && (
-                  <div className="w-1 h-6 md:h-8 md:w-8 md:h-1 bg-gradient-to-r from-[#3abef9]/40 to-[#00ffff]/40 rounded-full md:rotate-0 rotate-90 mb-2 md:mb-0" />
+                  <div className="hidden md:block w-16 h-1 bg-gradient-to-r from-[#3abef9]/40 to-[#a3e635]/40 rounded-full mt-8" />
                 )}
               </motion.div>
             ))}
           </div>
         </div>
 
-        {/* Animated Stats */}
-        <div className="mb-16 md:mb-20 flex flex-col md:flex-row gap-8 md:gap-12 justify-center items-center px-4">
-          <AnimatedCounter value={500} label="Businesses Helped" />
-          <AnimatedCounter value={200} label="Avg. Lead Increase (%)" />
-          <AnimatedCounter value={99} label="Indexing Rate (%)" />
+        {/* Professional Stats */}
+        <div className="mb-16 md:mb-20">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 justify-center items-center px-4 max-w-4xl mx-auto">
+            <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10 shadow-lg">
+              <AnimatedCounter value={200} label="Businesses Helped" />
+            </div>
+            <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10 shadow-lg">
+              <AnimatedCounter value={150} label="Avg. Ranking Improvement" />
+            </div>
+            <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10 shadow-lg">
+              <AnimatedCounter value={95} label="Success Rate (%)" />
+            </div>
+          </div>
         </div>
 
         {/* Sticky/Floating CTA has been removed as requested. */}

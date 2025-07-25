@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X } from 'lucide-react';
 import { animateScroll as scroll } from 'react-scroll';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { userAuth } from '../utils/userAuth';
 
 const navItems = [
   { name: 'Home', to: 'hero' },
@@ -98,19 +99,55 @@ const Navbar = () => {
             ))}
           </div>
 
-          {/* CTA Button - Right Side */}
-          <div className="hidden md:block">
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => navigate('/packages')}
-              className="bg-gradient-to-r from-[#3ABEF9] to-[#007BFF] hover:from-[#007BFF] hover:to-[#0052CC] text-white font-semibold px-8 py-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[#3ABEF9] focus:ring-offset-2 border-2 border-[#3ABEF9]/30 hover:border-[#3ABEF9]/50"
-              style={{
-                boxShadow: '0 4px 20px rgba(58, 190, 249, 0.3), 0 0 0 1px rgba(58, 190, 249, 0.1)',
-              }}
-            >
-              Get Started
-            </motion.button>
+          {/* CTA Buttons - Right Side */}
+          <div className="hidden md:flex items-center space-x-4">
+            {userAuth.isLoggedIn() ? (
+              <>
+                {!userAuth.isAdmin() && (
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => navigate('/dashboard')}
+                    className="bg-transparent border-2 border-[#3ABEF9] text-[#3ABEF9] hover:bg-[#3ABEF9] hover:text-white font-semibold px-6 py-2 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[#3ABEF9] focus:ring-offset-2"
+                  >
+                    My Dashboard
+                  </motion.button>
+                )}
+                {userAuth.isAdmin() && (
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => navigate('/admin')}
+                    className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-semibold px-4 py-2 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                  >
+                    Admin Dashboard
+                  </motion.button>
+                )}
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => {
+                    userAuth.logout();
+                    navigate('/');
+                  }}
+                  className="bg-transparent border border-gray-600 text-gray-300 hover:text-white hover:border-gray-500 font-semibold px-4 py-2 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+                >
+                  Logout
+                </motion.button>
+              </>
+            ) : (
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => navigate('/login')}
+                className="bg-gradient-to-r from-[#3ABEF9] to-[#007BFF] hover:from-[#007BFF] hover:to-[#0052CC] text-white font-semibold px-8 py-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[#3ABEF9] focus:ring-offset-2 border-2 border-[#3ABEF9]/30 hover:border-[#3ABEF9]/50"
+                style={{
+                  boxShadow: '0 4px 20px rgba(58, 190, 249, 0.3), 0 0 0 1px rgba(58, 190, 249, 0.1)',
+                }}
+              >
+                Log In
+              </motion.button>
+            )}
           </div>
 
           {/* Mobile menu button */}
@@ -148,19 +185,56 @@ const Navbar = () => {
                   {item.name}
                 </span>
               ))}
-              <div className="pt-4 border-t border-[#3ABEF9]/20">
-                <button 
-                  onClick={() => {
-                    navigate('/packages');
-                    setIsOpen(false);
-                  }}
-                  className="w-full bg-gradient-to-r from-[#3ABEF9] to-[#007BFF] hover:from-[#007BFF] hover:to-[#0052CC] text-white font-semibold px-8 py-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[#3ABEF9] focus:ring-offset-2 border-2 border-[#3ABEF9]/30 hover:border-[#3ABEF9]/50"
-                  style={{
-                    boxShadow: '0 4px 20px rgba(58, 190, 249, 0.3), 0 0 0 1px rgba(58, 190, 249, 0.1)',
-                  }}
-                >
-                  Get Started
-                </button>
+              <div className="pt-4 border-t border-[#3ABEF9]/20 space-y-3">
+                {userAuth.isLoggedIn() ? (
+                  <>
+                    {!userAuth.isAdmin() && (
+                      <button 
+                        onClick={() => {
+                          navigate('/dashboard');
+                          setIsOpen(false);
+                        }}
+                        className="w-full bg-transparent border-2 border-[#3ABEF9] text-[#3ABEF9] hover:bg-[#3ABEF9] hover:text-white font-semibold px-6 py-2 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[#3ABEF9] focus:ring-offset-2"
+                      >
+                        My Dashboard
+                      </button>
+                    )}
+                    {userAuth.isAdmin() && (
+                      <button 
+                        onClick={() => {
+                          navigate('/admin');
+                          setIsOpen(false);
+                        }}
+                        className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-semibold px-6 py-2 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                      >
+                        Admin Dashboard
+                      </button>
+                    )}
+                    <button 
+                      onClick={() => {
+                        userAuth.logout();
+                        navigate('/');
+                        setIsOpen(false);
+                      }}
+                      className="w-full bg-transparent border border-gray-600 text-gray-300 hover:text-white hover:border-gray-500 font-semibold px-6 py-2 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+                    >
+                      Logout
+                    </button>
+                  </>
+                ) : (
+                  <button 
+                    onClick={() => {
+                      navigate('/login');
+                      setIsOpen(false);
+                    }}
+                    className="w-full bg-gradient-to-r from-[#3ABEF9] to-[#007BFF] hover:from-[#007BFF] hover:to-[#0052CC] text-white font-semibold px-8 py-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[#3ABEF9] focus:ring-offset-2 border-2 border-[#3ABEF9]/30 hover:border-[#3ABEF9]/50"
+                    style={{
+                      boxShadow: '0 4px 20px rgba(58, 190, 249, 0.3), 0 0 0 1px rgba(58, 190, 249, 0.1)',
+                    }}
+                  >
+                    Log In
+                  </button>
+                )}
               </div>
             </div>
           </motion.div>

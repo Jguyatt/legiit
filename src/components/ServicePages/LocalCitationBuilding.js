@@ -1,246 +1,244 @@
 import React from 'react';
-import { motion } from 'framer-motion';
-import { TrendingUp, CheckCircle, Globe, Shield, Target, ArrowLeft, Database } from 'lucide-react';
-import { Link as RouterLink } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { ArrowLeft, FileText, CheckCircle, Target, Shield, Users, Building, Database, Globe } from 'lucide-react';
 
-const LocalCitationBuilding = () => {
-  const features = [
-    {
-      icon: Database,
-      title: 'NAP Consistency',
-      description: 'Ensure your Name, Address, and Phone number are consistent across all online platforms.'
-    },
-    {
-      icon: Globe,
-      title: 'Industry-Specific Citations',
-      description: 'Targeted citation building on platforms relevant to your specific industry and market.'
-    },
-    {
-      icon: Shield,
-      title: 'High DA Backlinks',
-      description: 'Acquisition of high Domain Authority backlinks to strengthen your website authority.'
-    },
-    {
-      icon: Target,
-      title: 'Local Directory Submissions',
-      description: 'Strategic submissions to local business directories and industry-specific platforms.'
-    },
-    {
-      icon: CheckCircle,
-      title: 'Citation Cleanup',
-      description: 'Identification and correction of inconsistent or incorrect business information online.'
-    }
-  ];
+const features = [
+  {
+    label: 'Local Citation Building',
+    desc: 'Comprehensive local citation creation and optimization across major directories.'
+  },
+  {
+    label: 'NAP Consistency',
+    desc: 'Ensure your Name, Address, and Phone number are consistent across all platforms.'
+  },
+  {
+    label: 'Directory Submissions',
+    desc: 'Submit your business to relevant local directories and industry-specific platforms.'
+  },
+  {
+    label: 'Citation Monitoring',
+    desc: 'Ongoing monitoring and correction of citation inconsistencies.'
+  },
+  {
+    label: 'Local SEO Optimization',
+    desc: 'Optimize your local presence for better search engine visibility.'
+  },
+  {
+    label: 'Monthly Reports',
+    desc: 'Detailed reports showing your citation progress and local ranking improvements.'
+  }
+];
 
-  const processSteps = [
-    {
-      step: '01',
-      title: 'Citation Audit',
-      description: 'Comprehensive analysis of existing citations and identification of inconsistencies.'
-    },
-    {
-      step: '02',
-      title: 'Strategy Development',
-      description: 'Custom citation building strategy tailored to your industry and local market.'
-    },
-    {
-      step: '03',
-      title: 'Citation Building',
-      description: 'Systematic building of citations across high-quality, relevant platforms.'
-    },
-    {
-      step: '04',
-      title: 'Monitoring & Maintenance',
-      description: 'Ongoing monitoring and maintenance of citations to ensure consistency and accuracy.'
-    }
-  ];
+const benefits = [
+  {
+    icon: Target,
+    title: 'Improved Local Rankings',
+    description: 'Boost your visibility in local search results and Google Maps'
+  },
+  {
+    icon: Globe,
+    title: 'Consistent Business Info',
+    description: 'Ensure your business information is accurate across all platforms'
+  },
+  {
+    icon: Shield,
+    title: 'Trust & Authority',
+    description: 'Build trust with search engines and potential customers'
+  },
+  {
+    icon: Users,
+    title: 'Local Customer Reach',
+    description: 'Connect with local customers searching for your services'
+  }
+];
 
+const process = [
+  {
+    step: 1,
+    title: 'Citation Audit',
+    description: 'Analyze existing citations and identify inconsistencies'
+  },
+  {
+    step: 2,
+    title: 'Citation Building',
+    description: 'Create and optimize citations across relevant directories'
+  },
+  {
+    step: 3,
+    title: 'Monitoring & Maintenance',
+    description: 'Ongoing monitoring and correction of citation issues'
+  }
+];
+
+export default function LocalCitationBuilding() {
+  const navigate = useNavigate();
+  
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-slate-900">
       {/* Header */}
-      <div className="bg-gradient-to-r from-primary-900 to-primary-800 text-white">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-          >
-            <RouterLink to="/#packages" className="inline-flex items-center text-white/80 hover:text-white mb-6 transition-colors">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Packages
-            </RouterLink>
-            <div className="flex items-center gap-4 mb-6">
-              <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center">
-                <TrendingUp className="w-8 h-8" />
-              </div>
-              <h1 className="text-4xl md:text-5xl font-bold">Local Citation Building</h1>
-            </div>
-            <p className="text-xl text-gray-200 max-w-3xl">
-              Strengthen your local search presence with comprehensive citation building and high-quality backlink acquisition.
-            </p>
-          </motion.div>
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        {/* Overview */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          viewport={{ once: true }}
-          className="max-w-4xl mx-auto mb-16"
-        >
-          <h2 className="text-3xl font-bold text-primary-900 mb-6">The Power of Local Citations</h2>
-          <p className="text-lg text-gray-700 leading-relaxed mb-6">
-            Local citations are mentions of your business name, address, and phone number (NAP) across the web. 
-            These citations are crucial ranking factors for local search, helping Google understand your business 
-            location and authority in your local market.
-          </p>
-          <p className="text-lg text-gray-700 leading-relaxed">
-            Our comprehensive citation building service ensures your business information is accurate, consistent, 
-            and present on all the platforms that matter for local SEO success.
-          </p>
-        </motion.div>
-
-        {/* Features Grid */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          viewport={{ once: true }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16"
-        >
-          {features.map((feature, index) => (
-            <motion.div
-              key={feature.title}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: index * 0.1 }}
-              viewport={{ once: true }}
-              className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300"
+      <header className="bg-slate-800 border-b border-slate-700">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex items-center justify-between">
+            <button
+              onClick={() => navigate('/packages')}
+              className="flex items-center gap-2 text-slate-300 hover:text-white transition-colors"
             >
-              <div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center mb-4">
-                <feature.icon className="w-6 h-6 text-white" />
-              </div>
-              <h3 className="text-xl font-bold text-primary-900 mb-3">{feature.title}</h3>
-              <p className="text-gray-600">{feature.description}</p>
-            </motion.div>
-          ))}
-        </motion.div>
+              <ArrowLeft className="w-4 h-4" />
+              <span>Back to Packages</span>
+            </button>
+            <div className="flex items-center gap-2">
+              <img 
+                src="/images/logo.png" 
+                alt="Rankly360 Logo" 
+                className="h-8 w-auto"
+              />
+              <span className="text-white font-semibold">Rankly360</span>
+            </div>
+          </div>
+        </div>
+      </header>
 
-        {/* Process */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          viewport={{ once: true }}
-          className="max-w-4xl mx-auto mb-16"
-        >
-          <h2 className="text-3xl font-bold text-primary-900 text-center mb-12">Our Citation Building Process</h2>
-          <div className="space-y-8">
-            {processSteps.map((step, index) => (
-              <motion.div
-                key={step.step}
-                initial={{ opacity: 0, x: -30 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-                viewport={{ once: true }}
-                className="flex items-start gap-6"
-              >
-                <div className="w-16 h-16 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full flex items-center justify-center flex-shrink-0">
-                  <span className="text-white font-bold text-lg">{step.step}</span>
+      {/* Hero Section */}
+      <section className="py-16 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-4xl mx-auto text-center">
+          <div className="flex items-center justify-center gap-3 mb-6">
+            <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center">
+              <Building className="w-6 h-6 text-white" />
+            </div>
+            <h1 className="text-3xl sm:text-4xl font-bold text-white">
+              Local Citation Building
+            </h1>
+          </div>
+          <p className="text-xl text-slate-400 mb-8 max-w-3xl mx-auto">
+            Build your local presence with comprehensive citation building and optimization. 
+            Ensure your business information is consistent and accurate across all platforms.
+          </p>
+          
+          {/* CTA Buttons */}
+          <div className="mb-12 flex flex-col sm:flex-row gap-4 justify-center">
+            <a
+              href="https://buy.stripe.com/5kQdR92gU7XieNM8CydAk06"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-4 rounded-lg transition-colors"
+            >
+              Get Started Now
+              <ArrowLeft className="w-4 h-4 rotate-180" />
+            </a>
+            <button
+              onClick={() => {
+                window.open('/onboarding-preview?service=Local Citation Building', '_blank');
+              }}
+              className="inline-flex items-center gap-2 bg-slate-700 hover:bg-slate-600 text-white font-semibold px-8 py-4 rounded-lg transition-colors"
+            >
+              Preview Onboarding Form
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* Benefits Grid */}
+      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-slate-800">
+        <div className="max-w-7xl mx-auto">
+          <h2 className="text-2xl font-bold text-white text-center mb-12">
+            Why Local Citations Matter
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {benefits.map((benefit, index) => (
+              <div key={index} className="bg-slate-700 rounded-lg p-6 border border-slate-600">
+                <div className="w-10 h-10 bg-blue-600/20 rounded-lg flex items-center justify-center mb-4">
+                  <benefit.icon className="w-5 h-5 text-blue-400" />
                 </div>
-                <div>
-                  <h3 className="text-xl font-bold text-primary-900 mb-2">{step.title}</h3>
-                  <p className="text-gray-600">{step.description}</p>
-                </div>
-              </motion.div>
+                <h3 className="text-lg font-semibold text-white mb-2">{benefit.title}</h3>
+                <p className="text-slate-400 text-sm">{benefit.description}</p>
+              </div>
             ))}
           </div>
-        </motion.div>
+        </div>
+      </section>
 
-        {/* Results */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          viewport={{ once: true }}
-          className="bg-gradient-to-r from-green-50 to-blue-50 rounded-3xl p-8 md:p-12 mb-16"
-        >
-          <h2 className="text-3xl font-bold text-primary-900 text-center mb-8">Expected Results</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="text-center">
-              <div className="text-4xl font-bold text-green-600 mb-2">50-100</div>
-              <p className="text-gray-700">Quality citations per month</p>
-            </div>
-            <div className="text-center">
-              <div className="text-4xl font-bold text-blue-600 mb-2">100%</div>
-              <p className="text-gray-700">NAP consistency across platforms</p>
-            </div>
-            <div className="text-center">
-              <div className="text-4xl font-bold text-purple-600 mb-2">60-90</div>
-              <p className="text-gray-700">Days to see ranking improvements</p>
+      {/* Features Section */}
+      <section className="py-16 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-4xl mx-auto">
+          <h2 className="text-2xl font-bold text-white text-center mb-12">
+            What's Included
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {features.map((feature, index) => (
+              <div key={index} className="bg-slate-800 rounded-lg p-6 border border-slate-700">
+                <div className="flex items-start gap-3">
+                  <CheckCircle className="w-5 h-5 text-green-400 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <h3 className="font-semibold text-white mb-2">{feature.label}</h3>
+                    <p className="text-slate-400 text-sm">{feature.desc}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Process Section */}
+      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-slate-800">
+        <div className="max-w-4xl mx-auto">
+          <h2 className="text-2xl font-bold text-white text-center mb-12">
+            Our Process
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {process.map((step, index) => (
+              <div key={index} className="bg-slate-700 rounded-lg p-6 border border-slate-600 text-center">
+                <div className="w-12 h-12 bg-blue-600/20 rounded-lg flex items-center justify-center mx-auto mb-4">
+                  <span className="text-blue-400 font-bold text-lg">{step.step}</span>
+                </div>
+                <h3 className="font-semibold text-white mb-2">{step.title}</h3>
+                <p className="text-slate-400 text-sm">{step.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-16 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-2xl font-bold text-white mb-4">
+            Ready to Build Your Local Presence?
+          </h2>
+          <p className="text-slate-400 mb-8">
+            Join businesses that have improved their local rankings with our citation building strategy.
+          </p>
+          <a
+            href="https://buy.stripe.com/5kQdR92gU7XieNM8CydAk06"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-4 rounded-lg transition-colors"
+          >
+            Start Your Campaign
+            <ArrowLeft className="w-4 h-4 rotate-180" />
+          </a>
+        </div>
+      </section>
+
+      {/* Professional Disclaimer */}
+      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-slate-800">
+        <div className="max-w-4xl mx-auto">
+          <div className="bg-slate-700 rounded-lg p-8 border border-slate-600">
+            <h3 className="text-xl font-semibold text-white mb-6">Important Information</h3>
+            <div className="space-y-4 text-slate-400 text-sm">
+              <p>
+                <strong className="text-white">Results & Guarantees:</strong> While we are confident in our proven methodologies and have helped hundreds of businesses achieve significant ranking improvements, we cannot guarantee specific ranking positions or results. SEO success depends on various factors including market competition, website quality, and search engine algorithm changes.
+              </p>
+              <p>
+                <strong className="text-white">Service Delivery:</strong> We will work diligently to implement all promised features and strategies using our tested, white-hat techniques. Our team has extensive experience in local SEO and we stand behind the quality of our work.
+              </p>
+              <p>
+                <strong className="text-white">Client Responsibilities:</strong> To ensure optimal results, please ensure you have provided all required information accurately and have read through all service details. We're here to help guide you through the process.
+              </p>
             </div>
           </div>
-        </motion.div>
-
-        {/* CTA */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          viewport={{ once: true }}
-          className="text-center"
-        >
-          <div className="bg-gradient-to-r from-primary-900 to-primary-800 rounded-3xl p-8 md:p-12 text-white">
-            <h3 className="text-3xl md:text-4xl font-bold mb-4">
-              Ready to Build Your Local Authority?
-            </h3>
-            <p className="text-xl text-gray-200 mb-8 max-w-2xl mx-auto">
-              Join businesses that have strengthened their local search presence with our comprehensive citation building services.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105">
-                Get Started Today
-              </button>
-              <button className="bg-white/10 hover:bg-white/20 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 border border-white/20">
-                View Pricing
-              </button>
-            </div>
-          </div>
-        </motion.div>
-
-        {/* Professional Disclaimer */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          viewport={{ once: true }}
-          className="mt-16 mb-8"
-        >
-          <div className="bg-gradient-to-r from-gray-800/50 to-gray-900/50 rounded-2xl p-8 border border-gray-600/30 max-w-4xl mx-auto">
-            <h3 className="text-xl font-bold text-gray-300 mb-4 text-center">📋 Important Information & Disclaimers</h3>
-            <div className="space-y-4 text-gray-300 text-sm leading-relaxed">
-              <p>
-                <strong>Results & Guarantees:</strong> While we are confident in our proven methodologies and have helped hundreds of businesses achieve significant ranking improvements, we cannot guarantee specific ranking positions or results. SEO success depends on various factors including market competition, website quality, and search engine algorithm changes. We commit to delivering our services with excellence and transparency.
-              </p>
-              <p>
-                <strong>Service Delivery:</strong> We will work diligently to implement all promised features and strategies using our tested, white-hat techniques. Our team has extensive experience in local SEO and we stand behind the quality of our work. However, individual results may vary based on your specific market conditions and business factors.
-              </p>
-              <p>
-                <strong>Client Responsibilities:</strong> To ensure optimal results, please ensure you have provided all required information accurately and have read through all service details. We're here to help guide you through the process, but your cooperation in providing necessary materials and information is essential for success.
-              </p>
-              <p>
-                <strong>Our Commitment:</strong> We're committed to your success and will provide ongoing support throughout your service period. If you have any questions about our process or requirements, please don't hesitate to reach out before making your purchase decision.
-              </p>
-            </div>
-          </div>
-        </motion.div>
-      </div>
+        </div>
+      </section>
     </div>
   );
-};
-
-export default LocalCitationBuilding; 
+} 
