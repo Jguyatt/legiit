@@ -105,79 +105,34 @@ const Dashboard = () => {
             // Regular users stay on customer dashboard
             setIsCustomer(true);
             
-            // Check for pending purchases from Stripe success redirect
-            const processedPurchase = purchaseHandler.checkForPendingPurchases();
-            const urlPurchase = stripeLinks.processPurchaseFromURL();
-            
-            console.log('🔍 Checking for purchases:', { processedPurchase, urlPurchase });
-            
-            if (processedPurchase || urlPurchase) {
-              console.log('✅ Purchase processed automatically:', processedPurchase || urlPurchase);
-              if (processedPurchase) {
-                setCustomerData(processedPurchase);
-                fixProjectDurations(processedPurchase);
+            // Get user session
+            const userSession = userAuth.getSession();
+            if (userSession?.email) {
+              // Try to sync with backend first
+              const backendData = await syncWithBackend(userSession.email);
+              if (backendData) {
+                // Set customer data from backend
+                setCustomerData(backendData);
+                fixProjectDurations(backendData);
+              } else {
+                // No backend data - show clean dashboard
+                setCustomerData({
+                  name: userSession.name,
+                  email: userSession.email,
+                  activeProjects: [], // Empty - no projects until purchase
+                  orderTimeline: {},
+                  recentActivity: []
+                });
               }
             } else {
-              // Try to sync with backend first
-              const userSession = userAuth.getSession();
-              if (userSession?.email) {
-                const backendData = await syncWithBackend(userSession.email);
-                if (backendData) {
-                  // Only set customer data if user has actual projects (not just signup data)
-                  if (backendData.activeProjects && backendData.activeProjects.length > 0) {
-                    setCustomerData(backendData);
-                    fixProjectDurations(backendData);
-                  } else {
-                    // User has no projects yet - show clean dashboard
-                    setCustomerData({
-                      name: backendData.name,
-                      email: backendData.email,
-                      business: backendData.business,
-                      activeProjects: [], // Empty - no projects until purchase
-                      orderTimeline: backendData.orderTimeline || {},
-                      recentActivity: backendData.recentActivity || []
-                    });
-                  }
-                } else {
-                  // No backend data - check localStorage but only if it has actual projects
-                  const localData = customerAuth.getCustomerData();
-                  if (localData && localData.activeProjects && localData.activeProjects.length > 0) {
-                    setCustomerData(localData);
-                    fixProjectDurations(localData);
-                  } else {
-                    // No projects - show clean dashboard
-                    setCustomerData({
-                      name: userSession.name,
-                      email: userSession.email,
-                      activeProjects: [], // Empty - no projects until purchase
-                      orderTimeline: {},
-                      recentActivity: []
-                    });
-                  }
-                }
-              } else {
-                // No user session, use local data but only if it has actual projects
-                const data = customerAuth.getCustomerData();
-                console.log('📊 Loaded customer data:', data);
-                
-                // If Billy has fake data, clear it
-                if (data && data.name === 'Billy Bars' && data.activeProjects && data.activeProjects.length > 0) {
-                  clearBillyData();
-                } else if (data && data.activeProjects && data.activeProjects.length > 0) {
-                  // Only show data if it has actual projects
-                  setCustomerData(data);
-                  fixProjectDurations(data);
-                } else {
-                  // No projects - show clean dashboard
-                  setCustomerData({
-                    name: data?.name || 'Customer',
-                    email: data?.email || 'customer@example.com',
-                    activeProjects: [], // Empty - no projects until purchase
-                    orderTimeline: {},
-                    recentActivity: []
-                  });
-                }
-              }
+              // No user session, show clean dashboard
+              setCustomerData({
+                name: 'Customer',
+                email: 'customer@example.com',
+                activeProjects: [], // Empty - no projects until purchase
+                orderTimeline: {},
+                recentActivity: []
+              });
             }
           }
         }
