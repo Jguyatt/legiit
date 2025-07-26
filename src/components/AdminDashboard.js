@@ -1,22 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { 
-  Users, FileText, DollarSign, AlertCircle, RefreshCw, LogOut, 
-  Eye, Edit, XCircle, CheckCircle, Clock, BarChart3, Settings,
-  UserCheck, UserX, Calendar, TrendingUp
+  Users, DollarSign, AlertCircle, RefreshCw, LogOut, 
+  Eye, XCircle, CheckCircle, Clock, BarChart3, Settings,
+  TrendingUp
 } from 'lucide-react';
 import adminAuth from '../utils/adminAuth';
 
 const AdminDashboard = () => {
   const [loading, setLoading] = useState(true);
-  const [submissions, setSubmissions] = useState([]);
   const [clients, setClients] = useState([]);
   const [users, setUsers] = useState([]);
   const [onboardingSubmissions, setOnboardingSubmissions] = useState([]);
   const [selectedOnboarding, setSelectedOnboarding] = useState(null);
   const [showOnboardingModal, setShowOnboardingModal] = useState(false);
   const [onboardingNotes, setOnboardingNotes] = useState('');
-  const [customerViewData, setCustomerViewData] = useState(null);
   const [selectedSubmission, setSelectedSubmission] = useState(null);
   const [showSubmissionModal, setShowSubmissionModal] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
@@ -135,15 +133,6 @@ const AdminDashboard = () => {
       client.customerData?.activeProjects?.some(project => project.status === 'Cancelled') ||
       client.subscriptionStatus === 'Cancelled'
     );
-  };
-
-  const getTotalUniqueUsers = () => {
-    // Convert users object to array of user objects
-    const usersArray = Object.values(users || {});
-    const userEmails = new Set(usersArray.map(u => u.email));
-    const clientEmails = new Set(clients.map(c => c.email));
-    const allEmails = new Set([...userEmails, ...clientEmails]);
-    return allEmails.size;
   };
 
   const handleLogout = () => {
@@ -694,7 +683,10 @@ const AdminDashboard = () => {
                     
                     <div className="flex space-x-2">
                       <button
-                        onClick={() => setCustomerViewData(client.customerData || client)}
+                        onClick={() => {
+                          // View dashboard functionality - could be expanded later
+                          console.log('View dashboard for:', client.name);
+                        }}
                         className="inline-flex items-center px-3 py-1.5 border border-white/20 rounded-md text-sm font-medium text-white hover:bg-white/10 transition-colors"
                       >
                         <Eye className="w-4 h-4 mr-1" />
