@@ -199,11 +199,27 @@ const Dashboard = () => {
       }
     };
 
+    const handleProjectCancelled = async (event) => {
+      console.log('🚫 Project cancelled, refreshing customer data...', event.detail);
+      
+      // Refresh data from backend to get updated state
+      const userSession = userAuth.getSession();
+      if (userSession?.email) {
+        const backendData = await syncWithBackend(userSession.email);
+        if (backendData) {
+          setCustomerData(backendData);
+          fixProjectDurations(backendData);
+        }
+      }
+    };
+
     window.addEventListener('timelineUpdated', handleTimelineUpdate);
+    window.addEventListener('projectCancelled', handleProjectCancelled);
 
     return () => {
       window.removeEventListener('storage', handleStorageChange);
       window.removeEventListener('timelineUpdated', handleTimelineUpdate);
+      window.removeEventListener('projectCancelled', handleProjectCancelled);
     };
   }, [navigate]);
 
