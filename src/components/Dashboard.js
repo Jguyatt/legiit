@@ -227,7 +227,7 @@ const Dashboard = () => {
 
 
 
-  const handleOnboardingSubmit = (formData) => {
+  const handleOnboardingSubmit = async (formData) => {
     // Update the timeline to mark onboarding as pending approval
     if (customerData) {
       const updatedData = {
@@ -271,6 +271,48 @@ const Dashboard = () => {
       
       setCustomerData(updatedData);
       localStorage.setItem('customerData', JSON.stringify(updatedData));
+      
+      // SYNC TO BACKEND - CRITICAL FIX
+      try {
+        // Update customer data in backend
+        const userSession = userAuth.getSession();
+        if (userSession?.email) {
+          await fetch(`https://rankly360.up.railway.app/api/sync-data`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              email: userSession.email,
+              customerData: updatedData
+            })
+          });
+        }
+        
+        // Create onboarding submission in backend
+        const submissionData = {
+          id: 'submission_' + Date.now(),
+          submittedAt: new Date().toISOString(),
+          status: 'pending_approval',
+          service: currentService,
+          customerEmail: userSession?.email || customerData.email,
+          customerName: userSession?.name || customerData.name,
+          formData: formData
+        };
+        
+        // Send onboarding submission to backend
+        await fetch(`https://rankly360.up.railway.app/api/onboarding-submission`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(submissionData)
+        });
+        
+        console.log('✅ Onboarding submission synced to backend');
+      } catch (error) {
+        console.error('❌ Failed to sync onboarding submission:', error);
+      }
     }
     
     setShowOnboardingForm(false);
