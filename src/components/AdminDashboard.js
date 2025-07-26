@@ -632,13 +632,6 @@ const AdminDashboard = () => {
               Refresh
               </button>
               <button
-                onClick={loadAllData}
-              className="flex-1 inline-flex items-center justify-center px-3 py-2 border border-transparent rounded-md shadow-sm text-xs font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-              >
-              <RefreshCw className="w-4 h-4 mr-1" />
-                Sync Backend
-              </button>
-              <button
                 onClick={handleLogout}
               className="flex-1 inline-flex items-center justify-center px-3 py-2 border border-transparent rounded-md shadow-sm text-xs font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
               >
@@ -735,25 +728,6 @@ const AdminDashboard = () => {
         <div className="bg-white rounded-lg shadow mb-8">
           <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
                   <h3 className="text-lg font-medium text-gray-900">Onboarding Approval</h3>
-                  <div className="flex space-x-2">
-                    <button
-                      onClick={() => {
-                        console.log('🔄 Manually refreshing onboarding submissions...');
-                        loadAllData();
-                      }}
-                      className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
-                    >
-                      <RefreshCw className="w-4 h-4 mr-1" />
-                      Refresh
-                    </button>
-                    <button
-                      onClick={loadAllData}
-                      className="inline-flex items-center px-3 py-2 border border-green-600 rounded-md text-sm font-medium text-green-600 bg-white hover:bg-green-50"
-                    >
-                      <RefreshCw className="w-4 h-4 mr-1" />
-                      Sync Backend
-                    </button>
-                  </div>
           </div>
           <div className="p-6">
                   {onboardingSubmissions.filter(s => s.status === 'pending' || s.status === 'pending_approval').length > 0 ? (
@@ -1263,6 +1237,113 @@ const AdminDashboard = () => {
                       );
                     })}
                   </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {/* Onboarding Review Modal */}
+        {showOnboardingModal && selectedOnboarding && (
+          <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+            <div className="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-2/3 shadow-lg rounded-md bg-white">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-xl font-medium text-gray-900">
+                  Review Onboarding - {selectedOnboarding.customerName}
+                </h3>
+                <button
+                  onClick={() => {
+                    setShowOnboardingModal(false);
+                    setSelectedOnboarding(null);
+                    setOnboardingNotes('');
+                  }}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              <div className="space-y-6">
+                {/* Customer Information */}
+                <div>
+                  <h4 className="text-md font-medium text-gray-900 mb-4">Customer Information</h4>
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-sm font-medium text-gray-700">Name</p>
+                        <p className="text-sm text-gray-900">{selectedOnboarding.customerName}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-700">Email</p>
+                        <p className="text-sm text-gray-900">{selectedOnboarding.customerEmail}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-700">Service</p>
+                        <p className="text-sm text-gray-900">{selectedOnboarding.service}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-700">Submitted</p>
+                        <p className="text-sm text-gray-900">{new Date(selectedOnboarding.submittedAt || selectedOnboarding.submittedDate).toLocaleDateString()}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Form Data */}
+                <div>
+                  <h4 className="text-md font-medium text-gray-900 mb-4">Form Data</h4>
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <div className="space-y-3">
+                      {Object.entries(selectedOnboarding.formData || {}).map(([key, value]) => (
+                        <div key={key}>
+                          <p className="text-sm font-medium text-gray-700 capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</p>
+                          <p className="text-sm text-gray-900">{value}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Admin Notes */}
+                <div>
+                  <h4 className="text-md font-medium text-gray-900 mb-4">Admin Notes (Optional)</h4>
+                  <textarea
+                    value={onboardingNotes}
+                    onChange={(e) => setOnboardingNotes(e.target.value)}
+                    placeholder="Add any notes about this submission..."
+                    className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    rows={3}
+                  />
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex justify-end space-x-3">
+                  <button
+                    onClick={() => {
+                      setShowOnboardingModal(false);
+                      setSelectedOnboarding(null);
+                      setOnboardingNotes('');
+                    }}
+                    className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => handleOnboardingAction(selectedOnboarding.id, 'reject')}
+                    className="px-4 py-2 border border-red-300 rounded-md text-sm font-medium text-red-700 bg-white hover:bg-red-50"
+                  >
+                    <XCircle className="w-4 h-4 mr-1 inline" />
+                    Reject
+                  </button>
+                  <button
+                    onClick={() => handleOnboardingAction(selectedOnboarding.id, 'approve')}
+                    className="px-4 py-2 border border-transparent rounded-md text-sm font-medium text-white bg-green-600 hover:bg-green-700"
+                  >
+                    <CheckCircle className="w-4 h-4 mr-1 inline" />
+                    Approve
+                  </button>
                 </div>
               </div>
             </div>
