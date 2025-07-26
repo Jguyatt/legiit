@@ -282,6 +282,9 @@ const Dashboard = () => {
     
     try {
       // Immediately cancel the project (no approval needed)
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+      
       const response = await fetch('https://rankly360.up.railway.app/api/cancel-project', {
         method: 'POST',
         headers: {
@@ -291,8 +294,11 @@ const Dashboard = () => {
           customerEmail: currentData.email,
           projectId: project.id,
           cancelledBy: 'Customer'
-        })
+        }),
+        signal: controller.signal
       });
+      
+      clearTimeout(timeoutId);
       
       const result = await response.json();
       
@@ -330,14 +336,20 @@ const Dashboard = () => {
         customerAuth.updateCustomerData(updatedData);
         setShowCancelConfirmation(false);
 
-        // Show success message with billing end date
-        alert(`✅ Your project has been successfully cancelled!\n\nYour service will remain active until ${billingEndDate.toLocaleDateString()} (end of billing period).\n\nAfter this date, your project will be moved to completed projects.`);
+        // Show improved cancellation message
+        const message = `We're sorry to see you go! 😔\n\n✅ Your project has been successfully cancelled.\n\nYour service will remain active until ${billingEndDate.toLocaleDateString()} (end of billing period).\n\nAfter this date, your project will be moved to completed projects.\n\nThank you for choosing our services!`;
+        alert(message);
       } else {
-        alert('Error cancelling project. Please try again.');
+        console.error('Backend error:', result);
+        alert(`Error cancelling project: ${result.error || 'Unknown error'}. Please try again.`);
       }
     } catch (error) {
-      console.error('Error cancelling project:', error);
-      alert('Network error. Please try again.');
+      console.error('Network error cancelling project:', error);
+      if (error.name === 'AbortError') {
+        alert('Request timed out. Please check your connection and try again.');
+      } else {
+        alert('Network error. Please check your connection and try again.');
+      }
     }
   };
 
