@@ -8,7 +8,8 @@ import {
   ArrowRight,
   CheckCircle,
   Clock,
-  XCircle
+  XCircle,
+  AlertTriangle
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { customerAuth } from '../utils/customerAuth';
@@ -242,50 +243,66 @@ const Dashboard = () => {
     setShowCancelConfirmation(true);
   };
 
-  const confirmCancelMembership = () => {
+  const confirmCancelMembership = async () => {
     // Get current customer data
     const currentData = customerAuth.getCustomerData();
     
-    // Create cancellation request
-    const cancellationRequest = {
-      customerId: currentData?.id || 'unknown',
-      customerName: currentData?.name || 'Unknown Customer',
-      customerEmail: currentData?.email || 'unknown@email.com',
-      requestDate: new Date().toISOString(),
-      status: 'pending',
-      services: currentData?.activeProjects?.map(project => project.service) || [],
-      reason: 'Customer requested cancellation'
-    };
-
-    // Store cancellation request in localStorage for admin to see
-    const existingRequests = JSON.parse(localStorage.getItem('cancellationRequests') || '[]');
-    existingRequests.push(cancellationRequest);
-    localStorage.setItem('cancellationRequests', JSON.stringify(existingRequests));
-
-    // Update customer data to show cancellation is pending
-    const updatedData = {
-      ...currentData,
-      cancellationRequest: {
-        status: 'pending',
-        date: new Date().toISOString(),
-        message: 'Your cancellation request has been submitted and is being reviewed.'
-      },
-      recentActivity: [
-        {
-          type: 'cancellation_requested',
-          message: 'Cancellation request submitted',
-          date: new Date().toISOString().split('T')[0]
+    if (!currentData || !currentData.activeProjects || currentData.activeProjects.length === 0) {
+      alert('No active projects to cancel');
+      return;
+    }
+    
+    const project = currentData.activeProjects[0];
+    
+    try {
+      // Send cancellation request to backend
+      const response = await fetch('https://rankly360.up.railway.app/api/cancellation-request', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
-        ...currentData.recentActivity
-      ]
-    };
+        body: JSON.stringify({
+          customerEmail: currentData.email,
+          customerName: currentData.name,
+          projectId: project.id,
+          reason: 'Customer requested cancellation'
+        })
+      });
+      
+      const result = await response.json();
+      
+      if (response.ok && result.success) {
+        // Update customer data to show cancellation is pending
+        const updatedData = {
+          ...currentData,
+          cancellationRequest: {
+            status: 'pending',
+            date: new Date().toISOString(),
+            message: 'Your cancellation request has been submitted and is being reviewed.'
+          },
+          recentActivity: [
+            {
+              type: 'cancellation_requested',
+              message: 'Cancellation request submitted',
+              date: new Date().toISOString().split('T')[0]
+            },
+            ...currentData.recentActivity
+          ]
+        };
 
-    setCustomerData(updatedData);
-    customerAuth.updateCustomerData(updatedData);
-    setShowCancelConfirmation(false);
+        setCustomerData(updatedData);
+        customerAuth.updateCustomerData(updatedData);
+        setShowCancelConfirmation(false);
 
-    // Show success message
-    alert('Your cancellation request has been submitted. We will review it and contact you shortly.');
+        // Show success message
+        alert('Your cancellation request has been submitted. We will review it and contact you shortly.');
+      } else {
+        alert('Error submitting cancellation request. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error submitting cancellation request:', error);
+      alert('Network error. Please try again.');
+    }
   };
 
 
@@ -957,18 +974,37 @@ const Dashboard = () => {
                   </div>
                 )}
 
-                {/* Cancellation Status */}
                 {customerData?.cancellationRequest && (
-                  <div className="mt-6 pt-6 border-t border-gray-700">
-                    <div className="bg-orange-500/20 border border-orange-500/30 rounded-lg p-4">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Clock className="w-4 h-4 text-orange-400" />
-                        <span className="text-orange-400 font-semibold">Cancellation Request Pending</span>
+                  <div className="bg-orange-500/10 border border-orange-500/20 rounded-lg p-4 mb-6">
+                    <div className="flex items-center">
+                      <AlertTriangle className="h-5 w-5 text-orange-400 mr-3" />
+                      <div>
+                        <h3 className="text-orange-400 font-medium">Cancellation Request Submitted</h3>
+                        <p className="text-orange-300 text-sm">{customerData.cancellationRequest.message}</p>
+                        <p className="text-orange-300 text-xs mt-1">
+                          Requested: {new Date(customerData.cancellationRequest.date).toLocaleDateString()}
+                        </p>
                       </div>
-                      <p className="text-orange-300 text-sm">{customerData.cancellationRequest.message}</p>
-                      <p className="text-orange-400 text-xs mt-2">
-                        Requested: {new Date(customerData.cancellationRequest.date).toLocaleDateString()}
-                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Project Cancelled Message */}
+                {customerData?.activeProjects?.length === 0 && customerData?.completedProjects?.some(p => p.status === 'Cancelled') && (
+                  <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-4 mb-6">
+                    <div className="flex items-center">
+                      <XCircle className="h-5 w-5 text-red-400 mr-3" />
+                      <div>
+                        <h3 className="text-red-400 font-medium">Project Cancelled</h3>
+                        <p className="text-red-300 text-sm">
+                          Your project has been cancelled and will expire at the end of your billing period.
+                        </p>
+                        {customerData?.completedProjects?.find(p => p.status === 'Cancelled')?.cancellationReason && (
+                          <p className="text-red-300 text-xs mt-1">
+                            Reason: {customerData.completedProjects.find(p => p.status === 'Cancelled').cancellationReason}
+                          </p>
+                        )}
+                      </div>
                     </div>
                   </div>
                 )}

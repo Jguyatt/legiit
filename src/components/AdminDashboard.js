@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { 
   Users, DollarSign, AlertCircle, RefreshCw, LogOut, 
   Eye, XCircle, CheckCircle, Clock, BarChart3, Settings,
-  TrendingUp
+  TrendingUp, AlertTriangle
 } from 'lucide-react';
 import adminAuth from '../utils/adminAuth';
 
@@ -12,6 +12,7 @@ const AdminDashboard = () => {
   const [clients, setClients] = useState([]);
   const [users, setUsers] = useState([]);
   const [onboardingSubmissions, setOnboardingSubmissions] = useState([]);
+  const [cancellationRequests, setCancellationRequests] = useState([]);
   const [selectedOnboarding, setSelectedOnboarding] = useState(null);
   const [showOnboardingModal, setShowOnboardingModal] = useState(false);
   const [deletedUsers, setDeletedUsers] = useState([]);
@@ -68,61 +69,70 @@ const AdminDashboard = () => {
   }, []);
 
   const loadAllData = async () => {
+    setLoading(true);
     try {
-      console.log('🔄 Loading all data from backend...');
+      // Load customers from backend
+      const response = await fetch('https://rankly360.up.railway.app/api/all-customers');
+      const data = await response.json();
       
-      // ALWAYS sync with backend first
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
-      
-      const response = await fetch('https://rankly360.up.railway.app/api/all-customers', {
-        signal: controller.signal
-      });
-      
-      clearTimeout(timeoutId);
-      
-      if (response.ok) {
-        const data = await response.json();
-        console.log('✅ Backend sync successful');
+      if (data.success) {
+        // Convert backend customers to frontend format - ONLY those with active projects
+        const backendCustomers = Object.values(data.customers || {})
+          .filter(customer => customer.activeProjects && customer.activeProjects.length > 0) // Only customers with actual projects
+          .map(customer => ({
+            id: customer.email,
+            name: customer.name,
+            email: customer.email,
+            service: customer.activeProjects?.[0]?.service || 'Unknown Service',
+            progress: customer.activeProjects?.[0]?.progress || 0,
+            subscriptionStatus: customer.subscriptionStatus || 'Active',
+            customerData: customer,
+            recentActivity: customer.recentActivity || []
+          }));
         
-        if (data.success) {
-          // Convert backend customers to frontend format - ONLY those with active projects
-          const backendCustomers = Object.values(data.customers || {})
-            .filter(customer => customer.activeProjects && customer.activeProjects.length > 0) // Only customers with actual projects
-            .map(customer => ({
-              id: customer.email,
-              name: customer.name,
-              email: customer.email,
-              business: customer.business,
-              service: customer.package,
-              amount: customer.monthlyRate ? `$${customer.monthlyRate}` : '$249',
-              progress: customer.activeProjects?.[0]?.progress || 20,
-              subscriptionStatus: customer.subscriptionStatus || 'Active',
-              customerData: customer,
-              activeProjects: customer.activeProjects || []
-            }));
-          
-          setClients(backendCustomers);
-          setUsers(data.users || {});
-          setOnboardingSubmissions(data.onboardingSubmissions || []);
-          setDeletedUsers(data.deletedUsers || []);
-          
-          console.log(`📊 Loaded ${backendCustomers.length} customers with projects from backend`);
-          console.log(`📊 Loaded ${Object.keys(data.users || {}).length} users from backend`);
-          console.log(`📊 Loaded ${(data.onboardingSubmissions || []).length} onboarding submissions from backend`);
-          console.log(`📊 Loaded ${(data.deletedUsers || []).length} deleted users from backend`);
-        } else {
-          console.error('❌ Backend sync failed:', data.error);
+        setClients(backendCustomers);
+        
+        // Load users (all signed up users)
+        const allUsers = Object.values(data.users || {}).map(user => ({
+          id: user.email,
+          name: user.name,
+          email: user.email,
+          businessName: user.businessName,
+          isAdmin: user.isAdmin || false,
+          emailVerified: user.emailVerified || false,
+          createdAt: user.createdAt,
+          activeProjects: user.activeProjects || []
+        }));
+        
+        setUsers(allUsers);
+        
+        // Load onboarding submissions
+        const onboardingResponse = await fetch('https://rankly360.up.railway.app/api/onboarding-submissions');
+        const onboardingData = await onboardingResponse.json();
+        
+        if (onboardingData.success) {
+          setOnboardingSubmissions(onboardingData.submissions || []);
         }
+        
+        // Load cancellation requests
+        const cancellationResponse = await fetch('https://rankly360.up.railway.app/api/cancellation-requests');
+        const cancellationData = await cancellationResponse.json();
+        
+        if (cancellationData.success) {
+          setCancellationRequests(cancellationData.requests || []);
+        }
+        
+        console.log('✅ Admin dashboard data loaded successfully');
+        console.log('📊 Active clients:', backendCustomers.length);
+        console.log('📊 Total users:', allUsers.length);
+        console.log('📊 Onboarding submissions:', onboardingData.submissions?.length || 0);
+        console.log('📊 Cancellation requests:', cancellationData.requests?.length || 0);
+        
       } else {
-        console.error('❌ Backend sync failed:', response.status);
+        console.error('❌ Failed to load admin dashboard data:', data.error);
       }
-      
     } catch (error) {
-      console.error('❌ Error loading data:', error);
-      if (error.name === 'AbortError') {
-        console.error('❌ Request timed out');
-      }
+      console.error('❌ Error loading admin dashboard data:', error);
     } finally {
       setLoading(false);
     }
@@ -449,6 +459,81 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleCancellationRequest = async (requestId, action) => {
+    if (!window.confirm(`Are you sure you want to ${action} this cancellation request?`)) {
+      return;
+    }
+    
+    try {
+      console.log(`🔄 Processing cancellation request: ${requestId} -> ${action}`);
+      
+      const response = await fetch('https://rankly360.up.railway.app/api/process-cancellation', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          requestId,
+          action, // 'approve' or 'deny'
+          adminName: 'Admin'
+        })
+      });
+      
+      const result = await response.json();
+      
+      if (response.ok && result.success) {
+        console.log('✅ Cancellation request processed successfully:', result);
+        
+        // Update local state
+        setCancellationRequests(prevRequests => {
+          return prevRequests.map(request => {
+            if (request.id === requestId) {
+              return {
+                ...request,
+                status: action === 'approve' ? 'approved' : 'denied',
+                reviewedBy: 'Admin',
+                reviewedDate: new Date().toISOString()
+              };
+            }
+            return request;
+          });
+        });
+        
+        // If approved, dispatch event to notify customer dashboard
+        if (action === 'approve') {
+          const request = cancellationRequests.find(req => req.id === requestId);
+          if (request) {
+            window.dispatchEvent(new CustomEvent('projectCancelled', { 
+              detail: { customerEmail: request.customerEmail, projectId: request.projectId } 
+            }));
+          }
+        }
+        
+        // Show success notification
+        const notification = document.createElement('div');
+        notification.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 animate-pulse';
+        notification.textContent = `✅ Cancellation request ${action}d successfully`;
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+          if (notification.parentNode) {
+            notification.parentNode.removeChild(notification);
+          }
+        }, 3000);
+        
+        alert(`✅ Cancellation request ${action}d successfully`);
+        
+      } else {
+        console.error('❌ Failed to process cancellation request:', response.status, result);
+        alert(`Error processing cancellation request: ${result.error || 'Unknown error'}`);
+      }
+      
+    } catch (error) {
+      console.error('❌ Network error processing cancellation request:', error);
+      alert('Network error processing cancellation request. Please try again.');
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#0f172a] via-[#10111a] to-black text-white flex items-center justify-center">
@@ -521,6 +606,7 @@ const AdminDashboard = () => {
             { id: 'users', label: 'Users', icon: Users },
             { id: 'current-projects', label: 'Current Projects', icon: TrendingUp },
             { id: 'completed-projects', label: 'Completed Projects', icon: CheckCircle },
+            { id: 'cancellation-requests', label: 'Cancellation Requests', icon: AlertTriangle },
             { id: 'deleted-users', label: 'Deleted Users', icon: XCircle }
           ].map((tab) => (
             <button
@@ -882,6 +968,82 @@ const AdminDashboard = () => {
                     </div>
                   );
                 })}
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {activeTab === 'cancellation-requests' && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="bg-white/5 backdrop-blur-sm rounded-xl border border-white/10"
+          >
+            <div className="px-6 py-4 border-b border-white/10">
+              <h3 className="text-lg font-medium text-white">Cancellation Requests ({cancellationRequests.length})</h3>
+              <p className="text-sm text-gray-400 mt-1">Requests for project cancellation</p>
+            </div>
+            <div className="p-6">
+              <div className="space-y-4">
+                {cancellationRequests.map((request) => (
+                  <div key={request.id} className="bg-white/5 rounded-lg p-4 border border-white/10">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h4 className="font-medium text-white">{request.customerName}</h4>
+                        <p className="text-sm text-gray-400">{request.customerEmail}</p>
+                        <p className="text-sm text-gray-400">Project: {request.projectName || 'N/A'}</p>
+                        <p className="text-xs text-gray-500">Requested: {new Date(request.submittedAt || request.submittedDate).toLocaleDateString()}</p>
+                      </div>
+                      <div className="text-right">
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                          request.status === 'pending'
+                            ? 'bg-yellow-100 text-yellow-800'
+                            : request.status === 'approved'
+                              ? 'bg-green-100 text-green-800'
+                              : 'bg-red-100 text-red-800'
+                        }`}>
+                          {request.status.replace('_', ' ').toUpperCase()}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="mt-4 flex justify-end space-x-3">
+                      {request.status === 'pending' && (
+                        <>
+                          <button
+                            onClick={() => handleCancellationRequest(request.id, 'approve')}
+                            className="inline-flex items-center px-3 py-1.5 border border-green-500/20 rounded-md text-sm font-medium text-green-400 hover:bg-green-500/10 transition-colors"
+                          >
+                            <CheckCircle className="w-4 h-4 mr-1" />
+                            Approve
+                          </button>
+                          <button
+                            onClick={() => handleCancellationRequest(request.id, 'deny')}
+                            className="inline-flex items-center px-3 py-1.5 border border-red-500/20 rounded-md text-sm font-medium text-red-400 hover:bg-red-500/10 transition-colors"
+                          >
+                            <XCircle className="w-4 h-4 mr-1" />
+                            Deny
+                          </button>
+                        </>
+                      )}
+                      {request.status === 'approved' && (
+                        <button
+                          onClick={() => handleProjectCancellation(request.customerEmail, request.projectId)}
+                          className="inline-flex items-center px-3 py-1.5 border border-transparent rounded-md text-sm font-medium text-white bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 transition-colors"
+                        >
+                          <CheckCircle className="w-4 h-4 mr-1" />
+                          Project Cancelled
+                        </button>
+                      )}
+                      {request.status === 'denied' && (
+                        <span className="inline-flex items-center px-3 py-1.5 border border-red-500/20 rounded-md text-sm font-medium text-red-400">
+                          <XCircle className="w-4 h-4 mr-1" />
+                          Denied
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           </motion.div>
