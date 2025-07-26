@@ -27,6 +27,24 @@ const Dashboard = () => {
   const [showCompletionMessage, setShowCompletionMessage] = useState(false);
   const navigate = useNavigate();
 
+  // Sync data with backend API
+  const syncWithBackend = async (email) => {
+    try {
+      const response = await fetch(`https://rankly360.up.railway.app/api/customer-data/${email}`);
+      const result = await response.json();
+      
+      if (result.success && result.data) {
+        console.log('🔄 Synced with backend:', result.data);
+        setCustomerData(result.data);
+        localStorage.setItem('customerData', JSON.stringify(result.data));
+        return result.data;
+      }
+    } catch (error) {
+      console.error('Failed to sync with backend:', error);
+    }
+    return null;
+  };
+
   // Fix existing projects with old duration format
   const fixProjectDurations = (data) => {
     if (data?.activeProjects) {
@@ -72,16 +90,32 @@ const Dashboard = () => {
                 fixProjectDurations(processedPurchase);
               }
             } else {
-              // Force fresh data load, especially for Billy
-              const data = customerAuth.getCustomerData();
-              console.log('📊 Loaded customer data:', data);
-              
-              // If Billy has fake data, clear it
-              if (data && data.name === 'Billy Bars' && data.activeProjects && data.activeProjects.length > 0) {
-                clearBillyData();
+              // Try to sync with backend first
+              const userSession = userAuth.getSession();
+              if (userSession?.email) {
+                const backendData = await syncWithBackend(userSession.email);
+                if (backendData) {
+                  setCustomerData(backendData);
+                  fixProjectDurations(backendData);
+                } else {
+                  // Fallback to local data
+                  const data = customerAuth.getCustomerData();
+                  console.log('📊 Loaded customer data:', data);
+                  
+                  // If Billy has fake data, clear it
+                  if (data && data.name === 'Billy Bars' && data.activeProjects && data.activeProjects.length > 0) {
+                    clearBillyData();
+                  } else {
+                    setCustomerData(data);
+                    // Fix any existing projects with old duration format
+                    fixProjectDurations(data);
+                  }
+                }
               } else {
+                // No user session, use local data
+                const data = customerAuth.getCustomerData();
+                console.log('📊 Loaded customer data:', data);
                 setCustomerData(data);
-                // Fix any existing projects with old duration format
                 fixProjectDurations(data);
               }
             }

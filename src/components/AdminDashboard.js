@@ -30,7 +30,7 @@ const AdminDashboard = () => {
 
     const handleStorageChange = () => {
       console.log('🔄 Storage changed, refreshing admin dashboard...');
-      loadAllData();
+    loadAllData();
     };
 
     const handleCustomerAdded = (event) => {
@@ -41,7 +41,7 @@ const AdminDashboard = () => {
 
     window.addEventListener('storage', handleStorageChange);
     window.addEventListener('customerAdded', handleCustomerAdded);
-
+    
     return () => {
       window.removeEventListener('storage', handleStorageChange);
       window.removeEventListener('customerAdded', handleCustomerAdded);
@@ -51,6 +51,33 @@ const AdminDashboard = () => {
   const loadAllData = async () => {
     try {
       console.log('🔄 Loading all admin dashboard data...');
+      
+      // Try to sync with backend first
+      try {
+        const response = await fetch('https://rankly360.up.railway.app/api/all-customers');
+        const backendData = await response.json();
+        
+        if (backendData.success) {
+          console.log('🔄 Synced with backend:', backendData);
+          
+          // Update local storage with backend data
+          if (backendData.customers) {
+            Object.entries(backendData.customers).forEach(([key, data]) => {
+              localStorage.setItem(key, JSON.stringify(data));
+            });
+          }
+          
+          if (backendData.users) {
+            localStorage.setItem('users', JSON.stringify(backendData.users));
+          }
+          
+          if (backendData.onboardingSubmissions) {
+            localStorage.setItem('onboarding-submissions', JSON.stringify(backendData.onboardingSubmissions));
+          }
+        }
+      } catch (error) {
+        console.error('Failed to sync with backend:', error);
+      }
       
       const submissionsData = JSON.parse(localStorage.getItem('form-submissions') || '[]');
       setSubmissions(submissionsData);
@@ -288,8 +315,8 @@ const AdminDashboard = () => {
       
       // Update timeline
       const updatedTimeline = {
-        ...customerData.orderTimeline,
-        [stepName]: {
+          ...customerData.orderTimeline,
+          [stepName]: {
           status: action === 'completed' ? 'completed' : action === 'in_progress' ? 'in_progress' : 'pending',
           completed: action === 'completed',
           date: new Date().toISOString()
@@ -359,8 +386,8 @@ const AdminDashboard = () => {
         orderTimeline: updatedTimeline,
         activeProjects: updatedProjects,
         recentActivity: [
-          {
-            type: 'timeline_update',
+        {
+          type: 'timeline_update',
             message: activityMessage,
             date: new Date().toISOString().split('T')[0],
             step: stepName,
@@ -528,11 +555,11 @@ const AdminDashboard = () => {
       <div className="w-64 bg-white shadow-lg">
         <div className="p-6 border-b border-gray-200">
           <h1 className="text-xl font-bold text-gray-900">Admin Dashboard</h1>
-        </div>
+            </div>
         
         <nav className="mt-6">
           <div className="px-4 space-y-2">
-            <button
+              <button
               onClick={() => setActiveTab('overview')}
               className={`w-full flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${
                 activeTab === 'overview'
@@ -542,9 +569,9 @@ const AdminDashboard = () => {
             >
               <Users className="w-5 h-5 mr-3" />
               Overview
-            </button>
+              </button>
             
-            <button
+              <button 
               onClick={() => setActiveTab('active-users')}
               className={`w-full flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${
                 activeTab === 'active-users'
@@ -590,16 +617,16 @@ const AdminDashboard = () => {
             >
               <RefreshCw className="w-4 h-4 mr-1" />
               Refresh
-            </button>
-            <button
-              onClick={handleLogout}
+              </button>
+              <button
+                onClick={handleLogout}
               className="flex-1 inline-flex items-center justify-center px-3 py-2 border border-transparent rounded-md shadow-sm text-xs font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-            >
+              >
               <LogOut className="w-4 h-4 mr-1" />
-              Logout
-            </button>
+                Logout
+              </button>
+            </div>
           </div>
-        </div>
       </div>
 
       {/* Main Content Area */}
@@ -619,153 +646,153 @@ const AdminDashboard = () => {
               <RefreshCw className="w-4 h-4 mr-2" />
               Refresh Dashboard
             </button>
-          </div>
         </div>
+      </div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Tab Content */}
           {activeTab === 'overview' && (
             <div>
               <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                <div className="bg-white rounded-lg shadow p-6">
-                  <div className="flex items-center">
-                    <div className="flex-shrink-0">
+          <div className="bg-white rounded-lg shadow p-6">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
                       <Users className="h-8 w-8 text-gray-400" />
-                    </div>
-                    <div className="ml-5 w-0 flex-1">
-                      <dl>
-                        <dt className="text-sm font-medium text-gray-500 truncate">Total Users</dt>
+              </div>
+              <div className="ml-5 w-0 flex-1">
+                <dl>
+                  <dt className="text-sm font-medium text-gray-500 truncate">Total Users</dt>
                         <dd className="text-lg font-medium text-gray-900">{getTotalUniqueUsers()}</dd>
-                      </dl>
-                    </div>
-                  </div>
-                </div>
+                </dl>
+              </div>
+            </div>
+          </div>
 
-                <div className="bg-white rounded-lg shadow p-6">
-                  <div className="flex items-center">
-                    <div className="flex-shrink-0">
+          <div className="bg-white rounded-lg shadow p-6">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
                       <FileText className="h-8 w-8 text-gray-400" />
-                    </div>
-                    <div className="ml-5 w-0 flex-1">
-                      <dl>
+              </div>
+              <div className="ml-5 w-0 flex-1">
+                <dl>
                         <dt className="text-sm font-medium text-gray-500 truncate">Form Submissions</dt>
                         <dd className="text-lg font-medium text-gray-900">{submissions.length}</dd>
-                      </dl>
-                    </div>
-                  </div>
-                </div>
+                </dl>
+              </div>
+            </div>
+          </div>
 
-                <div className="bg-white rounded-lg shadow p-6">
-                  <div className="flex items-center">
-                    <div className="flex-shrink-0">
+          <div className="bg-white rounded-lg shadow p-6">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
                       <DollarSign className="h-8 w-8 text-gray-400" />
-                    </div>
-                    <div className="ml-5 w-0 flex-1">
-                      <dl>
+              </div>
+              <div className="ml-5 w-0 flex-1">
+                <dl>
                         <dt className="text-sm font-medium text-gray-500 truncate">Active Clients</dt>
                         <dd className="text-lg font-medium text-gray-900">{getActiveClients().length}</dd>
-                      </dl>
-                    </div>
-                  </div>
-                </div>
+                </dl>
+              </div>
+            </div>
+          </div>
 
-                <div className="bg-white rounded-lg shadow p-6">
-                  <div className="flex items-center">
-                    <div className="flex-shrink-0">
+          <div className="bg-white rounded-lg shadow p-6">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
                       <AlertCircle className="h-8 w-8 text-red-400" />
-                    </div>
-                    <div className="ml-5 w-0 flex-1">
-                      <dl>
+              </div>
+              <div className="ml-5 w-0 flex-1">
+                <dl>
                         <dt className="text-sm font-medium text-gray-500 truncate">Pending Approvals</dt>
                         <dd className="text-lg font-medium text-gray-900">{onboardingSubmissions.filter(s => s.status === 'pending').length}</dd>
-                      </dl>
-                    </div>
-                  </div>
-                </div>
+                </dl>
               </div>
+            </div>
+          </div>
+        </div>
 
               {/* Onboarding Approval Section */}
-              <div className="bg-white rounded-lg shadow mb-8">
-                <div className="px-6 py-4 border-b border-gray-200">
+        <div className="bg-white rounded-lg shadow mb-8">
+          <div className="px-6 py-4 border-b border-gray-200">
                   <h3 className="text-lg font-medium text-gray-900">Onboarding Approval</h3>
-                </div>
-                <div className="p-6">
+          </div>
+          <div className="p-6">
                   {onboardingSubmissions.filter(s => s.status === 'pending').length > 0 ? (
                     <div className="space-y-4">
                       {onboardingSubmissions.filter(s => s.status === 'pending').map((submission) => (
                         <div key={submission.id} className="bg-gray-50 rounded-lg p-4">
                           <div className="flex items-center justify-between">
-                            <div>
+                        <div>
                               <h4 className="font-medium text-gray-900">{submission.customerName}</h4>
                               <p className="text-sm text-gray-600">{submission.customerEmail}</p>
                               <p className="text-sm text-gray-600">{submission.service}</p>
                               <p className="text-xs text-gray-500">Submitted: {new Date(submission.submittedDate).toLocaleDateString()}</p>
-                            </div>
-                            <button
-                              onClick={() => {
+                              </div>
+                              <button
+                                onClick={() => {
                                 setSelectedOnboarding(submission);
                                 setShowOnboardingModal(true);
                               }}
                               className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
                             >
                               Review
-                            </button>
+                              </button>
+                            </div>
                           </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-gray-500">No pending onboarding submissions</p>
-                  )}
-                </div>
+                        ))}
               </div>
+            ) : (
+                    <p className="text-gray-500">No pending onboarding submissions</p>
+            )}
+          </div>
+        </div>
 
-              {/* Order Timeline Overview */}
+        {/* Order Timeline Overview */}
               <div className="bg-white rounded-lg shadow">
-                <div className="px-6 py-4 border-b border-gray-200">
+          <div className="px-6 py-4 border-b border-gray-200">
                   <h3 className="text-lg font-medium text-gray-900">Order Timeline Overview</h3>
-                </div>
-                <div className="p-6">
+          </div>
+          <div className="p-6">
                   {clients.length > 0 ? (
                     <div className="space-y-6">
                       {clients.map((client) => (
                         <div key={client.id} className="bg-gray-50 rounded-lg p-4">
                           <div className="flex items-center justify-between mb-4">
-                            <div>
+                        <div>
                               <h4 className="font-medium text-gray-900">{client.name}</h4>
-                              <p className="text-sm text-gray-600">{client.email}</p>
+                          <p className="text-sm text-gray-600">{client.email}</p>
                               <p className="text-sm text-gray-600">{client.business}</p>
                               <p className="text-sm font-medium text-gray-900">{client.service} • {client.subscriptionStatus}</p>
-                            </div>
-                            <div className="text-right">
+                        </div>
+                        <div className="text-right">
                               <p className="text-lg font-medium text-gray-900">{client.amount}</p>
                               <p className="text-sm text-gray-600">{client.progress}% Complete</p>
-                            </div>
-                          </div>
-                          
-                          <div className="mb-4">
+                        </div>
+                      </div>
+                      
+                        <div className="mb-4">
                             <div className="flex items-center justify-between text-sm text-gray-600 mb-1">
-                              <span>Progress</span>
+                            <span>Progress</span>
                               <span>{client.progress}%</span>
-                            </div>
-                            <div className="w-full bg-gray-200 rounded-full h-2">
-                              <div 
-                                className="bg-blue-600 h-2 rounded-full transition-all duration-300" 
-                                style={{ width: `${client.progress}%` }}
-                              ></div>
-                            </div>
                           </div>
-
+                          <div className="w-full bg-gray-200 rounded-full h-2">
+                            <div 
+                              className="bg-blue-600 h-2 rounded-full transition-all duration-300" 
+                                style={{ width: `${client.progress}%` }}
+                            ></div>
+                          </div>
+                        </div>
+                      
                           <div className="flex space-x-2">
-                            <button
+                        <button
                               onClick={() => setCustomerViewData(client.customerData || client)}
                               className="inline-flex items-center px-3 py-1.5 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
-                            >
-                              <Eye className="w-4 h-4 mr-1" />
-                              View Dashboard
-                            </button>
-                            <button
-                              onClick={() => {
+                        >
+                          <Eye className="w-4 h-4 mr-1" />
+                          View Dashboard
+                        </button>
+                        <button
+                          onClick={() => {
                                 const timelineSubmission = {
                                   id: client.id,
                                   formData: {
@@ -779,13 +806,13 @@ const AdminDashboard = () => {
                                   timelineStatus: client.customerData?.orderTimeline || null
                                 };
                                 setSelectedSubmission(timelineSubmission);
-                                setShowSubmissionModal(true);
-                              }}
+                              setShowSubmissionModal(true);
+                          }}
                               className="inline-flex items-center px-3 py-1.5 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
-                            >
-                              <Edit className="w-4 h-4 mr-1" />
-                              Manage Timeline
-                            </button>
+                        >
+                          <Edit className="w-4 h-4 mr-1" />
+                          Manage Timeline
+                        </button>
                             <button
                               onClick={() => {
                                 if (window.confirm(`Are you sure you want to cancel the project for ${client.name}?`)) {
@@ -797,7 +824,7 @@ const AdminDashboard = () => {
                               <XCircle className="w-4 h-4 mr-1" />
                               Cancel Project
                             </button>
-                          </div>
+                      </div>
 
                           {/* Customer Projects */}
                           <div className="mt-4 pt-4 border-t border-gray-200">
@@ -814,7 +841,7 @@ const AdminDashboard = () => {
                                   }`}>
                                     {project.status}
                                   </span>
-                                </div>
+                    </div>
                                 <p className="text-xs text-gray-600">{project.type}</p>
                                 <p className="text-xs text-gray-600">Started: {project.startDate}</p>
                                 <p className="text-xs text-gray-600">Duration: {project.estimatedDuration}</p>
@@ -822,33 +849,33 @@ const AdminDashboard = () => {
                                   <div className="flex items-center justify-between text-xs text-gray-600 mb-1">
                                     <span>Progress</span>
                                     <span>{project.progress}%</span>
-                                  </div>
+              </div>
                                   <div className="w-full bg-gray-200 rounded-full h-1">
                                     <div 
                                       className="bg-blue-600 h-1 rounded-full" 
                                       style={{ width: `${project.progress}%` }}
                                     ></div>
-                                  </div>
-                                </div>
-                              </div>
+          </div>
+        </div>
+          </div>
                             ))}
-                          </div>
-                        </div>
+                </div>
+              </div>
                       ))}
-                    </div>
-                  ) : (
+                            </div>
+                          ) : (
                     <p className="text-gray-500">No clients found</p>
                   )}
                 </div>
               </div>
-            </div>
-          )}
+                            </div>
+                          )}
 
           {activeTab === 'active-clients' && (
             <div className="bg-white rounded-lg shadow">
               <div className="px-6 py-4 border-b border-gray-200">
                 <h3 className="text-lg font-medium text-gray-900">Active Clients</h3>
-              </div>
+                        </div>
               <div className="p-6">
                 {getActiveClients().length > 0 ? (
                   <div className="space-y-4">
@@ -857,30 +884,30 @@ const AdminDashboard = () => {
                         <div className="flex items-center justify-between">
                           <div>
                             <h4 className="font-medium text-gray-900">{client.name}</h4>
-                            <p className="text-sm text-gray-600">{client.email}</p>
+                        <p className="text-sm text-gray-600">{client.email}</p>
                             <p className="text-sm text-gray-600">{client.service}</p>
                             <p className="text-sm font-medium text-green-600">Active</p>
-                          </div>
-                          <div className="text-right">
+                      </div>
+                      <div className="text-right">
                             <p className="text-lg font-medium text-gray-900">{client.amount}</p>
                             <p className="text-sm text-gray-600">{client.progress}% Complete</p>
-                          </div>
                         </div>
                       </div>
-                    ))}
-                  </div>
+                    </div>
+                              ))}
+                            </div>
                 ) : (
                   <p className="text-gray-500">No active clients</p>
                 )}
-              </div>
-            </div>
+                          </div>
+                            </div>
           )}
 
           {activeTab === 'active-users' && (
             <div className="bg-white rounded-lg shadow">
               <div className="px-6 py-4 border-b border-gray-200">
                 <h3 className="text-lg font-medium text-gray-900">Active Users</h3>
-              </div>
+                          </div>
               <div className="p-6">
                 {getActiveUsers().length > 0 ? (
                   <div className="space-y-4">
@@ -904,7 +931,7 @@ const AdminDashboard = () => {
                                 Website: {user.websiteUrl}
                               </p>
                             )}
-                          </div>
+                        </div>
                           <div className="text-right">
                             <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                               Active Account
@@ -912,21 +939,21 @@ const AdminDashboard = () => {
                             <p className="text-xs text-gray-500 mt-1">
                               {user.emailVerified ? 'Email Verified' : 'Email Pending'}
                             </p>
-                          </div>
-                        </div>
                       </div>
-                    ))}
+                        </div>
                   </div>
+                ))}
+              </div>
                 ) : (
                   <p className="text-gray-500">No active users found</p>
-                )}
-              </div>
-            </div>
+            )}
+          </div>
+        </div>
           )}
 
           {activeTab === 'current-projects' && (
             <div className="bg-white rounded-lg shadow">
-              <div className="px-6 py-4 border-b border-gray-200">
+          <div className="px-6 py-4 border-b border-gray-200">
                 <h3 className="text-lg font-medium text-gray-900">Current Projects</h3>
               </div>
               <div className="p-6">
@@ -940,27 +967,27 @@ const AdminDashboard = () => {
                             <p className="text-sm text-gray-600">{client.email}</p>
                             <p className="text-sm text-gray-600">{client.service}</p>
                             <p className="text-sm font-medium text-blue-600">In Progress</p>
-                          </div>
+            </div>
                           <div className="text-right">
                             <p className="text-lg font-medium text-gray-900">{client.amount}</p>
                             <p className="text-sm text-gray-600">{client.progress}% Complete</p>
-                          </div>
-                        </div>
+          </div>
+              </div>
                       </div>
                     ))}
-                  </div>
-                ) : (
+            </div>
+          ) : (
                   <p className="text-gray-500">No current projects</p>
                 )}
-              </div>
-            </div>
+                      </div>
+                    </div>
           )}
 
           {activeTab === 'completed-projects' && (
             <div className="bg-white rounded-lg shadow">
               <div className="px-6 py-4 border-b border-gray-200">
                 <h3 className="text-lg font-medium text-gray-900">Completed Projects</h3>
-              </div>
+                        </div>
               <div className="p-6">
                 {getCompletedProjects().length > 0 ? (
                   <div className="space-y-4">
@@ -988,16 +1015,16 @@ const AdminDashboard = () => {
                                     Completed: {new Date(project.startDate).toLocaleDateString()}
                                   </p>
                                 )}
-                              </div>
+                      </div>
                             ))}
                           </div>
                           <div className="text-right">
                             <p className="text-lg font-medium text-gray-900">{client.amount}</p>
                             <p className="text-sm text-gray-600">100% Complete</p>
                           </div>
-                        </div>
-                      </div>
-                    ))}
+                  </div>
+                </div>
+              ))}
                   </div>
                 ) : (
                   <p className="text-gray-500">No completed projects</p>
@@ -1025,9 +1052,9 @@ const AdminDashboard = () => {
                 </svg>
               </button>
             </div>
-            
+
             <div className="space-y-6">
-              <div>
+                  <div>
                 <h4 className="text-lg font-medium text-gray-900 mb-4">Customer Information</h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
@@ -1046,10 +1073,10 @@ const AdminDashboard = () => {
                     <p className="text-sm text-gray-600">Status</p>
                     <p className="font-medium">{customerViewData.subscriptionStatus || 'Active'}</p>
                   </div>
-                </div>
-              </div>
+                  </div>
+                  </div>
 
-              <div>
+                  <div>
                 <h4 className="text-lg font-medium text-gray-900 mb-4">Active Projects</h4>
                 {customerViewData.activeProjects?.map((project, index) => (
                   <div key={index} className="bg-gray-50 rounded-lg p-4 mb-4">
@@ -1063,7 +1090,7 @@ const AdminDashboard = () => {
                       }`}>
                         {project.status}
                       </span>
-                    </div>
+                  </div>
                     <p className="text-sm text-gray-600 mb-2">{project.type}</p>
                     <p className="text-sm text-gray-600 mb-2">Started: {project.startDate}</p>
                     <p className="text-sm text-gray-600 mb-2">Duration: {project.estimatedDuration}</p>
@@ -1071,7 +1098,7 @@ const AdminDashboard = () => {
                       <div className="flex items-center justify-between text-sm text-gray-600 mb-1">
                         <span>Progress</span>
                         <span>{project.progress}%</span>
-                      </div>
+                </div>
                       <div className="w-full bg-gray-200 rounded-full h-2">
                         <div 
                           className="bg-blue-600 h-2 rounded-full" 
@@ -1087,18 +1114,18 @@ const AdminDashboard = () => {
                 ))}
               </div>
 
-              <div>
+                    <div>
                 <h4 className="text-lg font-medium text-gray-900 mb-4">Recent Activity</h4>
                 {customerViewData.recentActivity?.slice(0, 5).map((activity, index) => (
                   <div key={index} className="bg-gray-50 rounded-lg p-3 mb-2">
                     <p className="text-sm text-gray-900">{activity.message}</p>
                     <p className="text-xs text-gray-500">{activity.date}</p>
-                  </div>
+                    </div>
                 ))}
-              </div>
-            </div>
-          </div>
-        </div>
+                    </div>
+                      </div>
+                  </div>
+                </div>
       )}
 
       {/* Timeline Management Modal */}
@@ -1109,8 +1136,8 @@ const AdminDashboard = () => {
               <h3 className="text-xl font-medium text-gray-900">
                 Manage Timeline - {selectedSubmission.formData.firstName} {selectedSubmission.formData.lastName}
               </h3>
-              <button
-                onClick={() => {
+                    <button
+                      onClick={() => {
                   setShowSubmissionModal(false);
                   setSelectedSubmission(null);
                 }}
@@ -1119,85 +1146,85 @@ const AdminDashboard = () => {
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
-              </button>
-            </div>
+                    </button>
+                </div>
 
             <div className="space-y-6">
               <div>
                 <h4 className="text-md font-medium text-gray-900 mb-4">Order Timeline Steps</h4>
-                <div className="space-y-3">
-                  {[
-                    { key: 'orderPlaced', title: 'Order Placed', description: 'Payment received and order confirmed' },
-                    { key: 'onboardingForm', title: 'Onboarding Form', description: 'Customer has completed business information form' },
-                    { key: 'orderInProgress', title: 'Order In Progress', description: 'Work has begun on the customer\'s campaign' },
-                    { key: 'reviewDelivery', title: 'Review Delivery', description: 'Deliverables ready for customer review' },
-                    { key: 'orderComplete', title: 'Order Complete', description: 'All work completed and delivered' }
-                  ].map((step) => {
+                  <div className="space-y-3">
+                    {[
+                      { key: 'orderPlaced', title: 'Order Placed', description: 'Payment received and order confirmed' },
+                      { key: 'onboardingForm', title: 'Onboarding Form', description: 'Customer has completed business information form' },
+                      { key: 'orderInProgress', title: 'Order In Progress', description: 'Work has begun on the customer\'s campaign' },
+                      { key: 'reviewDelivery', title: 'Review Delivery', description: 'Deliverables ready for customer review' },
+                      { key: 'orderComplete', title: 'Order Complete', description: 'All work completed and delivered' }
+                    ].map((step) => {
                     const stepData = selectedSubmission.timelineStatus?.[step.key] || {};
                     const isCompleted = stepData.completed || false;
                     const isInProgress = stepData.status === 'in_progress';
-                    
-                    return (
+                      
+                      return (
                       <div key={step.key} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2">
-                            <span className={`w-3 h-3 rounded-full ${
-                              isCompleted ? 'bg-green-500' : 
-                              isInProgress ? 'bg-yellow-500' : 'bg-gray-300'
-                            }`}></span>
-                            <span className="font-medium text-gray-900">{step.title}</span>
-                          </div>
-                          <p className="text-sm text-gray-600 mt-1">{step.description}</p>
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2">
+                              <span className={`w-3 h-3 rounded-full ${
+                                isCompleted ? 'bg-green-500' : 
+                                isInProgress ? 'bg-yellow-500' : 'bg-gray-300'
+                              }`}></span>
+                              <span className="font-medium text-gray-900">{step.title}</span>
+                            </div>
+                            <p className="text-sm text-gray-600 mt-1">{step.description}</p>
                           {stepData.date && (
-                            <p className="text-xs text-gray-500 mt-1">
+                              <p className="text-xs text-gray-500 mt-1">
                               {isCompleted ? 'Completed' : 'Started'}: {new Date(stepData.date).toLocaleDateString()}
-                            </p>
-                          )}
-                        </div>
-                        <div className="flex gap-2">
-                          <button
-                            onClick={() => updateCustomerTimelineStep(selectedSubmission.formData.email, step.key, 'completed')}
-                            className={`inline-flex items-center px-3 py-1.5 rounded-md text-xs font-medium border ${
-                              isCompleted 
-                                ? 'bg-green-100 text-green-800 border-green-300' 
-                                : 'bg-white text-gray-700 border-gray-300 hover:bg-green-50'
-                            }`}
-                          >
-                            <CheckCircle className="w-4 h-4 mr-1" />
-                            {isCompleted ? 'Completed' : 'Mark Complete'}
-                          </button>
-                          {!isCompleted && (
+                              </p>
+                            )}
+                          </div>
+                          <div className="flex gap-2">
                             <button
-                              onClick={() => updateCustomerTimelineStep(selectedSubmission.formData.email, step.key, 'in_progress')}
+                              onClick={() => updateCustomerTimelineStep(selectedSubmission.formData.email, step.key, 'completed')}
                               className={`inline-flex items-center px-3 py-1.5 rounded-md text-xs font-medium border ${
-                                isInProgress 
-                                  ? 'bg-yellow-100 text-yellow-800 border-yellow-300' 
-                                  : 'bg-white text-gray-700 border-gray-300 hover:bg-yellow-50'
+                                isCompleted 
+                                  ? 'bg-green-100 text-green-800 border-green-300' 
+                                  : 'bg-white text-gray-700 border-gray-300 hover:bg-green-50'
                               }`}
                             >
-                              <Clock className="w-4 h-4 mr-1" />
-                              {isInProgress ? 'In Progress' : 'Mark In Progress'}
+                            <CheckCircle className="w-4 h-4 mr-1" />
+                              {isCompleted ? 'Completed' : 'Mark Complete'}
                             </button>
-                          )}
-                          {(isCompleted || isInProgress) && (
-                            <button
-                              onClick={() => updateCustomerTimelineStep(selectedSubmission.formData.email, step.key, 'pending')}
-                              className="inline-flex items-center px-3 py-1.5 rounded-md text-xs font-medium border bg-white text-red-700 border-red-300 hover:bg-red-50"
-                            >
-                              <XCircle className="w-4 h-4 mr-1" />
-                              Reset
-                            </button>
-                          )}
+                            {!isCompleted && (
+                              <button
+                                onClick={() => updateCustomerTimelineStep(selectedSubmission.formData.email, step.key, 'in_progress')}
+                                className={`inline-flex items-center px-3 py-1.5 rounded-md text-xs font-medium border ${
+                                  isInProgress 
+                                    ? 'bg-yellow-100 text-yellow-800 border-yellow-300' 
+                                    : 'bg-white text-gray-700 border-gray-300 hover:bg-yellow-50'
+                                }`}
+                              >
+                                <Clock className="w-4 h-4 mr-1" />
+                                {isInProgress ? 'In Progress' : 'Mark In Progress'}
+                              </button>
+                            )}
+                            {(isCompleted || isInProgress) && (
+                              <button
+                                onClick={() => updateCustomerTimelineStep(selectedSubmission.formData.email, step.key, 'pending')}
+                                className="inline-flex items-center px-3 py-1.5 rounded-md text-xs font-medium border bg-white text-red-700 border-red-300 hover:bg-red-50"
+                              >
+                                <XCircle className="w-4 h-4 mr-1" />
+                                Reset
+                              </button>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    );
-                  })}
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
     </div>
   );
 };

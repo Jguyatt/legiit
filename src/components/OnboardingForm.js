@@ -163,31 +163,31 @@ const OnboardingForm = ({ isOpen, onClose, service, onSubmit }) => {
           <div>
             <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-3 sm:mb-4">Personal Information</h3>
             <div className="grid grid-cols-1 gap-3 sm:gap-4">
-              <div>
+            <div>
                 <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
-                  First Name *
-                </label>
-                <input
-                  type="text"
-                  name="firstName"
-                  value={formData.firstName}
+                First Name *
+              </label>
+              <input
+                type="text"
+                name="firstName"
+                value={formData.firstName}
                   onChange={handleChange}
-                  required
+                required
                   className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm sm:text-base text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
-              </div>
-              <div>
+              />
+            </div>
+            <div>
                 <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
-                  Last Name *
-                </label>
-                <input
-                  type="text"
-                  name="lastName"
-                  value={formData.lastName}
+                Last Name *
+              </label>
+              <input
+                type="text"
+                name="lastName"
+                value={formData.lastName}
                   onChange={handleChange}
-                  required
+                required
                   className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm sm:text-base text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
+              />
               </div>
             </div>
           </div>
@@ -200,7 +200,7 @@ const OnboardingForm = ({ isOpen, onClose, service, onSubmit }) => {
                 <div key={index}>
                   <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                     {field.label} {field.required && '*'}
-                  </label>
+            </label>
                   {field.type === 'textarea' ? (
                     <textarea
                       name={field.name}
@@ -213,7 +213,7 @@ const OnboardingForm = ({ isOpen, onClose, service, onSubmit }) => {
                       placeholder={field.label}
                     />
                   ) : (
-                    <input
+            <input
                       type={field.type}
                       name={field.name}
                       value={formData[field.name]}
@@ -228,7 +228,7 @@ const OnboardingForm = ({ isOpen, onClose, service, onSubmit }) => {
                       {formData[field.name]?.length || 0}/{field.maxLength} characters
                     </p>
                   )}
-                </div>
+          </div>
               ))}
             </div>
           </div>
