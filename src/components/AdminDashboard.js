@@ -60,130 +60,46 @@ const AdminDashboard = () => {
 
   const loadAllData = async () => {
     try {
-      console.log('🔄 Loading all admin dashboard data...');
+      console.log('🔄 Loading all data from backend...');
       
-      // ALWAYS sync with backend first - this is critical
-      try {
-        console.log('🔄 Syncing with backend...');
-        const response = await fetch('https://rankly360.up.railway.app/api/all-customers');
-        const backendData = await response.json();
+      // ALWAYS sync with backend first
+      const response = await fetch('https://rankly360.up.railway.app/api/all-customers');
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log('✅ Backend sync successful');
         
-        if (backendData.success) {
-          console.log('✅ Backend sync successful:', backendData);
+        if (data.success) {
+          // Convert backend customers to frontend format
+          const backendCustomers = Object.values(data.customers || {}).map(customer => ({
+            id: customer.email,
+            name: customer.name,
+            email: customer.email,
+            business: customer.business,
+            service: customer.package,
+            amount: customer.monthlyRate ? `$${customer.monthlyRate}` : '$249',
+            progress: customer.activeProjects?.[0]?.progress || 20,
+            subscriptionStatus: customer.subscriptionStatus || 'Active',
+            customerData: customer,
+            activeProjects: customer.activeProjects || []
+          }));
           
-          // Update local storage with backend data
-          if (backendData.customers) {
-            Object.entries(backendData.customers).forEach(([key, data]) => {
-              localStorage.setItem(key, JSON.stringify(data));
-            });
-          }
+          setClients(backendCustomers);
+          setUsers(data.users || {});
+          setOnboardingSubmissions(data.onboardingSubmissions || []);
           
-          if (backendData.users) {
-            localStorage.setItem('users', JSON.stringify(backendData.users));
-          }
-          
-          if (backendData.onboardingSubmissions) {
-            localStorage.setItem('onboarding-submissions', JSON.stringify(backendData.onboardingSubmissions));
-            console.log('📋 Onboarding submissions synced from backend:', backendData.onboardingSubmissions.length);
-          }
+          console.log(`📊 Loaded ${backendCustomers.length} customers from backend`);
+          console.log(`📊 Loaded ${Object.keys(data.users || {}).length} users from backend`);
+          console.log(`📊 Loaded ${(data.onboardingSubmissions || []).length} onboarding submissions from backend`);
         } else {
-          console.error('❌ Backend sync failed:', backendData);
+          console.error('❌ Backend sync failed:', data.error);
         }
-      } catch (error) {
-        console.error('❌ Failed to sync with backend:', error);
+      } else {
+        console.error('❌ Backend sync failed:', response.status);
       }
       
-      const submissionsData = JSON.parse(localStorage.getItem('form-submissions') || '[]');
-      setSubmissions(submissionsData);
-
-      const onboardingData = JSON.parse(localStorage.getItem('onboarding-submissions') || '[]');
-      console.log('📋 Loaded onboarding submissions:', onboardingData.length);
-      setOnboardingSubmissions(onboardingData);
-
-      // Load users from localStorage
-      const usersData = JSON.parse(localStorage.getItem('users') || '{}');
-      const usersArray = Object.values(usersData).filter(user => user && user.email);
-      setUsers(usersArray);
-      console.log('👥 Loaded users:', usersArray.length);
-
-      const allClients = [];
-      
-      // First, check all localStorage keys for customer data
-      const localStorageKeys = Object.keys(localStorage);
-      const customerKeys = localStorageKeys.filter(key => 
-        key.includes('customer') || key === 'billy-customer-data'
-      );
-      
-      console.log('🔍 Found customer keys:', customerKeys);
-      
-      for (const key of customerKeys) {
-        try {
-          const data = JSON.parse(localStorage.getItem(key) || '{}');
-          if (data && data.email && !allClients.find(c => c.email === data.email)) {
-            console.log('📊 Loading customer data from key:', key, data.email);
-            allClients.push({
-              id: data.email,
-              name: data.name || `${data.firstName || ''} ${data.lastName || ''}`.trim() || 'Unknown',
-              email: data.email,
-              business: data.businessName || data.business || 'Unknown',
-              service: data.activeProjects?.[0]?.name || 'Local SEO Service',
-              amount: data.activeProjects?.[0]?.amount || data.activeProjects?.[0]?.monthlyRate || '$249',
-              subscriptionStatus: data.subscriptionStatus || 'Active',
-              customerData: data,
-              progress: (() => {
-                // Calculate progress based on timeline completion
-                const timelineSteps = ['orderPlaced', 'onboardingForm', 'orderInProgress', 'reviewDelivery', 'orderComplete'];
-                const completedSteps = timelineSteps.filter(step => 
-                  data.orderTimeline?.[step]?.completed || data.orderTimeline?.[step]?.status === 'completed'
-                ).length;
-                return Math.round((completedSteps / timelineSteps.length) * 100);
-              })()
-            });
-          }
-        } catch (e) {
-          console.error('Error parsing localStorage key:', key, e);
-        }
-      }
-
-      // Additional check for any other customer data keys we might have missed
-      for (const key of localStorageKeys) {
-        if (key.includes('customer') && !customerKeys.includes(key)) {
-          try {
-            const data = JSON.parse(localStorage.getItem(key));
-            if (data && data.email && !allClients.find(c => c.email === data.email)) {
-              console.log('📊 Loading additional customer data from key:', key, data.email);
-              allClients.push({
-                id: data.email,
-                name: data.name || `${data.firstName || ''} ${data.lastName || ''}`.trim() || 'Unknown',
-                email: data.email,
-                business: data.businessName || data.business || 'Unknown',
-                service: data.activeProjects?.[0]?.name || 'Local SEO Service',
-                amount: data.activeProjects?.[0]?.amount || data.activeProjects?.[0]?.monthlyRate || '$249',
-                subscriptionStatus: data.subscriptionStatus || 'Active',
-                customerData: data,
-                progress: (() => {
-                  // Calculate progress based on timeline completion
-                  const timelineSteps = ['orderPlaced', 'onboardingForm', 'orderInProgress', 'reviewDelivery', 'orderComplete'];
-                  const completedSteps = timelineSteps.filter(step => 
-                    data.orderTimeline?.[step]?.completed || data.orderTimeline?.[step]?.status === 'completed'
-                  ).length;
-                  return Math.round((completedSteps / timelineSteps.length) * 100);
-                })()
-              });
-            }
-          } catch (e) {
-            // Skip invalid JSON
-          }
-        }
-      }
-
-      setClients(allClients);
-      console.log(`✅ Admin dashboard loaded ${allClients.length} clients:`, allClients.map(c => ({ name: c.name, email: c.email })));
-      setLoading(false);
     } catch (error) {
-      console.error('Error loading data:', error);
-      setLoading(false);
-      throw error; // Re-throw so the refresh function can catch it
+      console.error('❌ Error loading data:', error);
     }
   };
 
@@ -396,6 +312,8 @@ const AdminDashboard = () => {
   };
 
   const handleProjectCancellation = async (customerEmail, projectId) => {
+    console.log('🚫 Cancellation attempt:', { customerEmail, projectId });
+    
     if (!customerEmail) {
       console.error('❌ No customer email provided');
       alert('Error: No customer email provided');
@@ -425,7 +343,9 @@ const AdminDashboard = () => {
           })
         });
         
+        console.log('Response status:', response.status);
         const result = await response.json();
+        console.log('Response data:', result);
         
         if (response.ok && result.success) {
           console.log('✅ Backend cancellation successful:', result);
@@ -791,7 +711,14 @@ const AdminDashboard = () => {
                         Manage Timeline
                       </button>
                       <button
-                        onClick={() => handleProjectCancellation(client.email, client.customerData?.activeProjects?.[0]?.id)}
+                        onClick={() => {
+                          console.log('🔍 Cancel button clicked for client:', client);
+                          console.log('📊 Client email:', client.email);
+                          console.log('📊 Client customerData:', client.customerData);
+                          console.log('📊 Active projects:', client.customerData?.activeProjects);
+                          console.log('📊 First project ID:', client.customerData?.activeProjects?.[0]?.id);
+                          handleProjectCancellation(client.email, client.customerData?.activeProjects?.[0]?.id);
+                        }}
                         className="inline-flex items-center px-3 py-1.5 border border-red-500/20 rounded-md text-sm font-medium text-red-400 hover:bg-red-500/10 transition-colors"
                       >
                         <XCircle className="w-4 h-4 mr-1" />
