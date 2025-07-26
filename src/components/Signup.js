@@ -135,8 +135,8 @@ const Signup = () => {
         // Auto-login the user after successful signup
         const loginResult = userAuth.login(email, password);
         if (loginResult.success) {
-          // Create customer data structure for admin dashboard
-          const customerData = {
+          // Create user data structure (no projects yet)
+          const userData = {
             name: name,
             email: email,
             business: businessName,
@@ -144,7 +144,7 @@ const Signup = () => {
             firstName: name.split(' ')[0] || name,
             lastName: name.split(' ').slice(1).join(' ') || '',
             subscriptionStatus: 'Active',
-            activeProjects: [],
+            activeProjects: [], // Empty - no projects until they purchase
             orderTimeline: {
               orderPlaced: {
                 status: 'pending',
@@ -181,13 +181,35 @@ const Signup = () => {
             ]
           };
           
+          // Sync with backend immediately
+          try {
+            const syncResponse = await fetch('https://rankly360.up.railway.app/api/sync-data', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                email: email,
+                customerData: userData
+              })
+            });
+            
+            if (syncResponse.ok) {
+              console.log('✅ User data synced to backend');
+            } else {
+              console.error('❌ Failed to sync user data to backend');
+            }
+          } catch (error) {
+            console.error('❌ Error syncing to backend:', error);
+          }
+          
           // Store customer data in localStorage with unique key
           const customerKey = `customer-${email.toLowerCase().replace(/[^a-z0-9]/g, '-')}`;
-          localStorage.setItem(customerKey, JSON.stringify(customerData));
+          localStorage.setItem(customerKey, JSON.stringify(userData));
           
           // Dispatch event to notify admin dashboard of new customer
           window.dispatchEvent(new CustomEvent('customerAdded', { 
-            detail: { customerData } 
+            detail: { customerData: userData } 
           }));
           
           setShowSuccessModal(true);
