@@ -39,12 +39,19 @@ const AdminDashboard = () => {
       loadAllData();
     };
 
+    const handleOnboardingSubmitted = (event) => {
+      console.log('📋 New onboarding submission, refreshing admin dashboard...', event.detail);
+      loadAllData();
+    };
+
     window.addEventListener('storage', handleStorageChange);
     window.addEventListener('customerAdded', handleCustomerAdded);
+    window.addEventListener('onboardingSubmitted', handleOnboardingSubmitted);
     
     return () => {
       window.removeEventListener('storage', handleStorageChange);
       window.removeEventListener('customerAdded', handleCustomerAdded);
+      window.removeEventListener('onboardingSubmitted', handleOnboardingSubmitted);
     };
   }, []);
 
@@ -52,13 +59,14 @@ const AdminDashboard = () => {
     try {
       console.log('🔄 Loading all admin dashboard data...');
       
-      // Try to sync with backend first
+      // ALWAYS sync with backend first - this is critical
       try {
+        console.log('🔄 Syncing with backend...');
         const response = await fetch('https://rankly360.up.railway.app/api/all-customers');
         const backendData = await response.json();
         
         if (backendData.success) {
-          console.log('🔄 Synced with backend:', backendData);
+          console.log('✅ Backend sync successful:', backendData);
           
           // Update local storage with backend data
           if (backendData.customers) {
@@ -73,10 +81,13 @@ const AdminDashboard = () => {
           
           if (backendData.onboardingSubmissions) {
             localStorage.setItem('onboarding-submissions', JSON.stringify(backendData.onboardingSubmissions));
+            console.log('📋 Onboarding submissions synced from backend:', backendData.onboardingSubmissions.length);
           }
+        } else {
+          console.error('❌ Backend sync failed:', backendData);
         }
       } catch (error) {
-        console.error('Failed to sync with backend:', error);
+        console.error('❌ Failed to sync with backend:', error);
       }
       
       const submissionsData = JSON.parse(localStorage.getItem('form-submissions') || '[]');
@@ -220,48 +231,6 @@ const AdminDashboard = () => {
   const handleRefresh = () => {
     console.log('🔄 Manual refresh triggered...');
     loadAllData();
-  };
-
-  const handleBackendSync = async () => {
-    try {
-      console.log('🔄 Direct backend sync triggered...');
-      setLoading(true);
-      
-      const response = await fetch('https://rankly360.up.railway.app/api/all-customers');
-      const backendData = await response.json();
-      
-      if (backendData.success) {
-        console.log('✅ Backend sync successful:', backendData);
-        
-        // Update localStorage with backend data
-        if (backendData.customers) {
-          Object.entries(backendData.customers).forEach(([key, data]) => {
-            localStorage.setItem(key, JSON.stringify(data));
-          });
-        }
-        
-        if (backendData.users) {
-          localStorage.setItem('users', JSON.stringify(backendData.users));
-        }
-        
-        if (backendData.onboardingSubmissions) {
-          localStorage.setItem('onboarding-submissions', JSON.stringify(backendData.onboardingSubmissions));
-          console.log('📋 Onboarding submissions synced:', backendData.onboardingSubmissions.length);
-        }
-        
-        // Reload all data
-        loadAllData();
-        
-        alert(`✅ Backend sync completed!\n\nOnboarding submissions: ${backendData.onboardingSubmissions?.length || 0}\nCustomers: ${Object.keys(backendData.customers || {}).length}\nUsers: ${Object.keys(backendData.users || {}).length}`);
-      } else {
-        alert('❌ Backend sync failed');
-      }
-    } catch (error) {
-      console.error('❌ Backend sync error:', error);
-      alert('❌ Backend sync failed: ' + error.message);
-    } finally {
-      setLoading(false);
-    }
   };
 
   const handleOnboardingAction = async (submissionId, action) => {
@@ -663,7 +632,7 @@ const AdminDashboard = () => {
               Refresh
               </button>
               <button
-                onClick={handleBackendSync}
+                onClick={loadAllData}
               className="flex-1 inline-flex items-center justify-center px-3 py-2 border border-transparent rounded-md shadow-sm text-xs font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
               >
               <RefreshCw className="w-4 h-4 mr-1" />
@@ -778,7 +747,7 @@ const AdminDashboard = () => {
                       Refresh
                     </button>
                     <button
-                      onClick={handleBackendSync}
+                      onClick={loadAllData}
                       className="inline-flex items-center px-3 py-2 border border-green-600 rounded-md text-sm font-medium text-green-600 bg-white hover:bg-green-50"
                     >
                       <RefreshCw className="w-4 h-4 mr-1" />

@@ -310,6 +310,12 @@ const Dashboard = () => {
         });
         
         console.log('✅ Onboarding submission synced to backend');
+        
+        // Dispatch event to notify admin dashboard
+        window.dispatchEvent(new CustomEvent('onboardingSubmitted', { 
+          detail: { submissionData } 
+        }));
+        
       } catch (error) {
         console.error('❌ Failed to sync onboarding submission:', error);
       }
