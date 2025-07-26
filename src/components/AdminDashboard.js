@@ -63,7 +63,14 @@ const AdminDashboard = () => {
       console.log('🔄 Loading all data from backend...');
       
       // ALWAYS sync with backend first
-      const response = await fetch('https://rankly360.up.railway.app/api/all-customers');
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+      
+      const response = await fetch('https://rankly360.up.railway.app/api/all-customers', {
+        signal: controller.signal
+      });
+      
+      clearTimeout(timeoutId);
       
       if (response.ok) {
         const data = await response.json();
@@ -100,14 +107,15 @@ const AdminDashboard = () => {
       
     } catch (error) {
       console.error('❌ Error loading data:', error);
+      if (error.name === 'AbortError') {
+        console.error('❌ Request timed out');
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
   // Helper functions to categorize clients and users
-  const getActiveUsers = () => {
-    return users.filter(user => !user.isAdmin);
-  };
-
   const getActiveClients = () => {
     return clients.filter(client => client.subscriptionStatus === 'Active');
   };
@@ -130,7 +138,9 @@ const AdminDashboard = () => {
   };
 
   const getTotalUniqueUsers = () => {
-    const userEmails = new Set(users.map(u => u.email));
+    // Convert users object to array of user objects
+    const usersArray = Object.values(users || {});
+    const userEmails = new Set(usersArray.map(u => u.email));
     const clientEmails = new Set(clients.map(c => c.email));
     const allEmails = new Set([...userEmails, ...clientEmails]);
     return allEmails.size;
@@ -312,8 +322,6 @@ const AdminDashboard = () => {
   };
 
   const handleProjectCancellation = async (customerEmail, projectId) => {
-    console.log('🚫 Cancellation attempt:', { customerEmail, projectId });
-    
     if (!customerEmail) {
       console.error('❌ No customer email provided');
       alert('Error: No customer email provided');
@@ -343,9 +351,7 @@ const AdminDashboard = () => {
           })
         });
         
-        console.log('Response status:', response.status);
         const result = await response.json();
-        console.log('Response data:', result);
         
         if (response.ok && result.success) {
           console.log('✅ Backend cancellation successful:', result);
@@ -472,7 +478,7 @@ const AdminDashboard = () => {
         >
           {[
             { id: 'overview', label: 'Overview', icon: BarChart3 },
-            { id: 'active-users', label: 'Active Users', icon: Users },
+            { id: 'users', label: 'Users', icon: Users },
             { id: 'current-projects', label: 'Current Projects', icon: TrendingUp },
             { id: 'completed-projects', label: 'Completed Projects', icon: CheckCircle }
           ].map((tab) => (
@@ -501,14 +507,17 @@ const AdminDashboard = () => {
           >
             {/* Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-              <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10">
+              <div 
+                onClick={() => setActiveTab('users')}
+                className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10 cursor-pointer hover:bg-white/10 transition-all duration-200 hover:scale-105"
+              >
                 <div className="flex items-center">
                   <div className="flex-shrink-0">
                     <Users className="h-8 w-8 text-blue-400" />
                   </div>
                   <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-400">Total Users</p>
-                    <p className="text-2xl font-bold text-white">{getTotalUniqueUsers()}</p>
+                    <p className="text-sm font-medium text-gray-400">Users</p>
+                    <p className="text-2xl font-bold text-white">{Object.values(users || {}).length}</p>
                   </div>
                 </div>
               </div>
@@ -610,7 +619,7 @@ const AdminDashboard = () => {
           </motion.div>
         )}
 
-        {activeTab === 'active-users' && (
+        {activeTab === 'users' && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -618,11 +627,11 @@ const AdminDashboard = () => {
             className="bg-white/5 backdrop-blur-sm rounded-xl border border-white/10"
           >
             <div className="px-6 py-4 border-b border-white/10">
-              <h3 className="text-lg font-medium text-white">Active Users ({getActiveUsers().length})</h3>
+              <h3 className="text-lg font-medium text-white">Users ({Object.values(users || {}).length})</h3>
             </div>
             <div className="p-6">
               <div className="space-y-4">
-                {getActiveUsers().map((user) => (
+                {Object.values(users || {}).map((user) => (
                   <div key={user.email} className="bg-white/5 rounded-lg p-4 border border-white/10">
                     <div className="flex items-center justify-between">
                       <div>
@@ -711,14 +720,7 @@ const AdminDashboard = () => {
                         Manage Timeline
                       </button>
                       <button
-                        onClick={() => {
-                          console.log('🔍 Cancel button clicked for client:', client);
-                          console.log('📊 Client email:', client.email);
-                          console.log('📊 Client customerData:', client.customerData);
-                          console.log('📊 Active projects:', client.customerData?.activeProjects);
-                          console.log('📊 First project ID:', client.customerData?.activeProjects?.[0]?.id);
-                          handleProjectCancellation(client.email, client.customerData?.activeProjects?.[0]?.id);
-                        }}
+                        onClick={() => handleProjectCancellation(client.email, client.customerData?.activeProjects?.[0]?.id)}
                         className="inline-flex items-center px-3 py-1.5 border border-red-500/20 rounded-md text-sm font-medium text-red-400 hover:bg-red-500/10 transition-colors"
                       >
                         <XCircle className="w-4 h-4 mr-1" />
