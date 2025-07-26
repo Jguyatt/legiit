@@ -14,6 +14,7 @@ const AdminDashboard = () => {
   const [onboardingSubmissions, setOnboardingSubmissions] = useState([]);
   const [selectedOnboarding, setSelectedOnboarding] = useState(null);
   const [showOnboardingModal, setShowOnboardingModal] = useState(false);
+  const [deletedUsers, setDeletedUsers] = useState([]);
   const [onboardingNotes, setOnboardingNotes] = useState('');
   const [selectedSubmission, setSelectedSubmission] = useState(null);
   const [showSubmissionModal, setShowSubmissionModal] = useState(false);
@@ -101,6 +102,20 @@ const AdminDashboard = () => {
           setClients(backendCustomers);
           setUsers(data.users || {});
           setOnboardingSubmissions(data.onboardingSubmissions || []);
+          
+          // Load deleted users
+          try {
+            const deletedResponse = await fetch('https://rankly360.up.railway.app/api/deleted-users');
+            if (deletedResponse.ok) {
+              const deletedData = await deletedResponse.json();
+              if (deletedData.success) {
+                setDeletedUsers(deletedData.deletedUsers || []);
+                console.log(`📊 Loaded ${(deletedData.deletedUsers || []).length} deleted users from backend`);
+              }
+            }
+          } catch (error) {
+            console.error('❌ Error loading deleted users:', error);
+          }
           
           console.log(`📊 Loaded ${backendCustomers.length} customers from backend`);
           console.log(`📊 Loaded ${Object.keys(data.users || {}).length} users from backend`);
@@ -478,7 +493,8 @@ const AdminDashboard = () => {
             { id: 'overview', label: 'Overview', icon: BarChart3 },
             { id: 'users', label: 'Users', icon: Users },
             { id: 'current-projects', label: 'Current Projects', icon: TrendingUp },
-            { id: 'completed-projects', label: 'Completed Projects', icon: CheckCircle }
+            { id: 'completed-projects', label: 'Completed Projects', icon: CheckCircle },
+            { id: 'deleted-users', label: 'Deleted Users', icon: XCircle }
           ].map((tab) => (
             <button
               key={tab.id}
@@ -504,7 +520,7 @@ const AdminDashboard = () => {
             className="space-y-8"
           >
             {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
               <div 
                 onClick={() => setActiveTab('users')}
                 className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10 cursor-pointer hover:bg-white/10 transition-all duration-200 hover:scale-105"
@@ -552,6 +568,21 @@ const AdminDashboard = () => {
                   <div className="ml-4">
                     <p className="text-sm font-medium text-gray-400">Pending Approvals</p>
                     <p className="text-2xl font-bold text-white">{onboardingSubmissions.filter(s => s.status === 'pending' || s.status === 'pending_approval').length}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div 
+                onClick={() => setActiveTab('deleted-users')}
+                className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10 cursor-pointer hover:bg-white/10 transition-all duration-200 hover:scale-105"
+              >
+                <div className="flex items-center">
+                  <div className="flex-shrink-0">
+                    <XCircle className="h-8 w-8 text-red-400" />
+                  </div>
+                  <div className="ml-4">
+                    <p className="text-sm font-medium text-gray-400">Deleted Users</p>
+                    <p className="text-2xl font-bold text-white">{deletedUsers.length}</p>
                   </div>
                 </div>
               </div>
@@ -809,6 +840,54 @@ const AdminDashboard = () => {
                   );
                 })}
               </div>
+            </div>
+          </motion.div>
+        )}
+
+        {activeTab === 'deleted-users' && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="bg-white/5 backdrop-blur-sm rounded-xl border border-white/10"
+          >
+            <div className="px-6 py-4 border-b border-white/10">
+              <h3 className="text-lg font-medium text-white">Deleted Users ({deletedUsers.length})</h3>
+              <p className="text-sm text-gray-400 mt-1">Users who have deleted their accounts</p>
+            </div>
+            <div className="p-6">
+              {deletedUsers.length === 0 ? (
+                <div className="text-center py-8">
+                  <XCircle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                  <p className="text-gray-400">No deleted users yet</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {deletedUsers.map((deletedUser, index) => (
+                    <div key={index} className="bg-white/5 rounded-lg p-4 border border-white/10">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h4 className="font-medium text-white">{deletedUser.email}</h4>
+                          <p className="text-sm text-gray-400">
+                            Deleted: {new Date(deletedUser.timestamp).toLocaleDateString('en-US', {
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                            Deleted
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </motion.div>
         )}
