@@ -396,6 +396,20 @@ const AdminDashboard = () => {
   };
 
   const handleProjectCancellation = async (customerEmail, projectId) => {
+    console.log('🚫 Cancellation attempt:', { customerEmail, projectId });
+    
+    if (!customerEmail) {
+      console.error('❌ No customer email provided');
+      alert('Error: No customer email provided');
+      return;
+    }
+    
+    if (!projectId) {
+      console.error('❌ No project ID provided');
+      alert('Error: No project ID provided');
+      return;
+    }
+    
     if (window.confirm(`Are you sure you want to cancel the project for ${customerEmail}?`)) {
       try {
         console.log('🚫 Cancelling project for:', customerEmail, 'Project ID:', projectId);
@@ -413,8 +427,11 @@ const AdminDashboard = () => {
           })
         });
         
-        if (response.ok) {
-          const result = await response.json();
+        console.log('Response status:', response.status);
+        const result = await response.json();
+        console.log('Response data:', result);
+        
+        if (response.ok && result.success) {
           console.log('✅ Backend cancellation successful:', result);
           
           // Update local state immediately
@@ -459,13 +476,13 @@ const AdminDashboard = () => {
           alert(`✅ Project cancelled successfully for ${customerEmail}`);
           
         } else {
-          console.error('❌ Backend cancellation failed:', response.status);
-          alert('Error cancelling project. Please try again.');
+          console.error('❌ Backend cancellation failed:', response.status, result);
+          alert(`Error cancelling project: ${result.error || 'Unknown error'}`);
         }
         
       } catch (error) {
-        console.error('Error cancelling project:', error);
-        alert('Error cancelling project. Please try again.');
+        console.error('❌ Network error cancelling project:', error);
+        alert('Network error cancelling project. Please try again.');
       }
     }
   };
@@ -778,7 +795,14 @@ const AdminDashboard = () => {
                         Manage Timeline
                       </button>
                       <button
-                        onClick={() => handleProjectCancellation(client.email, client.customerData?.activeProjects?.[0]?.id)}
+                        onClick={() => {
+                          console.log('🔍 Cancel button clicked for client:', client);
+                          console.log('📊 Client email:', client.email);
+                          console.log('📊 Client customerData:', client.customerData);
+                          console.log('📊 Active projects:', client.customerData?.activeProjects);
+                          console.log('📊 First project ID:', client.customerData?.activeProjects?.[0]?.id);
+                          handleProjectCancellation(client.email, client.customerData?.activeProjects?.[0]?.id);
+                        }}
                         className="inline-flex items-center px-3 py-1.5 border border-red-500/20 rounded-md text-sm font-medium text-red-400 hover:bg-red-500/10 transition-colors"
                       >
                         <XCircle className="w-4 h-4 mr-1" />
