@@ -22,6 +22,9 @@ const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+  const [loadingStates, setLoadingStates] = useState({});
+  const [successMessages, setSuccessMessages] = useState({});
+  const [errorMessages, setErrorMessages] = useState({});
 
   useEffect(() => {
     const session = adminAuth.initSession();
@@ -246,14 +249,45 @@ const AdminDashboard = () => {
   };
 
   const handleTimelineStepUpdate = async (email, stepKey, action) => {
+    const actionKey = `${email}-${stepKey}-${action}`;
+    
     try {
+      // Set loading state
+      setLoadingStates(prev => ({ ...prev, [actionKey]: true }));
+      setErrorMessages(prev => ({ ...prev, [actionKey]: null }));
+      setSuccessMessages(prev => ({ ...prev, [actionKey]: null }));
+      
       await updateCustomerTimelineStep(email, stepKey, action);
+      
+      // Show success message
+      setSuccessMessages(prev => ({ 
+        ...prev, 
+        [actionKey]: `${stepKey.replace(/([A-Z])/g, ' $1').trim()} ${action === 'completed' ? 'completed' : action === 'in_progress' ? 'started' : 'reset'} successfully!` 
+      }));
+      
+      // Clear success message after 3 seconds
+      setTimeout(() => {
+        setSuccessMessages(prev => ({ ...prev, [actionKey]: null }));
+      }, 3000);
+      
       // Refresh admin dashboard data
       setTimeout(() => {
         loadAllData();
       }, 500);
     } catch (error) {
       console.error('Error updating timeline step:', error);
+      setErrorMessages(prev => ({ 
+        ...prev, 
+        [actionKey]: `Failed to update ${stepKey.replace(/([A-Z])/g, ' $1').trim()}. Please try again.` 
+      }));
+      
+      // Clear error message after 5 seconds
+      setTimeout(() => {
+        setErrorMessages(prev => ({ ...prev, [actionKey]: null }));
+      }, 5000);
+    } finally {
+      // Clear loading state
+      setLoadingStates(prev => ({ ...prev, [actionKey]: false }));
     }
   };
 
@@ -1135,7 +1169,7 @@ const AdminDashboard = () => {
                     const isInProgress = stepData.status === 'in_progress';
                       
                       return (
-                      <div key={step.key} className="flex items-center justify-between p-3 bg-white/5 rounded-lg border border-white/10">
+                      <div key={step.key} className="relative flex items-center justify-between p-3 bg-white/5 rounded-lg border border-white/10">
                           <div className="flex-1">
                             <div className="flex items-center gap-2">
                               <span className={`w-3 h-3 rounded-full ${
@@ -1152,38 +1186,110 @@ const AdminDashboard = () => {
                             )}
                           </div>
                           <div className="flex gap-2">
+                            {/* Success/Error Messages */}
+                            {successMessages[`${selectedSubmission.formData.email}-${step.key}-completed`] && (
+                              <div className="absolute -top-2 left-0 right-0 bg-green-500/20 text-green-400 text-xs p-2 rounded-md border border-green-500/30">
+                                {successMessages[`${selectedSubmission.formData.email}-${step.key}-completed`]}
+                              </div>
+                            )}
+                            {errorMessages[`${selectedSubmission.formData.email}-${step.key}-completed`] && (
+                              <div className="absolute -top-2 left-0 right-0 bg-red-500/20 text-red-400 text-xs p-2 rounded-md border border-red-500/30">
+                                {errorMessages[`${selectedSubmission.formData.email}-${step.key}-completed`]}
+                              </div>
+                            )}
+                            
                             <button
-                            onClick={() => handleTimelineStepUpdate(selectedSubmission.formData.email, step.key, 'completed')}
-                            className={`inline-flex items-center px-3 py-1.5 rounded-md text-xs font-medium border transition-colors ${
+                              onClick={() => handleTimelineStepUpdate(selectedSubmission.formData.email, step.key, 'completed')}
+                              disabled={loadingStates[`${selectedSubmission.formData.email}-${step.key}-completed`]}
+                              className={`inline-flex items-center px-3 py-1.5 rounded-md text-xs font-medium border transition-colors ${
                                 isCompleted 
                                 ? 'bg-green-500/20 text-green-400 border-green-500/30' 
                                 : 'bg-white/5 text-white border-white/20 hover:bg-green-500/20 hover:border-green-500/30'
-                              }`}
+                              } ${loadingStates[`${selectedSubmission.formData.email}-${step.key}-completed`] ? 'opacity-50 cursor-not-allowed' : ''}`}
                             >
-                            <CheckCircle className="w-4 h-4 mr-1" />
-                              {isCompleted ? 'Completed' : 'Mark Complete'}
+                              {loadingStates[`${selectedSubmission.formData.email}-${step.key}-completed`] ? (
+                                <>
+                                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-1"></div>
+                                  Updating...
+                                </>
+                              ) : (
+                                <>
+                                  <CheckCircle className="w-4 h-4 mr-1" />
+                                  {isCompleted ? 'Completed' : 'Mark Complete'}
+                                </>
+                              )}
                             </button>
+                            
                             {!isCompleted && (
-                              <button
-                              onClick={() => handleTimelineStepUpdate(selectedSubmission.formData.email, step.key, 'in_progress')}
-                              className={`inline-flex items-center px-3 py-1.5 rounded-md text-xs font-medium border transition-colors ${
-                                  isInProgress 
-                                  ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' 
-                                  : 'bg-white/5 text-white border-white/20 hover:bg-yellow-500/20 hover:border-yellow-500/30'
-                                }`}
-                              >
-                                <Clock className="w-4 h-4 mr-1" />
-                                {isInProgress ? 'In Progress' : 'Mark In Progress'}
-                              </button>
+                              <>
+                                {successMessages[`${selectedSubmission.formData.email}-${step.key}-in_progress`] && (
+                                  <div className="absolute -top-2 left-0 right-0 bg-green-500/20 text-green-400 text-xs p-2 rounded-md border border-green-500/30">
+                                    {successMessages[`${selectedSubmission.formData.email}-${step.key}-in_progress`]}
+                                  </div>
+                                )}
+                                {errorMessages[`${selectedSubmission.formData.email}-${step.key}-in_progress`] && (
+                                  <div className="absolute -top-2 left-0 right-0 bg-red-500/20 text-red-400 text-xs p-2 rounded-md border border-red-500/30">
+                                    {errorMessages[`${selectedSubmission.formData.email}-${step.key}-in_progress`]}
+                                  </div>
+                                )}
+                                
+                                <button
+                                  onClick={() => handleTimelineStepUpdate(selectedSubmission.formData.email, step.key, 'in_progress')}
+                                  disabled={loadingStates[`${selectedSubmission.formData.email}-${step.key}-in_progress`]}
+                                  className={`inline-flex items-center px-3 py-1.5 rounded-md text-xs font-medium border transition-colors ${
+                                    isInProgress 
+                                    ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' 
+                                    : 'bg-white/5 text-white border-white/20 hover:bg-yellow-500/20 hover:border-yellow-500/30'
+                                  } ${loadingStates[`${selectedSubmission.formData.email}-${step.key}-in_progress`] ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                >
+                                  {loadingStates[`${selectedSubmission.formData.email}-${step.key}-in_progress`] ? (
+                                    <>
+                                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-1"></div>
+                                      Updating...
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Clock className="w-4 h-4 mr-1" />
+                                      {isInProgress ? 'In Progress' : 'Mark In Progress'}
+                                    </>
+                                  )}
+                                </button>
+                              </>
                             )}
+                            
                             {(isCompleted || isInProgress) && (
-                              <button
-                              onClick={() => handleTimelineStepUpdate(selectedSubmission.formData.email, step.key, 'pending')}
-                              className="inline-flex items-center px-3 py-1.5 rounded-md text-xs font-medium border bg-white/5 text-red-400 border-red-500/30 hover:bg-red-500/20 transition-colors"
-                              >
-                                <XCircle className="w-4 h-4 mr-1" />
-                                Reset
-                              </button>
+                              <>
+                                {successMessages[`${selectedSubmission.formData.email}-${step.key}-pending`] && (
+                                  <div className="absolute -top-2 left-0 right-0 bg-green-500/20 text-green-400 text-xs p-2 rounded-md border border-green-500/30">
+                                    {successMessages[`${selectedSubmission.formData.email}-${step.key}-pending`]}
+                                  </div>
+                                )}
+                                {errorMessages[`${selectedSubmission.formData.email}-${step.key}-pending`] && (
+                                  <div className="absolute -top-2 left-0 right-0 bg-red-500/20 text-red-400 text-xs p-2 rounded-md border border-red-500/30">
+                                    {errorMessages[`${selectedSubmission.formData.email}-${step.key}-pending`]}
+                                  </div>
+                                )}
+                                
+                                <button
+                                  onClick={() => handleTimelineStepUpdate(selectedSubmission.formData.email, step.key, 'pending')}
+                                  disabled={loadingStates[`${selectedSubmission.formData.email}-${step.key}-pending`]}
+                                  className={`inline-flex items-center px-3 py-1.5 rounded-md text-xs font-medium border bg-white/5 text-red-400 border-red-500/30 hover:bg-red-500/20 transition-colors ${
+                                    loadingStates[`${selectedSubmission.formData.email}-${step.key}-pending`] ? 'opacity-50 cursor-not-allowed' : ''
+                                  }`}
+                                >
+                                  {loadingStates[`${selectedSubmission.formData.email}-${step.key}-pending`] ? (
+                                    <>
+                                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-1"></div>
+                                      Updating...
+                                    </>
+                                  ) : (
+                                    <>
+                                      <XCircle className="w-4 h-4 mr-1" />
+                                      Reset
+                                    </>
+                                  )}
+                                </button>
+                              </>
                             )}
                           </div>
                         </div>
