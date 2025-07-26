@@ -1,0 +1,9 @@
+# Copy this content to your .env file
+STRIPE_WEBHOOK_SECRET=whsec_uM49aZIsTX201H80p7aI2eYF72nWEuwC
+STRIPE_SECRET_KEY=sk_test_your_test_key_here
+
+# Instructions:
+# 1. Create a file named ".env" in your project root
+# 2. Copy the above content into it
+# 3. Replace "sk_test_your_test_key_here" with your actual Stripe secret key
+# 4. Save the file 
