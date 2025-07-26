@@ -63,9 +63,37 @@ const Dashboard = () => {
     }
   };
 
+  // Clear any old customer data that shouldn't be there
+  const clearOldCustomerData = () => {
+    // Clear any customer data that might have been created during signup
+    localStorage.removeItem('customerData');
+    localStorage.removeItem('customerToken');
+    
+    // Clear any customer keys that might have old data
+    const keysToRemove = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.includes('customer-') && !key.includes('billy')) {
+        keysToRemove.push(key);
+      }
+    }
+    
+    keysToRemove.forEach(key => {
+      const data = JSON.parse(localStorage.getItem(key) || '{}');
+      // Only remove if it has no actual projects (just signup data)
+      if (!data.activeProjects || data.activeProjects.length === 0) {
+        localStorage.removeItem(key);
+        console.log('🧹 Cleared old customer data:', key);
+      }
+    });
+  };
+
   useEffect(() => {
     const checkAuth = async () => {
       try {
+        // Clear any old customer data first
+        clearOldCustomerData();
+        
         const session = userAuth.initSession();
         if (session.success) {
           // Only redirect to admin if explicitly an admin user
@@ -95,28 +123,60 @@ const Dashboard = () => {
               if (userSession?.email) {
                 const backendData = await syncWithBackend(userSession.email);
                 if (backendData) {
-                  setCustomerData(backendData);
-                  fixProjectDurations(backendData);
-                } else {
-                  // Fallback to local data
-                  const data = customerAuth.getCustomerData();
-                  console.log('📊 Loaded customer data:', data);
-                  
-                  // If Billy has fake data, clear it
-                  if (data && data.name === 'Billy Bars' && data.activeProjects && data.activeProjects.length > 0) {
-                    clearBillyData();
+                  // Only set customer data if user has actual projects (not just signup data)
+                  if (backendData.activeProjects && backendData.activeProjects.length > 0) {
+                    setCustomerData(backendData);
+                    fixProjectDurations(backendData);
                   } else {
-                    setCustomerData(data);
-                    // Fix any existing projects with old duration format
-                    fixProjectDurations(data);
+                    // User has no projects yet - show clean dashboard
+                    setCustomerData({
+                      name: backendData.name,
+                      email: backendData.email,
+                      business: backendData.business,
+                      activeProjects: [], // Empty - no projects until purchase
+                      orderTimeline: backendData.orderTimeline || {},
+                      recentActivity: backendData.recentActivity || []
+                    });
+                  }
+                } else {
+                  // No backend data - check localStorage but only if it has actual projects
+                  const localData = customerAuth.getCustomerData();
+                  if (localData && localData.activeProjects && localData.activeProjects.length > 0) {
+                    setCustomerData(localData);
+                    fixProjectDurations(localData);
+                  } else {
+                    // No projects - show clean dashboard
+                    setCustomerData({
+                      name: userSession.name,
+                      email: userSession.email,
+                      activeProjects: [], // Empty - no projects until purchase
+                      orderTimeline: {},
+                      recentActivity: []
+                    });
                   }
                 }
               } else {
-                // No user session, use local data
+                // No user session, use local data but only if it has actual projects
                 const data = customerAuth.getCustomerData();
                 console.log('📊 Loaded customer data:', data);
-                setCustomerData(data);
-                fixProjectDurations(data);
+                
+                // If Billy has fake data, clear it
+                if (data && data.name === 'Billy Bars' && data.activeProjects && data.activeProjects.length > 0) {
+                  clearBillyData();
+                } else if (data && data.activeProjects && data.activeProjects.length > 0) {
+                  // Only show data if it has actual projects
+                  setCustomerData(data);
+                  fixProjectDurations(data);
+                } else {
+                  // No projects - show clean dashboard
+                  setCustomerData({
+                    name: data?.name || 'Customer',
+                    email: data?.email || 'customer@example.com',
+                    activeProjects: [], // Empty - no projects until purchase
+                    orderTimeline: {},
+                    recentActivity: []
+                  });
+                }
               }
             }
           }
