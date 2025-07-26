@@ -116,10 +116,52 @@ const Account = () => {
       delete users[userSession.email.toLowerCase()];
       localStorage.setItem('users', JSON.stringify(users));
       
-      // Clear session
-      localStorage.removeItem('userSession');
+      // Remove user from backend
+      try {
+        const response = await fetch('https://rankly360.up.railway.app/api/delete-user', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email: userSession.email
+          })
+        });
+        
+        if (response.ok) {
+          console.log('✅ User deleted from backend');
+        } else {
+          console.error('❌ Failed to delete user from backend');
+        }
+      } catch (error) {
+        console.error('❌ Error deleting user from backend:', error);
+      }
+      
+      // Clear all customer data
       localStorage.removeItem('customerData');
       localStorage.removeItem('customerToken');
+      
+      // Clear any customer keys for this user
+      const keysToRemove = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.includes('customer-') && key.includes(userSession.email.toLowerCase().replace(/[^a-z0-9]/g, '-'))) {
+          keysToRemove.push(key);
+        }
+      }
+      
+      keysToRemove.forEach(key => {
+        localStorage.removeItem(key);
+        console.log('🧹 Cleared customer data:', key);
+      });
+      
+      // Dispatch event to notify admin dashboard of user deletion
+      window.dispatchEvent(new CustomEvent('userDeleted', { 
+        detail: { email: userSession.email } 
+      }));
+      
+      // Clear session
+      localStorage.removeItem('userSession');
       
       // Redirect to home page
       window.location.href = '/';

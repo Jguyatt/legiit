@@ -45,14 +45,23 @@ const AdminDashboard = () => {
       loadAllData();
     };
 
+    // Listen for user deletion events
+    const handleUserDeleted = (event) => {
+      console.log('🗑️ User deleted:', event.detail.email);
+      // Refresh data to remove deleted user
+      loadAllData();
+    };
+
     window.addEventListener('storage', handleStorageChange);
     window.addEventListener('customerAdded', handleCustomerAdded);
     window.addEventListener('onboardingSubmitted', handleOnboardingSubmitted);
+    window.addEventListener('userDeleted', handleUserDeleted);
     
     return () => {
       window.removeEventListener('storage', handleStorageChange);
       window.removeEventListener('customerAdded', handleCustomerAdded);
       window.removeEventListener('onboardingSubmitted', handleOnboardingSubmitted);
+      window.removeEventListener('userDeleted', handleUserDeleted);
     };
   }, []);
 
