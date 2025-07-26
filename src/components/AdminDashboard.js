@@ -745,8 +745,24 @@ const AdminDashboard = () => {
                     <div className="flex space-x-2">
                       <button
                         onClick={() => {
-                          // View dashboard functionality - could be expanded later
-                          console.log('View dashboard for:', client.name);
+                          // View customer dashboard with onboarding form
+                          const customerEmail = client.email;
+                          const customerData = client.customerData;
+                          
+                          // Check if customer has onboarding submission
+                          const customerSubmission = onboardingSubmissions.find(
+                            submission => submission.customerEmail === customerEmail
+                          );
+                          
+                          if (customerSubmission) {
+                            // Show onboarding review modal
+                            setSelectedOnboarding(customerSubmission);
+                            setShowOnboardingModal(true);
+                          } else {
+                            // Show customer dashboard view
+                            console.log('View dashboard for:', client.name);
+                            alert(`Viewing dashboard for ${client.name}\n\nEmail: ${client.email}\nService: ${client.service}\nProgress: ${client.progress}%\n\nOnboarding form not yet submitted.`);
+                          }
                         }}
                         className="inline-flex items-center px-3 py-1.5 border border-white/20 rounded-md text-sm font-medium text-white hover:bg-white/10 transition-colors"
                       >
