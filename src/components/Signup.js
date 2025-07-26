@@ -135,7 +135,7 @@ const Signup = () => {
         // Auto-login the user after successful signup
         const loginResult = userAuth.login(email, password);
         if (loginResult.success) {
-          // Create user data structure (no projects yet)
+          // Create user data structure (no customer data until purchase)
           const userData = {
             name: name,
             email: email,
@@ -143,45 +143,12 @@ const Signup = () => {
             businessName: businessName,
             firstName: name.split(' ')[0] || name,
             lastName: name.split(' ').slice(1).join(' ') || '',
-            subscriptionStatus: 'Active',
-            activeProjects: [], // Empty - no projects until they purchase
-            orderTimeline: {
-              orderPlaced: {
-                status: 'pending',
-                date: null,
-                completed: false
-              },
-              onboardingForm: {
-                status: 'pending',
-                date: null,
-                completed: false
-              },
-              orderInProgress: {
-                status: 'pending',
-                date: null,
-                completed: false
-              },
-              reviewDelivery: {
-                status: 'pending',
-                date: null,
-                completed: false
-              },
-              orderComplete: {
-                status: 'pending',
-                date: null,
-                completed: false
-              }
-            },
-            recentActivity: [
-              {
-                type: 'account_created',
-                message: 'Account created successfully',
-                date: new Date().toISOString().split('T')[0]
-              }
-            ]
+            isAdmin: false,
+            emailVerified: true,
+            createdAt: new Date().toISOString()
           };
           
-          // Sync with backend immediately
+          // Sync user data to backend (not customer data)
           try {
             const syncResponse = await fetch('https://rankly360.up.railway.app/api/sync-data', {
               method: 'POST',
@@ -189,8 +156,7 @@ const Signup = () => {
                 'Content-Type': 'application/json',
               },
               body: JSON.stringify({
-                email: email,
-                customerData: userData
+                userData: userData
               })
             });
             
@@ -203,13 +169,9 @@ const Signup = () => {
             console.error('❌ Error syncing to backend:', error);
           }
           
-          // Store customer data in localStorage with unique key
-          const customerKey = `customer-${email.toLowerCase().replace(/[^a-z0-9]/g, '-')}`;
-          localStorage.setItem(customerKey, JSON.stringify(userData));
-          
-          // Dispatch event to notify admin dashboard of new customer
+          // Dispatch event to notify admin dashboard of new user
           window.dispatchEvent(new CustomEvent('customerAdded', { 
-            detail: { customerData: userData } 
+            detail: { userData: userData } 
           }));
           
           setShowSuccessModal(true);
