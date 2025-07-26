@@ -40,12 +40,12 @@ const AdminDashboard = () => {
     const handleCustomerAdded = (event) => {
       console.log('🆕 New customer/user added event received:', event.detail);
       console.log('🔄 Refreshing admin dashboard...');
-      loadAllData();
-    };
+    loadAllData();
+  };
 
     const handleOnboardingSubmitted = (event) => {
       console.log('📋 New onboarding submission, refreshing admin dashboard...', event.detail);
-      loadAllData();
+    loadAllData();
     };
 
     // Listen for user deletion events
@@ -95,8 +95,8 @@ const AdminDashboard = () => {
         // Load users (all signed up users)
         const allUsers = Object.values(data.users || {}).map(user => ({
           id: user.email,
-          name: user.name,
-          email: user.email,
+        name: user.name,
+        email: user.email,
           businessName: user.businessName,
           isAdmin: user.isAdmin || false,
           emailVerified: user.emailVerified || false,
@@ -317,11 +317,11 @@ const AdminDashboard = () => {
         ...customerData,
         orderTimeline: updatedTimeline,
         recentActivity: [
-          {
-            type: 'timeline_update',
+        {
+          type: 'timeline_update',
             message: `${stepName.replace(/([A-Z])/g, ' $1').trim()} ${action === 'completed' ? 'completed' : action === 'in_progress' ? 'started' : 'reset'}`,
-            date: new Date().toISOString().split('T')[0]
-          },
+          date: new Date().toISOString().split('T')[0]
+        },
           ...customerData.recentActivity
         ]
       };
@@ -557,10 +557,10 @@ const AdminDashboard = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <img src="/images/logo.png" alt="Rankly360 Logo" className="h-8 w-auto" />
-              <div>
+            <div>
                 <h1 className="text-xl font-bold text-white">Admin Dashboard</h1>
                 <p className="text-sm text-gray-400">Manage customers and projects</p>
-              </div>
+            </div>
             </div>
             <div className="flex items-center gap-3">
               <button
@@ -638,52 +638,52 @@ const AdminDashboard = () => {
                 onClick={() => setActiveTab('users')}
                 className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10 cursor-pointer hover:bg-white/10 transition-all duration-200 hover:scale-105"
               >
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
                     <Users className="h-8 w-8 text-blue-400" />
-                  </div>
+              </div>
                   <div className="ml-4">
                     <p className="text-sm font-medium text-gray-400">Users</p>
                     <p className="text-2xl font-bold text-white">{Object.values(users || {}).length}</p>
-                  </div>
-                </div>
               </div>
+            </div>
+          </div>
 
               <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
                     <DollarSign className="h-8 w-8 text-green-400" />
-                  </div>
+              </div>
                   <div className="ml-4">
                     <p className="text-sm font-medium text-gray-400">Active Clients</p>
                     <p className="text-2xl font-bold text-white">{getActiveClients().length}</p>
-                  </div>
-                </div>
               </div>
+            </div>
+          </div>
 
               <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
                     <TrendingUp className="h-8 w-8 text-purple-400" />
-                  </div>
+              </div>
                   <div className="ml-4">
                     <p className="text-sm font-medium text-gray-400">Current Projects</p>
                     <p className="text-2xl font-bold text-white">{getCurrentProjects().length}</p>
-                  </div>
-                </div>
               </div>
+            </div>
+          </div>
 
               <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
                     <AlertCircle className="h-8 w-8 text-orange-400" />
-                  </div>
+              </div>
                   <div className="ml-4">
                     <p className="text-sm font-medium text-gray-400">Pending Approvals</p>
                     <p className="text-2xl font-bold text-white">{onboardingSubmissions.filter(s => s.status === 'pending' || s.status === 'pending_approval').length}</p>
-                  </div>
-                </div>
-              </div>
+            </div>
+          </div>
+        </div>
 
               <div 
                 onClick={() => setActiveTab('deleted-users')}
@@ -692,14 +692,14 @@ const AdminDashboard = () => {
                 <div className="flex items-center">
                   <div className="flex-shrink-0">
                     <XCircle className="h-8 w-8 text-red-400" />
-                  </div>
+          </div>
                   <div className="ml-4">
                     <p className="text-sm font-medium text-gray-400">Deleted Users</p>
                     <p className="text-2xl font-bold text-white">{deletedUsers.length}</p>
-                  </div>
-                </div>
-              </div>
             </div>
+            </div>
+          </div>
+        </div>
 
             {/* Onboarding Approval Section */}
             {onboardingSubmissions.filter(s => s.status === 'pending' || s.status === 'pending_approval').length > 0 && (
@@ -718,7 +718,7 @@ const AdminDashboard = () => {
                             <p className="text-sm text-gray-400">{submission.service}</p>
                             <p className="text-xs text-gray-500">Submitted: {new Date(submission.submittedAt || submission.submittedDate).toLocaleDateString()}</p>
                           </div>
-                          <button
+                <button
                             onClick={() => {
                               setSelectedOnboarding(submission);
                               setShowOnboardingModal(true);
@@ -727,11 +727,11 @@ const AdminDashboard = () => {
                           >
                             <Eye className="w-4 h-4 mr-1" />
                             Review
-                          </button>
-                        </div>
-                      </div>
+                </button>
+              </div>
+            </div>
                     ))}
-                  </div>
+          </div>
                 </div>
               </div>
             )}
@@ -741,23 +741,23 @@ const AdminDashboard = () => {
               <div className="px-6 py-4 border-b border-white/10">
                 <h3 className="text-lg font-medium text-white">Recent Activity</h3>
               </div>
-              <div className="p-6">
+          <div className="p-6">
                 <div className="space-y-4">
                   {clients.slice(0, 5).map((client) => (
                     <div key={client.id} className="flex items-center justify-between">
-                      <div>
+                        <div>
                         <p className="text-white font-medium">{client.name}</p>
                         <p className="text-sm text-gray-400">{client.service} • {client.progress}% Complete</p>
-                      </div>
-                      <div className="text-right">
+                        </div>
+                        <div className="text-right">
                         <p className="text-white font-medium">{client.amount}</p>
                         <p className="text-sm text-gray-400">{client.subscriptionStatus}</p>
-                      </div>
-                    </div>
+                          </div>
+                        </div>
                   ))}
-                </div>
-              </div>
-            </div>
+                      </div>
+                                </div>
+                              </div>
           </motion.div>
         )}
 
@@ -770,7 +770,7 @@ const AdminDashboard = () => {
           >
             <div className="px-6 py-4 border-b border-white/10">
               <h3 className="text-lg font-medium text-white">Users ({Object.values(users || {}).length + clients.length})</h3>
-            </div>
+                            </div>
             <div className="p-6">
               <div className="space-y-4">
                 {/* Show all users from users object */}
@@ -782,14 +782,14 @@ const AdminDashboard = () => {
                         <p className="text-sm text-gray-400">{user.email}</p>
                         <p className="text-sm text-gray-400">{user.businessName || 'No business name'}</p>
                         <p className="text-xs text-gray-500">Account Type: User</p>
-                      </div>
+                          </div>
                       <div className="text-right">
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                           Active
                         </span>
                       </div>
                     </div>
-                  </div>
+              </div>
                 ))}
                 
                 {/* Show all customers from clients object */}
@@ -818,7 +818,7 @@ const AdminDashboard = () => {
                   </div>
                 ))}
               </div>
-            </div>
+          </div>
           </motion.div>
         )}
 
@@ -831,39 +831,39 @@ const AdminDashboard = () => {
           >
             <div className="px-6 py-4 border-b border-white/10">
               <h3 className="text-lg font-medium text-white">Current Projects ({getCurrentProjects().length})</h3>
-            </div>
-            <div className="p-6">
+          </div>
+          <div className="p-6">
               <div className="space-y-6">
                 {getCurrentProjects().map((client) => (
                   <div key={client.id} className="bg-white/5 rounded-lg p-4 border border-white/10">
                     <div className="flex items-center justify-between mb-4">
-                      <div>
+                        <div>
                         <h4 className="font-medium text-white">{client.name}</h4>
                         <p className="text-sm text-gray-400">{client.email}</p>
                         <p className="text-sm text-gray-400">{client.business}</p>
                         <p className="text-sm font-medium text-white">{client.service} • {client.subscriptionStatus}</p>
-                      </div>
-                      <div className="text-right">
+                        </div>
+                        <div className="text-right">
                         <p className="text-lg font-medium text-white">{client.amount}</p>
                         <p className="text-sm text-gray-400">{client.progress}% Complete</p>
+                        </div>
                       </div>
-                    </div>
-                    
-                    <div className="mb-4">
+                      
+                        <div className="mb-4">
                       <div className="flex items-center justify-between text-sm text-gray-400 mb-1">
-                        <span>Progress</span>
+                            <span>Progress</span>
                         <span>{client.progress}%</span>
-                      </div>
+                          </div>
                       <div className="w-full bg-white/10 rounded-full h-2">
-                        <div 
+                            <div 
                           className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full transition-all duration-300" 
                           style={{ width: `${client.progress}%` }}
-                        ></div>
-                      </div>
-                    </div>
-                    
+                            ></div>
+                          </div>
+                        </div>
+                      
                     <div className="flex space-x-2">
-                      <button
+                        <button
                         onClick={() => {
                           // View customer dashboard with onboarding form
                           const customerEmail = client.email;
@@ -885,12 +885,12 @@ const AdminDashboard = () => {
                           }
                         }}
                         className="inline-flex items-center px-3 py-1.5 border border-white/20 rounded-md text-sm font-medium text-white hover:bg-white/10 transition-colors"
-                      >
-                        <Eye className="w-4 h-4 mr-1" />
-                        View Dashboard
-                      </button>
-                      <button
-                        onClick={() => {
+                        >
+                          <Eye className="w-4 h-4 mr-1" />
+                          View Dashboard
+                        </button>
+                        <button
+                          onClick={() => {
                           const timelineSubmission = {
                             id: client.id,
                             formData: {
@@ -901,13 +901,13 @@ const AdminDashboard = () => {
                             timelineStatus: client.customerData?.orderTimeline || {}
                           };
                           setSelectedSubmission(timelineSubmission);
-                          setShowSubmissionModal(true);
-                        }}
+                              setShowSubmissionModal(true);
+                          }}
                         className="inline-flex items-center px-3 py-1.5 border border-white/20 rounded-md text-sm font-medium text-white hover:bg-white/10 transition-colors"
-                      >
+                        >
                         <Settings className="w-4 h-4 mr-1" />
-                        Manage Timeline
-                      </button>
+                          Manage Timeline
+                        </button>
                       <button
                         onClick={() => handleProjectCancellation(client.email, client.customerData?.activeProjects?.[0]?.id)}
                         className="inline-flex items-center px-3 py-1.5 border border-red-500/20 rounded-md text-sm font-medium text-red-400 hover:bg-red-500/10 transition-colors"
@@ -915,11 +915,11 @@ const AdminDashboard = () => {
                         <XCircle className="w-4 h-4 mr-1" />
                         Cancel Project
                       </button>
+                      </div>
                     </div>
-                  </div>
                 ))}
               </div>
-            </div>
+          </div>
           </motion.div>
         )}
 
@@ -932,8 +932,8 @@ const AdminDashboard = () => {
           >
             <div className="px-6 py-4 border-b border-white/10">
               <h3 className="text-lg font-medium text-white">Completed Projects ({getCompletedProjects().length})</h3>
-            </div>
-            <div className="p-6">
+          </div>
+          <div className="p-6">
               <div className="space-y-4">
                 {getCompletedProjects().map((client) => {
                   const isCancelled = client.subscriptionStatus === 'Cancelled' || 
@@ -953,7 +953,7 @@ const AdminDashboard = () => {
                               Cancelled: {new Date(cancelledProject.cancelledDate).toLocaleDateString()}
                             </p>
                           )}
-                        </div>
+                </div>
                         <div className="text-right">
                           <p className="text-lg font-medium text-white">{client.amount}</p>
                           <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
@@ -963,9 +963,9 @@ const AdminDashboard = () => {
                           }`}>
                             {isCancelled ? 'Cancelled' : 'Completed'}
                           </span>
-                        </div>
-                      </div>
-                    </div>
+              </div>
+                            </div>
+                            </div>
                   );
                 })}
               </div>
@@ -983,7 +983,7 @@ const AdminDashboard = () => {
             <div className="px-6 py-4 border-b border-white/10">
               <h3 className="text-lg font-medium text-white">Cancellation Requests ({cancellationRequests.length})</h3>
               <p className="text-sm text-gray-400 mt-1">Requests for project cancellation</p>
-            </div>
+                        </div>
             <div className="p-6">
               <div className="space-y-4">
                 {cancellationRequests.map((request) => (
@@ -1004,9 +1004,9 @@ const AdminDashboard = () => {
                               : 'bg-red-100 text-red-800'
                         }`}>
                           {request.status.replace('_', ' ').toUpperCase()}
-                        </span>
+                          </span>
+                        </div>
                       </div>
-                    </div>
                     <div className="mt-4 flex justify-end space-x-3">
                       {request.status === 'pending' && (
                         <>
@@ -1017,13 +1017,13 @@ const AdminDashboard = () => {
                             <CheckCircle className="w-4 h-4 mr-1" />
                             Approve
                           </button>
-                          <button
+                            <button
                             onClick={() => handleCancellationRequest(request.id, 'deny')}
                             className="inline-flex items-center px-3 py-1.5 border border-red-500/20 rounded-md text-sm font-medium text-red-400 hover:bg-red-500/10 transition-colors"
-                          >
+                            >
                             <XCircle className="w-4 h-4 mr-1" />
                             Deny
-                          </button>
+                            </button>
                         </>
                       )}
                       {request.status === 'approved' && (
@@ -1039,13 +1039,13 @@ const AdminDashboard = () => {
                         <span className="inline-flex items-center px-3 py-1.5 border border-red-500/20 rounded-md text-sm font-medium text-red-400">
                           <XCircle className="w-4 h-4 mr-1" />
                           Denied
-                        </span>
+                                </span>
                       )}
                     </div>
                   </div>
                 ))}
               </div>
-            </div>
+          </div>
           </motion.div>
         )}
 
@@ -1059,14 +1059,14 @@ const AdminDashboard = () => {
             <div className="px-6 py-4 border-b border-white/10">
               <h3 className="text-lg font-medium text-white">Deleted Users ({deletedUsers.length})</h3>
               <p className="text-sm text-gray-400 mt-1">Users who have deleted their accounts</p>
-            </div>
-            <div className="p-6">
+          </div>
+        <div className="p-6">
               {deletedUsers.length === 0 ? (
-                <div className="text-center py-8">
+            <div className="text-center py-8">
                   <XCircle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                   <p className="text-gray-400">No deleted users yet</p>
-                </div>
-              ) : (
+            </div>
+          ) : (
                 <div className="space-y-4">
                   {deletedUsers.map((deletedUser, index) => (
                     <div key={index} className="bg-white/5 rounded-lg p-4 border border-white/10">
@@ -1082,18 +1082,18 @@ const AdminDashboard = () => {
                               minute: '2-digit'
                             })}
                           </p>
-                        </div>
-                        <div className="text-right">
+                    </div>
+                                          <div className="text-right">
                           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
                             Deleted
                           </span>
-                        </div>
                       </div>
-                    </div>
-                  ))}
+                  </div>
                 </div>
-              )}
+              ))}
             </div>
+          )}
+        </div>
           </motion.div>
         )}
       </div>
@@ -1120,132 +1120,132 @@ const AdminDashboard = () => {
             </div>
 
             <div className="space-y-6">
-              <div>
+                  <div>
                 <h4 className="text-md font-medium text-white mb-4">Order Timeline Steps</h4>
-                <div className="space-y-3">
-                  {[
-                    { key: 'orderPlaced', title: 'Order Placed', description: 'Payment received and order confirmed' },
-                    { key: 'onboardingForm', title: 'Onboarding Form', description: 'Customer has completed business information form' },
-                    { key: 'orderInProgress', title: 'Order In Progress', description: 'Work has begun on the customer\'s campaign' },
-                    { key: 'reviewDelivery', title: 'Review Delivery', description: 'Deliverables ready for customer review' },
-                    { key: 'orderComplete', title: 'Order Complete', description: 'All work completed and delivered' }
-                  ].map((step) => {
+                  <div className="space-y-3">
+                    {[
+                      { key: 'orderPlaced', title: 'Order Placed', description: 'Payment received and order confirmed' },
+                      { key: 'onboardingForm', title: 'Onboarding Form', description: 'Customer has completed business information form' },
+                      { key: 'orderInProgress', title: 'Order In Progress', description: 'Work has begun on the customer\'s campaign' },
+                      { key: 'reviewDelivery', title: 'Review Delivery', description: 'Deliverables ready for customer review' },
+                      { key: 'orderComplete', title: 'Order Complete', description: 'All work completed and delivered' }
+                    ].map((step) => {
                     const stepData = selectedSubmission.timelineStatus?.[step.key] || {};
                     const isCompleted = stepData.completed || false;
                     const isInProgress = stepData.status === 'in_progress';
                       
-                    return (
+                      return (
                       <div key={step.key} className="flex items-center justify-between p-3 bg-white/5 rounded-lg border border-white/10">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2">
-                            <span className={`w-3 h-3 rounded-full ${
-                              isCompleted ? 'bg-green-500' : 
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2">
+                              <span className={`w-3 h-3 rounded-full ${
+                                isCompleted ? 'bg-green-500' : 
                               isInProgress ? 'bg-yellow-500' : 'bg-gray-500'
-                            }`}></span>
+                              }`}></span>
                             <span className="font-medium text-white">{step.title}</span>
-                          </div>
+                            </div>
                           <p className="text-sm text-gray-400 mt-1">{step.description}</p>
                           {stepData.date && (
-                            <p className="text-xs text-gray-500 mt-1">
+                              <p className="text-xs text-gray-500 mt-1">
                               {isCompleted ? 'Completed' : 'Started'}: {new Date(stepData.date).toLocaleDateString()}
-                            </p>
-                          )}
-                        </div>
-                        <div className="flex gap-2">
-                          <button
+                              </p>
+                            )}
+                          </div>
+                          <div className="flex gap-2">
+                            <button
                             onClick={() => handleTimelineStepUpdate(selectedSubmission.formData.email, step.key, 'completed')}
                             className={`inline-flex items-center px-3 py-1.5 rounded-md text-xs font-medium border transition-colors ${
-                              isCompleted 
+                                isCompleted 
                                 ? 'bg-green-500/20 text-green-400 border-green-500/30' 
                                 : 'bg-white/5 text-white border-white/20 hover:bg-green-500/20 hover:border-green-500/30'
-                            }`}
-                          >
-                            <CheckCircle className="w-4 h-4 mr-1" />
-                            {isCompleted ? 'Completed' : 'Mark Complete'}
-                          </button>
-                          {!isCompleted && (
-                            <button
-                              onClick={() => handleTimelineStepUpdate(selectedSubmission.formData.email, step.key, 'in_progress')}
-                              className={`inline-flex items-center px-3 py-1.5 rounded-md text-xs font-medium border transition-colors ${
-                                isInProgress 
-                                  ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' 
-                                  : 'bg-white/5 text-white border-white/20 hover:bg-yellow-500/20 hover:border-yellow-500/30'
                               }`}
                             >
-                              <Clock className="w-4 h-4 mr-1" />
-                              {isInProgress ? 'In Progress' : 'Mark In Progress'}
+                            <CheckCircle className="w-4 h-4 mr-1" />
+                              {isCompleted ? 'Completed' : 'Mark Complete'}
                             </button>
-                          )}
-                          {(isCompleted || isInProgress) && (
-                            <button
+                            {!isCompleted && (
+                              <button
+                              onClick={() => handleTimelineStepUpdate(selectedSubmission.formData.email, step.key, 'in_progress')}
+                              className={`inline-flex items-center px-3 py-1.5 rounded-md text-xs font-medium border transition-colors ${
+                                  isInProgress 
+                                  ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' 
+                                  : 'bg-white/5 text-white border-white/20 hover:bg-yellow-500/20 hover:border-yellow-500/30'
+                                }`}
+                              >
+                                <Clock className="w-4 h-4 mr-1" />
+                                {isInProgress ? 'In Progress' : 'Mark In Progress'}
+                              </button>
+                            )}
+                            {(isCompleted || isInProgress) && (
+                              <button
                               onClick={() => handleTimelineStepUpdate(selectedSubmission.formData.email, step.key, 'pending')}
                               className="inline-flex items-center px-3 py-1.5 rounded-md text-xs font-medium border bg-white/5 text-red-400 border-red-500/30 hover:bg-red-500/20 transition-colors"
-                            >
-                              <XCircle className="w-4 h-4 mr-1" />
-                              Reset
-                            </button>
-                          )}
+                              >
+                                <XCircle className="w-4 h-4 mr-1" />
+                                Reset
+                              </button>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    );
-                  })}
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      )}
-        
+        )}
+
         {/* Onboarding Review Modal */}
         {showOnboardingModal && selectedOnboarding && (
           <div className="fixed inset-0 bg-black/50 backdrop-blur-sm overflow-y-auto h-full w-full z-50">
             <div className="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-2/3 shadow-lg rounded-xl bg-gradient-to-br from-[#0f172a] via-[#10111a] to-black border-white/10">
-              <div className="flex justify-between items-center mb-6">
+            <div className="flex justify-between items-center mb-6">
                 <h3 className="text-xl font-medium text-white">
                   Review Onboarding - {selectedOnboarding.customerName}
-                </h3>
-                <button
+              </h3>
+              <button
                   onClick={() => {
                     setShowOnboardingModal(false);
                     setSelectedOnboarding(null);
                     setOnboardingNotes('');
                   }}
                   className="text-gray-400 hover:text-white"
-                >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
 
               <div className="space-y-6">
                 {/* Customer Information */}
-                <div>
+                  <div>
                   <h4 className="text-md font-medium text-white mb-4">Customer Information</h4>
                   <div className="bg-white/5 p-4 rounded-lg border border-white/10">
                     <div className="grid grid-cols-2 gap-4">
-                      <div>
+                  <div>
                         <p className="text-sm font-medium text-gray-400">Name</p>
                         <p className="text-sm text-white">{selectedOnboarding.customerName}</p>
-                      </div>
-                      <div>
+                  </div>
+                  <div>
                         <p className="text-sm font-medium text-gray-400">Email</p>
                         <p className="text-sm text-white">{selectedOnboarding.customerEmail}</p>
-                      </div>
-                      <div>
+                  </div>
+                  <div>
                         <p className="text-sm font-medium text-gray-400">Service</p>
                         <p className="text-sm text-white">{selectedOnboarding.service}</p>
-                      </div>
+                  </div>
                       <div>
                         <p className="text-sm font-medium text-gray-400">Submitted</p>
                         <p className="text-sm text-white">{new Date(selectedOnboarding.submittedAt || selectedOnboarding.submittedDate).toLocaleDateString()}</p>
                       </div>
-                    </div>
-                  </div>
+                      </div>
                 </div>
+              </div>
 
                 {/* Form Data */}
-                <div>
+                        <div>
                   <h4 className="text-md font-medium text-white mb-4">Form Data</h4>
                   <div className="bg-white/5 p-4 rounded-lg border border-white/10">
                     <div className="space-y-3">
@@ -1253,11 +1253,11 @@ const AdminDashboard = () => {
                         <div key={key}>
                           <p className="text-sm font-medium text-gray-400 capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</p>
                           <p className="text-sm text-white">{value}</p>
-                        </div>
-                      ))}
                     </div>
-                  </div>
+                  ))}
                 </div>
+              </div>
+            </div>
 
                 {/* Admin Notes */}
                 <div>
@@ -1302,8 +1302,8 @@ const AdminDashboard = () => {
             </div>
           </div>
         )}
-      </div>
-    );
-  };
+    </div>
+  );
+};
 
-  export default AdminDashboard; 
+export default AdminDashboard; 

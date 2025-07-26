@@ -658,8 +658,8 @@ const Dashboard = () => {
               </svg>
               {loading ? 'Refreshing...' : 'Refresh Data'}
             </button>
-          </div>
-          
+            </div>
+            
           {/* Quick Stats */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
             <div className="bg-slate-800 rounded border border-slate-700 p-4">
@@ -671,14 +671,14 @@ const Dashboard = () => {
                   <p className="text-sm text-slate-400">Active Projects</p>
                   <p className="text-lg font-semibold text-white">{customerData?.activeProjects?.length || 0}</p>
                 </div>
-              </div>
             </div>
-            
+          </div>
+          
             <div className="bg-slate-800 rounded border border-slate-700 p-4">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 bg-blue-500/20 rounded flex items-center justify-center">
                   <CheckCircle className="w-4 h-4 text-blue-400" />
-                </div>
+              </div>
                 <div>
                   <p className="text-sm text-slate-400">Status</p>
                   <p className="text-lg font-semibold text-white">
@@ -687,8 +687,8 @@ const Dashboard = () => {
                 </div>
               </div>
             </div>
-          </div>
         </div>
+      </div>
 
         {/* Check if customer has any projects */}
         {(!customerData?.activeProjects || customerData.activeProjects.length === 0) ? (
@@ -697,7 +697,7 @@ const Dashboard = () => {
               <div className="mx-auto mb-4">
                 <div className="w-12 h-12 bg-blue-600/20 rounded flex items-center justify-center">
                   <BarChart3 className="w-6 h-6 text-blue-400" />
-                </div>
+              </div>
               </div>
               <h2 className="text-lg font-semibold mb-3 text-white">
                 Ready to improve your Google Maps rankings?
@@ -812,16 +812,16 @@ const Dashboard = () => {
                       <div 
                         className="p-4 cursor-pointer hover:bg-[#333333] transition-colors"
                         onClick={() => toggleProjectExpansion(project.id)}
-                      >
-                        <div className="flex items-center justify-between">
+              >
+                <div className="flex items-center justify-between">
                           <div className="flex-1 min-w-0">
                             <h3 className="font-semibold text-white text-sm truncate">{project.name}</h3>
                             <div className="flex items-center gap-2 mt-1">
                               <span className="text-xs text-[#3abef9] font-medium">{project.type}</span>
                               <span className="text-xs text-gray-500">•</span>
                               <span className="text-xs text-gray-400">{project.category}</span>
-                            </div>
-                          </div>
+                  </div>
+                </div>
                           <div className="flex items-center gap-2">
                             <span className="bg-green-500/20 text-green-400 px-2 py-1 rounded-full text-xs font-medium">
                               {project.status}
@@ -832,8 +832,8 @@ const Dashboard = () => {
                               }`} 
                             />
                           </div>
-                        </div>
-                        
+            </div>
+
                         {/* Progress Bar (always visible) */}
                         <div className="mt-3">
                           <div className="flex justify-between text-xs mb-1">
@@ -879,82 +879,82 @@ const Dashboard = () => {
                               Order Progress Timeline
                             </h4>
                             <div className="space-y-3">
-                              {[
+                  {[
                                 { key: 'orderPlaced', label: 'Order Placed', description: 'Your order has been received' },
                                 { key: 'onboardingForm', label: 'Onboarding Form', description: 'Complete your business information' },
                                 { key: 'orderInProgress', label: 'Order In Progress', description: "We're working on your campaign" },
                                 { key: 'reviewDelivery', label: 'Review Delivery', description: 'Review and approve deliverables' },
                                 { key: 'orderComplete', label: 'Order Complete', description: 'Your campaign is live!' }
-                              ].map((step, index) => {
-                                const timelineData = customerData?.orderTimeline?.[step.key];
+                  ].map((step, index) => {
+                    const timelineData = customerData?.orderTimeline?.[step.key];
                                 const isCompleted = timelineData?.completed || timelineData?.status === 'completed';
                                 const isPendingApproval = timelineData?.status === 'pending_approval';
                                 const isCurrent = !isCompleted && !isPendingApproval && index === 1; // Onboarding is current if not completed
-                                
-                                return (
+                    
+                    return (
                                   <div key={step.key} className="flex items-start gap-3">
                                     <div className="flex-shrink-0">
                                       <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium ${
-                                        isCompleted 
-                                          ? 'bg-green-500 text-white' 
+                          isCompleted 
+                            ? 'bg-green-500 text-white' 
                                           : isPendingApproval
                                             ? 'bg-yellow-500 text-white'
-                                            : isCurrent
+                            : isCurrent 
                                               ? 'bg-blue-500 text-white'
-                                              : 'bg-gray-600 text-gray-400'
-                                      }`}>
-                                        {isCompleted ? (
+                              : 'bg-gray-600 text-gray-400'
+                        }`}>
+                          {isCompleted ? (
                                           <CheckCircle className="w-3 h-3" />
-                                        ) : (
+                          ) : (
                                           index + 1
-                                        )}
-                                      </div>
+                          )}
+                        </div>
                                     </div>
-                                    <div className="flex-1 min-w-0">
+                        <div className="flex-1 min-w-0">
                                       <div className="flex items-center gap-2 mb-1">
                                         <span className="text-xs font-medium text-white">{step.label}</span>
-                                        {isCompleted && (
-                                          <span className="bg-green-500/20 text-green-400 px-2 py-1 rounded-full text-xs font-medium">
-                                            Completed
-                                          </span>
-                                        )}
-                                        {isCurrent && (
+                            {isCompleted && (
+                              <span className="bg-green-500/20 text-green-400 px-2 py-1 rounded-full text-xs font-medium">
+                                Completed
+                              </span>
+                            )}
+                            {isCurrent && (
                                           <span className="bg-blue-500/20 text-blue-400 px-2 py-1 rounded-full text-xs font-medium">
-                                            In Progress
-                                          </span>
-                                        )}
+                                In Progress
+                              </span>
+                            )}
                                         {isPendingApproval && (
                                           <span className="bg-yellow-500/20 text-yellow-400 px-2 py-1 rounded-full text-xs font-medium">
                                             Pending Approval
                                           </span>
                                         )}
-                                      </div>
+                          </div>
                                       <p className="text-slate-400 text-xs mb-1">{step.description}</p>
-                                      {timelineData?.date && (
+                          {timelineData?.date && (
                                         <p className="text-slate-500 text-xs">
                                           {isCompleted ? 'Completed: ' : isPendingApproval ? 'Submitted: ' : 'Started: '}{timelineData.date}
-                                        </p>
-                                      )}
-                                      
-                                      {/* Onboarding Form Button */}
+                            </p>
+                          )}
+                          
+                          {/* Onboarding Form Button */}
                                       {step.key === 'onboardingForm' && !isCompleted && !isPendingApproval && (
-                                        <button
+                            <button
                                           onClick={() => {
                                             const projectName = project.name || 'Service';
                                             const serviceName = projectName.replace(' Package', '').replace(' package', '');
                                             openOnboardingForm(serviceName);
                                           }}
                                           className="mt-2 bg-blue-600 hover:bg-blue-700 text-white font-medium px-3 py-1.5 rounded-md transition-colors duration-200 text-xs"
-                                        >
-                                          Complete Onboarding Form
-                                        </button>
-                                      )}
-                                    </div>
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          </div>
+                            >
+                              Complete Onboarding Form
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
 
                           {/* Requirements & Deliverables */}
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
@@ -968,7 +968,7 @@ const Dashboard = () => {
                                   </li>
                                 ))}
                               </ul>
-                            </div>
+                        </div>
                             <div>
                               <h4 className="text-xs font-medium text-gray-300 mb-2">Deliverables</h4>
                               <ul className="space-y-1">
@@ -979,8 +979,8 @@ const Dashboard = () => {
                                   </li>
                                 ))}
                               </ul>
-                            </div>
-                          </div>
+                      </div>
+                        </div>
 
                           {/* Action Buttons */}
                           <div className="flex gap-2">
@@ -990,8 +990,8 @@ const Dashboard = () => {
                             >
                               Cancel Project
                             </button>
-                          </div>
                         </div>
+                      </div>
                       )}
                     </div>
                   ))}
@@ -1003,15 +1003,15 @@ const Dashboard = () => {
                 <div className="bg-orange-500/10 border border-orange-500/20 rounded-lg p-4 mb-6">
                   <div className="flex items-center">
                     <AlertTriangle className="h-5 w-5 text-orange-400 mr-3" />
-                    <div>
+                        <div>
                       <h3 className="text-orange-400 font-medium">Cancellation Request Submitted</h3>
                       <p className="text-orange-300 text-sm">{customerData.cancellationRequest.message}</p>
                       <p className="text-orange-300 text-xs mt-1">
                         Requested: {new Date(customerData.cancellationRequest.date).toLocaleDateString()}
                       </p>
-                    </div>
-                  </div>
-                </div>
+                        </div>
+                      </div>
+                        </div>
               )}
 
               {/* Project Cancelled Message */}
@@ -1034,10 +1034,10 @@ const Dashboard = () => {
                           Reason: {customerData.completedProjects.find(p => p.status === 'Cancelled').cancellationReason}
                         </p>
                       )}
-                    </div>
+                        </div>
+                        </div>
                   </div>
-                </div>
-              )}
+                )}
 
               {/* Recent Activity */}
               <motion.div
