@@ -209,10 +209,10 @@ const AdminDashboard = () => {
       localStorage.setItem('onboarding-submissions', JSON.stringify(updatedSubmissions));
       
       if (action === 'approve') {
-        updateCustomerTimelineStep(submission.customerEmail, 'onboardingForm', 'completed');
-        updateCustomerTimelineStep(submission.customerEmail, 'orderInProgress', 'in_progress');
+        await updateCustomerTimelineStep(submission.customerEmail, 'onboardingForm', 'completed');
+        await updateCustomerTimelineStep(submission.customerEmail, 'orderInProgress', 'in_progress');
       } else {
-        updateCustomerTimelineStep(submission.customerEmail, 'onboardingForm', 'pending');
+        await updateCustomerTimelineStep(submission.customerEmail, 'onboardingForm', 'pending');
       }
       
       // Update onboarding submissions state immediately
@@ -235,7 +235,19 @@ const AdminDashboard = () => {
     }
   };
 
-  const updateCustomerTimelineStep = (customerEmail, stepName, action) => {
+  const handleTimelineStepUpdate = async (email, stepKey, action) => {
+    try {
+      await updateCustomerTimelineStep(email, stepKey, action);
+      // Refresh admin dashboard data
+      setTimeout(() => {
+        loadAllData();
+      }, 500);
+    } catch (error) {
+      console.error('Error updating timeline step:', error);
+    }
+  };
+
+  const updateCustomerTimelineStep = async (customerEmail, stepName, action) => {
     try {
       let customerData = null;
       let storageKey = null;
@@ -314,6 +326,23 @@ const AdminDashboard = () => {
       
       // Save updated data
       localStorage.setItem(storageKey, JSON.stringify(updatedCustomerData));
+      
+      // SYNC TO BACKEND - CRITICAL FIX
+      try {
+        await fetch('https://rankly360.up.railway.app/api/sync-data', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email: customerEmail,
+            customerData: updatedCustomerData
+          })
+        });
+        console.log('✅ Timeline update synced to backend');
+      } catch (error) {
+        console.error('❌ Failed to sync timeline update to backend:', error);
+      }
       
       // Dispatch event to notify customer dashboard
       window.dispatchEvent(new CustomEvent('timelineUpdated', { 
@@ -957,7 +986,7 @@ const AdminDashboard = () => {
                         </div>
                         <div className="flex gap-2">
                           <button
-                            onClick={() => updateCustomerTimelineStep(selectedSubmission.formData.email, step.key, 'completed')}
+                            onClick={() => handleTimelineStepUpdate(selectedSubmission.formData.email, step.key, 'completed')}
                             className={`inline-flex items-center px-3 py-1.5 rounded-md text-xs font-medium border transition-colors ${
                               isCompleted 
                                 ? 'bg-green-500/20 text-green-400 border-green-500/30' 
@@ -969,7 +998,7 @@ const AdminDashboard = () => {
                           </button>
                           {!isCompleted && (
                             <button
-                              onClick={() => updateCustomerTimelineStep(selectedSubmission.formData.email, step.key, 'in_progress')}
+                              onClick={() => handleTimelineStepUpdate(selectedSubmission.formData.email, step.key, 'in_progress')}
                               className={`inline-flex items-center px-3 py-1.5 rounded-md text-xs font-medium border transition-colors ${
                                 isInProgress 
                                   ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' 
@@ -982,7 +1011,7 @@ const AdminDashboard = () => {
                           )}
                           {(isCompleted || isInProgress) && (
                             <button
-                              onClick={() => updateCustomerTimelineStep(selectedSubmission.formData.email, step.key, 'pending')}
+                              onClick={() => handleTimelineStepUpdate(selectedSubmission.formData.email, step.key, 'pending')}
                               className="inline-flex items-center px-3 py-1.5 rounded-md text-xs font-medium border bg-white/5 text-red-400 border-red-500/30 hover:bg-red-500/20 transition-colors"
                             >
                               <XCircle className="w-4 h-4 mr-1" />

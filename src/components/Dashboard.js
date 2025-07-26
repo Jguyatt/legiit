@@ -158,12 +158,44 @@ const Dashboard = () => {
     window.addEventListener('storage', handleStorageChange);
     
     // Also listen for custom events from admin dashboard
-    const handleTimelineUpdate = () => {
-      console.log('🔄 Timeline updated, refreshing customer data...');
-      const data = customerAuth.getCustomerData();
-      if (data) {
-        setCustomerData(data);
-        fixProjectDurations(data);
+    const handleTimelineUpdate = async (event) => {
+      console.log('🔄 Timeline updated, refreshing customer data...', event.detail);
+      
+      // Get updated data from event
+      const updatedData = event.detail?.updatedData;
+      if (updatedData) {
+        setCustomerData(updatedData);
+        fixProjectDurations(updatedData);
+        
+        // Also sync with backend to ensure consistency
+        try {
+          const userSession = userAuth.getSession();
+          if (userSession?.email) {
+            await fetch('https://rankly360.up.railway.app/api/sync-data', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                email: userSession.email,
+                customerData: updatedData
+              })
+            });
+            console.log('✅ Timeline update synced to backend');
+          }
+        } catch (error) {
+          console.error('❌ Failed to sync timeline update:', error);
+        }
+      } else {
+        // Fallback: refresh from backend
+        const userSession = userAuth.getSession();
+        if (userSession?.email) {
+          const backendData = await syncWithBackend(userSession.email);
+          if (backendData) {
+            setCustomerData(backendData);
+            fixProjectDurations(backendData);
+          }
+        }
       }
     };
 
