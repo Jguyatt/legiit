@@ -83,6 +83,7 @@ const AdminDashboard = () => {
       setSubmissions(submissionsData);
 
       const onboardingData = JSON.parse(localStorage.getItem('onboarding-submissions') || '[]');
+      console.log('📋 Loaded onboarding submissions:', onboardingData.length);
       setOnboardingSubmissions(onboardingData);
 
       // Load users from localStorage
@@ -225,7 +226,7 @@ const AdminDashboard = () => {
       const session = adminAuth.initSession();
       const adminEmail = session.data?.email || 'admin@rankly360.com';
       
-      const submissions = JSON.parse(localStorage.getItem('onboardingSubmissions') || '[]');
+      const submissions = JSON.parse(localStorage.getItem('onboarding-submissions') || '[]');
       const submission = submissions.find(s => s.id === submissionId);
       
       if (!submission) {
@@ -246,7 +247,7 @@ const AdminDashboard = () => {
         return s;
       });
       
-      localStorage.setItem('onboardingSubmissions', JSON.stringify(updatedSubmissions));
+      localStorage.setItem('onboarding-submissions', JSON.stringify(updatedSubmissions));
       
       if (action === 'approve') {
         updateCustomerTimelineStep(submission.customerEmail, 'onboardingForm', 'completed');
@@ -704,7 +705,7 @@ const AdminDashboard = () => {
               <div className="ml-5 w-0 flex-1">
                 <dl>
                         <dt className="text-sm font-medium text-gray-500 truncate">Pending Approvals</dt>
-                        <dd className="text-lg font-medium text-gray-900">{onboardingSubmissions.filter(s => s.status === 'pending').length}</dd>
+                        <dd className="text-lg font-medium text-gray-900">{onboardingSubmissions.filter(s => s.status === 'pending' || s.status === 'pending_approval').length}</dd>
                 </dl>
               </div>
             </div>
@@ -713,20 +714,30 @@ const AdminDashboard = () => {
 
               {/* Onboarding Approval Section */}
         <div className="bg-white rounded-lg shadow mb-8">
-          <div className="px-6 py-4 border-b border-gray-200">
+          <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
                   <h3 className="text-lg font-medium text-gray-900">Onboarding Approval</h3>
+                  <button
+                    onClick={() => {
+                      console.log('🔄 Manually refreshing onboarding submissions...');
+                      loadAllData();
+                    }}
+                    className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+                  >
+                    <RefreshCw className="w-4 h-4 mr-1" />
+                    Refresh
+                  </button>
           </div>
           <div className="p-6">
-                  {onboardingSubmissions.filter(s => s.status === 'pending').length > 0 ? (
+                  {onboardingSubmissions.filter(s => s.status === 'pending' || s.status === 'pending_approval').length > 0 ? (
                     <div className="space-y-4">
-                      {onboardingSubmissions.filter(s => s.status === 'pending').map((submission) => (
+                      {onboardingSubmissions.filter(s => s.status === 'pending' || s.status === 'pending_approval').map((submission) => (
                         <div key={submission.id} className="bg-gray-50 rounded-lg p-4">
                           <div className="flex items-center justify-between">
                         <div>
                               <h4 className="font-medium text-gray-900">{submission.customerName}</h4>
                               <p className="text-sm text-gray-600">{submission.customerEmail}</p>
                               <p className="text-sm text-gray-600">{submission.service}</p>
-                              <p className="text-xs text-gray-500">Submitted: {new Date(submission.submittedDate).toLocaleDateString()}</p>
+                              <p className="text-xs text-gray-500">Submitted: {new Date(submission.submittedAt || submission.submittedDate).toLocaleDateString()}</p>
                               </div>
                               <button
                                 onClick={() => {
@@ -742,7 +753,11 @@ const AdminDashboard = () => {
                         ))}
               </div>
             ) : (
-                    <p className="text-gray-500">No pending onboarding submissions</p>
+                    <div className="text-center py-8">
+                      <p className="text-gray-500 mb-4">No pending onboarding submissions</p>
+                      <p className="text-sm text-gray-400">Total submissions: {onboardingSubmissions.length}</p>
+                      <p className="text-sm text-gray-400">Statuses: {onboardingSubmissions.map(s => s.status).join(', ') || 'None'}</p>
+                    </div>
             )}
           </div>
         </div>
