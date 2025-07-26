@@ -102,24 +102,12 @@ const AdminDashboard = () => {
           setClients(backendCustomers);
           setUsers(data.users || {});
           setOnboardingSubmissions(data.onboardingSubmissions || []);
-          
-          // Load deleted users
-          try {
-            const deletedResponse = await fetch('https://rankly360.up.railway.app/api/deleted-users');
-            if (deletedResponse.ok) {
-              const deletedData = await deletedResponse.json();
-              if (deletedData.success) {
-                setDeletedUsers(deletedData.deletedUsers || []);
-                console.log(`📊 Loaded ${(deletedData.deletedUsers || []).length} deleted users from backend`);
-              }
-            }
-          } catch (error) {
-            console.error('❌ Error loading deleted users:', error);
-          }
+          setDeletedUsers(data.deletedUsers || []);
           
           console.log(`📊 Loaded ${backendCustomers.length} customers from backend`);
           console.log(`📊 Loaded ${Object.keys(data.users || {}).length} users from backend`);
           console.log(`📊 Loaded ${(data.onboardingSubmissions || []).length} onboarding submissions from backend`);
+          console.log(`📊 Loaded ${(data.deletedUsers || []).length} deleted users from backend`);
         } else {
           console.error('❌ Backend sync failed:', data.error);
         }
