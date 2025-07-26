@@ -218,7 +218,50 @@ const AdminDashboard = () => {
   };
 
   const handleRefresh = () => {
+    console.log('🔄 Manual refresh triggered...');
     loadAllData();
+  };
+
+  const handleBackendSync = async () => {
+    try {
+      console.log('🔄 Direct backend sync triggered...');
+      setLoading(true);
+      
+      const response = await fetch('https://rankly360.up.railway.app/api/all-customers');
+      const backendData = await response.json();
+      
+      if (backendData.success) {
+        console.log('✅ Backend sync successful:', backendData);
+        
+        // Update localStorage with backend data
+        if (backendData.customers) {
+          Object.entries(backendData.customers).forEach(([key, data]) => {
+            localStorage.setItem(key, JSON.stringify(data));
+          });
+        }
+        
+        if (backendData.users) {
+          localStorage.setItem('users', JSON.stringify(backendData.users));
+        }
+        
+        if (backendData.onboardingSubmissions) {
+          localStorage.setItem('onboarding-submissions', JSON.stringify(backendData.onboardingSubmissions));
+          console.log('📋 Onboarding submissions synced:', backendData.onboardingSubmissions.length);
+        }
+        
+        // Reload all data
+        loadAllData();
+        
+        alert(`✅ Backend sync completed!\n\nOnboarding submissions: ${backendData.onboardingSubmissions?.length || 0}\nCustomers: ${Object.keys(backendData.customers || {}).length}\nUsers: ${Object.keys(backendData.users || {}).length}`);
+      } else {
+        alert('❌ Backend sync failed');
+      }
+    } catch (error) {
+      console.error('❌ Backend sync error:', error);
+      alert('❌ Backend sync failed: ' + error.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleOnboardingAction = async (submissionId, action) => {
@@ -620,6 +663,13 @@ const AdminDashboard = () => {
               Refresh
               </button>
               <button
+                onClick={handleBackendSync}
+              className="flex-1 inline-flex items-center justify-center px-3 py-2 border border-transparent rounded-md shadow-sm text-xs font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+              >
+              <RefreshCw className="w-4 h-4 mr-1" />
+                Sync Backend
+              </button>
+              <button
                 onClick={handleLogout}
               className="flex-1 inline-flex items-center justify-center px-3 py-2 border border-transparent rounded-md shadow-sm text-xs font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
               >
@@ -716,16 +766,25 @@ const AdminDashboard = () => {
         <div className="bg-white rounded-lg shadow mb-8">
           <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
                   <h3 className="text-lg font-medium text-gray-900">Onboarding Approval</h3>
-                  <button
-                    onClick={() => {
-                      console.log('🔄 Manually refreshing onboarding submissions...');
-                      loadAllData();
-                    }}
-                    className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
-                  >
-                    <RefreshCw className="w-4 h-4 mr-1" />
-                    Refresh
-                  </button>
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={() => {
+                        console.log('🔄 Manually refreshing onboarding submissions...');
+                        loadAllData();
+                      }}
+                      className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+                    >
+                      <RefreshCw className="w-4 h-4 mr-1" />
+                      Refresh
+                    </button>
+                    <button
+                      onClick={handleBackendSync}
+                      className="inline-flex items-center px-3 py-2 border border-green-600 rounded-md text-sm font-medium text-green-600 bg-white hover:bg-green-50"
+                    >
+                      <RefreshCw className="w-4 h-4 mr-1" />
+                      Sync Backend
+                    </button>
+                  </div>
           </div>
           <div className="p-6">
                   {onboardingSubmissions.filter(s => s.status === 'pending' || s.status === 'pending_approval').length > 0 ? (
