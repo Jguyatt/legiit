@@ -85,26 +85,28 @@ const AdminDashboard = () => {
         console.log('✅ Backend sync successful');
         
         if (data.success) {
-          // Convert backend customers to frontend format
-          const backendCustomers = Object.values(data.customers || {}).map(customer => ({
-            id: customer.email,
-            name: customer.name,
-            email: customer.email,
-            business: customer.business,
-            service: customer.package,
-            amount: customer.monthlyRate ? `$${customer.monthlyRate}` : '$249',
-            progress: customer.activeProjects?.[0]?.progress || 20,
-            subscriptionStatus: customer.subscriptionStatus || 'Active',
-            customerData: customer,
-            activeProjects: customer.activeProjects || []
-          }));
+          // Convert backend customers to frontend format - ONLY those with active projects
+          const backendCustomers = Object.values(data.customers || {})
+            .filter(customer => customer.activeProjects && customer.activeProjects.length > 0) // Only customers with actual projects
+            .map(customer => ({
+              id: customer.email,
+              name: customer.name,
+              email: customer.email,
+              business: customer.business,
+              service: customer.package,
+              amount: customer.monthlyRate ? `$${customer.monthlyRate}` : '$249',
+              progress: customer.activeProjects?.[0]?.progress || 20,
+              subscriptionStatus: customer.subscriptionStatus || 'Active',
+              customerData: customer,
+              activeProjects: customer.activeProjects || []
+            }));
           
           setClients(backendCustomers);
           setUsers(data.users || {});
           setOnboardingSubmissions(data.onboardingSubmissions || []);
           setDeletedUsers(data.deletedUsers || []);
           
-          console.log(`📊 Loaded ${backendCustomers.length} customers from backend`);
+          console.log(`📊 Loaded ${backendCustomers.length} customers with projects from backend`);
           console.log(`📊 Loaded ${Object.keys(data.users || {}).length} users from backend`);
           console.log(`📊 Loaded ${(data.onboardingSubmissions || []).length} onboarding submissions from backend`);
           console.log(`📊 Loaded ${(data.deletedUsers || []).length} deleted users from backend`);
@@ -132,6 +134,8 @@ const AdminDashboard = () => {
 
   const getCurrentProjects = () => {
     return clients.filter(client => 
+      // Only show clients who have actual active projects (from purchases)
+      client.activeProjects && client.activeProjects.length > 0 &&
       client.progress > 0 && 
       client.progress < 100 && 
       client.subscriptionStatus !== 'Cancelled' &&
