@@ -9,7 +9,8 @@ import {
   CheckCircle,
   Clock,
   XCircle,
-  AlertTriangle
+  AlertTriangle,
+  ChevronDown
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { customerAuth } from '../utils/customerAuth';
@@ -21,10 +22,11 @@ import OnboardingForm from './OnboardingForm';
 const Dashboard = () => {
   const [isCustomer, setIsCustomer] = useState(false);
   const [customerData, setCustomerData] = useState(null);
+  const [showCancelConfirmation, setShowCancelConfirmation] = useState(false);
+  const [expandedProjects, setExpandedProjects] = useState(new Set());
   const [loading, setLoading] = useState(true);
   const [showOnboardingForm, setShowOnboardingForm] = useState(false);
   const [currentService, setCurrentService] = useState('');
-  const [showCancelConfirmation, setShowCancelConfirmation] = useState(false);
   const [showCompletionMessage, setShowCompletionMessage] = useState(false);
   const navigate = useNavigate();
 
@@ -228,11 +230,35 @@ const Dashboard = () => {
   useEffect(() => {
     if (customerData) {
       fixProjectDurations(customerData);
+      checkExpiredCancellations(customerData);
     }
+  }, [customerData]);
+
+  // Check for expired cancellations every hour
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (customerData) {
+        checkExpiredCancellations(customerData);
+      }
+    }, 60 * 60 * 1000); // Check every hour
+
+    return () => clearInterval(interval);
   }, [customerData]);
 
   const handleGetStarted = () => {
     navigate('/packages');
+  };
+
+  const toggleProjectExpansion = (projectId) => {
+    setExpandedProjects(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(projectId)) {
+        newSet.delete(projectId);
+      } else {
+        newSet.add(projectId);
+      }
+      return newSet;
+    });
   };
 
 
@@ -255,35 +281,45 @@ const Dashboard = () => {
     const project = currentData.activeProjects[0];
     
     try {
-      // Send cancellation request to backend
-      const response = await fetch('https://rankly360.up.railway.app/api/cancellation-request', {
+      // Immediately cancel the project (no approval needed)
+      const response = await fetch('https://rankly360.up.railway.app/api/cancel-project', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           customerEmail: currentData.email,
-          customerName: currentData.name,
           projectId: project.id,
-          reason: 'Customer requested cancellation'
+          cancelledBy: 'Customer'
         })
       });
       
       const result = await response.json();
       
       if (response.ok && result.success) {
-        // Update customer data to show cancellation is pending
+        // Calculate billing period end date (30 days from now)
+        const billingEndDate = new Date();
+        billingEndDate.setDate(billingEndDate.getDate() + 30);
+        
+        // Update customer data to show immediate cancellation
         const updatedData = {
           ...currentData,
-          cancellationRequest: {
-            status: 'pending',
-            date: new Date().toISOString(),
-            message: 'Your cancellation request has been submitted and is being reviewed.'
-          },
+          activeProjects: [], // Remove from active projects
+          completedProjects: [
+            ...(currentData.completedProjects || []),
+            {
+              ...project,
+              status: 'Cancelled',
+              cancelledDate: new Date().toISOString(),
+              cancelledBy: 'Customer',
+              billingEndDate: billingEndDate.toISOString(),
+              cancellationReason: 'Customer requested cancellation'
+            }
+          ],
           recentActivity: [
             {
-              type: 'cancellation_requested',
-              message: 'Cancellation request submitted',
+              type: 'project_cancelled',
+              message: 'Project cancelled by customer',
               date: new Date().toISOString().split('T')[0]
             },
             ...currentData.recentActivity
@@ -294,13 +330,13 @@ const Dashboard = () => {
         customerAuth.updateCustomerData(updatedData);
         setShowCancelConfirmation(false);
 
-        // Show success message
-        alert('Your cancellation request has been submitted. We will review it and contact you shortly.');
+        // Show success message with billing end date
+        alert(`✅ Your project has been successfully cancelled!\n\nYour service will remain active until ${billingEndDate.toLocaleDateString()} (end of billing period).\n\nAfter this date, your project will be moved to completed projects.`);
       } else {
-        alert('Error submitting cancellation request. Please try again.');
+        alert('Error cancelling project. Please try again.');
       }
     } catch (error) {
-      console.error('Error submitting cancellation request:', error);
+      console.error('Error cancelling project:', error);
       alert('Network error. Please try again.');
     }
   };
@@ -482,21 +518,62 @@ const Dashboard = () => {
 
   // Helper to move completed projects
   const moveCompletedProjects = (data) => {
-    if (!data.activeProjects) return data;
-    const completed = [];
-    const active = [];
-    data.activeProjects.forEach((project) => {
-      if (project.progress === 100 || project.currentPhase === 'Order Complete' || project.status === 'Completed') {
-        completed.push({ ...project, status: 'Completed' });
-      } else {
-        active.push(project);
+    if (!data || !data.activeProjects) return data;
+    
+    const now = new Date();
+    const updatedData = { ...data };
+    
+    // Check for cancelled projects that have passed their billing period
+    if (updatedData.completedProjects) {
+      updatedData.completedProjects = updatedData.completedProjects.map(project => {
+        if (project.status === 'Cancelled' && project.billingEndDate) {
+          const billingEnd = new Date(project.billingEndDate);
+          if (now > billingEnd) {
+            // Billing period has ended, mark as fully completed
+            return {
+              ...project,
+              status: 'Completed',
+              completedDate: billingEnd.toISOString(),
+              billingEndDate: null // Clear billing end date
+            };
+          }
+        }
+        return project;
+      });
+    }
+    
+    return updatedData;
+  };
+
+  const checkExpiredCancellations = (data) => {
+    if (!data || !data.completedProjects) return data;
+    
+    const now = new Date();
+    let hasChanges = false;
+    
+    const updatedData = { ...data };
+    updatedData.completedProjects = updatedData.completedProjects.map(project => {
+      if (project.status === 'Cancelled' && project.billingEndDate) {
+        const billingEnd = new Date(project.billingEndDate);
+        if (now > billingEnd) {
+          hasChanges = true;
+          return {
+            ...project,
+            status: 'Completed',
+            completedDate: billingEnd.toISOString(),
+            billingEndDate: null
+          };
+        }
       }
+      return project;
     });
-    return {
-      ...data,
-      activeProjects: active,
-      completedProjects: [...(data.completedProjects || []), ...completed],
-    };
+    
+    if (hasChanges) {
+      setCustomerData(updatedData);
+      customerAuth.updateCustomerData(updatedData);
+    }
+    
+    return updatedData;
   };
 
   // Watch for project completion
@@ -843,174 +920,190 @@ const Dashboard = () => {
                   <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5 text-[#3abef9]" />
                   Active Projects
                 </h2>
-                <div className="space-y-3 sm:space-y-4">
+                <div className="space-y-3">
                   {customerData?.activeProjects?.length === 0 && (
                     <p className="text-gray-400 text-sm">No active projects. Start a new project below!</p>
                   )}
                   {customerData?.activeProjects?.map((project) => (
-                    <div key={project.id} className="bg-[#2a2a2a] rounded-lg sm:rounded-xl p-3 sm:p-4">
-                      {/* Project Header */}
-                      <div className="flex justify-between items-start mb-3">
-                        <div className="flex-1 min-w-0">
-                          <h3 className="font-semibold text-white text-sm sm:text-base truncate">{project.name}</h3>
-                          <div className="flex items-center gap-2 mt-1">
-                            <span className="text-xs text-[#3abef9] font-medium">{project.type}</span>
-                            <span className="text-xs text-gray-500">•</span>
-                            <span className="text-xs text-gray-400">{project.category}</span>
+                    <div key={project.id} className="bg-[#2a2a2a] rounded-lg border border-gray-700/50 overflow-hidden">
+                      {/* Compact Project Header */}
+                      <div 
+                        className="p-4 cursor-pointer hover:bg-[#333333] transition-colors"
+                        onClick={() => toggleProjectExpansion(project.id)}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex-1 min-w-0">
+                            <h3 className="font-semibold text-white text-sm truncate">{project.name}</h3>
+                            <div className="flex items-center gap-2 mt-1">
+                              <span className="text-xs text-[#3abef9] font-medium">{project.type}</span>
+                              <span className="text-xs text-gray-500">•</span>
+                              <span className="text-xs text-gray-400">{project.category}</span>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="bg-green-500/20 text-green-400 px-2 py-1 rounded-full text-xs font-medium">
+                              {project.status}
+                            </span>
+                            <ChevronDown 
+                              className={`w-4 h-4 text-gray-400 transition-transform ${
+                                expandedProjects.has(project.id) ? 'rotate-180' : ''
+                              }`} 
+                            />
                           </div>
                         </div>
-                        <span className="bg-green-500/20 text-green-400 px-2 py-1 rounded-full text-xs font-medium ml-2 flex-shrink-0">
-                          {project.status}
-                        </span>
-                      </div>
-
-                      {/* Project Details */}
-                      <div className="grid grid-cols-2 gap-3 mb-3 text-xs">
-                        <div>
-                          <span className="text-gray-400">Started:</span>
-                          <p className="text-white">{project.startDate}</p>
-                        </div>
-                        <div>
-                          <span className="text-gray-400">Duration:</span>
-                          <p className="text-white">{project.estimatedDuration}</p>
-                        </div>
-                      </div>
-
-                      {/* Current Phase */}
-                      <div className="mb-3">
-                        <div className="flex items-center justify-between text-xs sm:text-sm mb-1">
-                          <span className="text-gray-400">Current Phase</span>
-                          <span className="text-[#3abef9] font-medium">{project.currentPhase}</span>
-                        </div>
-                        <div className="flex items-center justify-between text-xs sm:text-sm">
-                          <span className="text-gray-400">Next Milestone</span>
-                          <span className="text-white">{project.nextMilestone}</span>
+                        
+                        {/* Progress Bar (always visible) */}
+                        <div className="mt-3">
+                          <div className="flex justify-between text-xs mb-1">
+                            <span className="text-gray-400">Progress</span>
+                            <span className="text-white">{project.progress}%</span>
+                          </div>
+                          <div className="w-full bg-gray-700 rounded-full h-2">
+                            <div 
+                              className="bg-gradient-to-r from-[#3abef9] to-[#6366f1] h-2 rounded-full transition-all duration-300"
+                              style={{ width: `${project.progress}%` }}
+                            ></div>
+                          </div>
                         </div>
                       </div>
 
-                      {/* Progress Bar */}
-                      <div className="mb-3">
-                        <div className="flex justify-between text-xs sm:text-sm mb-1">
-                          <span className="text-gray-400">Progress</span>
-                          <span className="text-white">{project.progress}%</span>
-                        </div>
-                        <div className="w-full bg-gray-700 rounded-full h-1.5 sm:h-2">
-                          <div 
-                            className="bg-gradient-to-r from-[#3abef9] to-[#6366f1] h-1.5 sm:h-2 rounded-full transition-all duration-300"
-                            style={{ width: `${project.progress}%` }}
-                          ></div>
-                        </div>
-                      </div>
-
-                      {/* Milestones Status */}
-                      <div className="mb-3">
-                        <h4 className="text-xs font-medium text-gray-300 mb-2">Project Milestones</h4>
-                        <div className="space-y-1">
-                          {Object.entries(project.milestones || {}).map(([key, milestone]) => (
-                            <div key={key} className="flex items-center justify-between text-xs">
-                              <span className="text-gray-400 capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</span>
-                              <div className="flex items-center gap-1">
-                                {milestone.status === 'completed' ? (
-                                  <CheckCircle className="w-3 h-3 text-green-400" />
-                                ) : (
-                                  <Clock className="w-3 h-3 text-gray-500" />
-                                )}
-                                <span className={milestone.status === 'completed' ? 'text-green-400' : 'text-gray-500'}>
-                                  {milestone.status === 'completed' ? 'Completed' : 'Pending'}
-                                </span>
-                              </div>
+                      {/* Expanded Project Details */}
+                      {expandedProjects.has(project.id) && (
+                        <div className="border-t border-gray-700/50 p-4 bg-[#252525]">
+                          {/* Project Details */}
+                          <div className="grid grid-cols-2 gap-4 mb-4 text-xs">
+                            <div>
+                              <span className="text-gray-400">Started:</span>
+                              <p className="text-white">{project.startDate}</p>
                             </div>
-                          ))}
-                        </div>
-                      </div>
+                            <div>
+                              <span className="text-gray-400">Duration:</span>
+                              <p className="text-white">{project.estimatedDuration}</p>
+                            </div>
+                            <div>
+                              <span className="text-gray-400">Current Phase:</span>
+                              <p className="text-[#3abef9] font-medium">{project.currentPhase}</p>
+                            </div>
+                            <div>
+                              <span className="text-gray-400">Next Milestone:</span>
+                              <p className="text-white">{project.nextMilestone}</p>
+                            </div>
+                          </div>
 
-                      {/* Requirements & Deliverables */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                        <div>
-                          <h4 className="font-medium text-gray-300 mb-1">Requirements</h4>
-                          <ul className="space-y-1">
-                            {project.requirements?.map((req, index) => (
-                              <li key={index} className="text-gray-400 flex items-center gap-1">
-                                <div className="w-1 h-1 bg-[#3abef9] rounded-full"></div>
-                                {req}
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                        <div>
-                          <h4 className="font-medium text-gray-300 mb-1">Deliverables</h4>
-                          <ul className="space-y-1">
-                            {project.deliverables?.map((del, index) => (
-                              <li key={index} className="text-gray-400 flex items-center gap-1">
-                                <div className="w-1 h-1 bg-[#3abef9] rounded-full"></div>
-                                {del}
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      </div>
+                          {/* Milestones Status */}
+                          <div className="mb-4">
+                            <h4 className="text-xs font-medium text-gray-300 mb-2">Project Milestones</h4>
+                            <div className="space-y-1">
+                              {Object.entries(project.milestones || {}).map(([key, milestone]) => (
+                                <div key={key} className="flex items-center justify-between text-xs">
+                                  <span className="text-gray-400 capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</span>
+                                  <div className="flex items-center gap-1">
+                                    {milestone.status === 'completed' ? (
+                                      <CheckCircle className="w-3 h-3 text-green-400" />
+                                    ) : (
+                                      <Clock className="w-3 h-3 text-gray-500" />
+                                    )}
+                                    <span className={milestone.status === 'completed' ? 'text-green-400' : 'text-gray-500'}>
+                                      {milestone.status === 'completed' ? 'Completed' : 'Pending'}
+                                    </span>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
 
-                      {/* Next Update */}
-                      <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-400 mt-3 pt-3 border-t border-gray-700">
-                        <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
-                        <span className="truncate">Renews on: {customerData?.billing?.nextBilling || project.nextUpdate}</span>
-                      </div>
+                          {/* Requirements & Deliverables */}
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                            <div>
+                              <h4 className="text-xs font-medium text-gray-300 mb-2">Requirements</h4>
+                              <ul className="space-y-1">
+                                {project.requirements?.map((req, index) => (
+                                  <li key={index} className="text-xs text-gray-400 flex items-center gap-1">
+                                    <div className="w-1 h-1 bg-[#3abef9] rounded-full"></div>
+                                    {req}
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                            <div>
+                              <h4 className="text-xs font-medium text-gray-300 mb-2">Deliverables</h4>
+                              <ul className="space-y-1">
+                                {project.deliverables?.map((del, index) => (
+                                  <li key={index} className="text-xs text-gray-400 flex items-center gap-1">
+                                    <div className="w-1 h-1 bg-[#3abef9] rounded-full"></div>
+                                    {del}
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          </div>
+
+                          {/* Action Buttons */}
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => {
+                                const projectName = project.name || 'Service';
+                                const serviceName = projectName.replace(' Package', '').replace(' package', '');
+                                openOnboardingForm(serviceName);
+                              }}
+                              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium px-3 py-2 rounded-md transition-colors duration-200 text-xs"
+                            >
+                              Complete Onboarding
+                            </button>
+                            <button
+                              onClick={handleCancelMembership}
+                              className="bg-red-600 hover:bg-red-700 text-white font-medium px-3 py-2 rounded-md transition-colors duration-200 text-xs"
+                            >
+                              Cancel Project
+                            </button>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
-
-                {/* Cancel Membership Button */}
-                {customerData?.activeProjects?.length > 0 && !customerData?.cancellationRequest && (
-                  <div className="mt-6 pt-6 border-t border-gray-700">
-                    <motion.button
-                      onClick={handleCancelMembership}
-                      className="w-full bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-semibold px-4 py-3 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center gap-2"
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                    >
-                      <XCircle className="w-4 h-4" />
-                      Cancel Membership
-                    </motion.button>
-                  </div>
-                )}
-
-                {customerData?.cancellationRequest && (
-                  <div className="bg-orange-500/10 border border-orange-500/20 rounded-lg p-4 mb-6">
-                    <div className="flex items-center">
-                      <AlertTriangle className="h-5 w-5 text-orange-400 mr-3" />
-                      <div>
-                        <h3 className="text-orange-400 font-medium">Cancellation Request Submitted</h3>
-                        <p className="text-orange-300 text-sm">{customerData.cancellationRequest.message}</p>
-                        <p className="text-orange-300 text-xs mt-1">
-                          Requested: {new Date(customerData.cancellationRequest.date).toLocaleDateString()}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Project Cancelled Message */}
-                {customerData?.activeProjects?.length === 0 && customerData?.completedProjects?.some(p => p.status === 'Cancelled') && (
-                  <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-4 mb-6">
-                    <div className="flex items-center">
-                      <XCircle className="h-5 w-5 text-red-400 mr-3" />
-                      <div>
-                        <h3 className="text-red-400 font-medium">Project Cancelled</h3>
-                        <p className="text-red-300 text-sm">
-                          Your project has been cancelled and will expire at the end of your billing period.
-                        </p>
-                        {customerData?.completedProjects?.find(p => p.status === 'Cancelled')?.cancellationReason && (
-                          <p className="text-red-300 text-xs mt-1">
-                            Reason: {customerData.completedProjects.find(p => p.status === 'Cancelled').cancellationReason}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                )}
               </motion.div>
 
+              {/* Cancellation Messages */}
+              {customerData?.cancellationRequest && (
+                <div className="bg-orange-500/10 border border-orange-500/20 rounded-lg p-4 mb-6">
+                  <div className="flex items-center">
+                    <AlertTriangle className="h-5 w-5 text-orange-400 mr-3" />
+                    <div>
+                      <h3 className="text-orange-400 font-medium">Cancellation Request Submitted</h3>
+                      <p className="text-orange-300 text-sm">{customerData.cancellationRequest.message}</p>
+                      <p className="text-orange-300 text-xs mt-1">
+                        Requested: {new Date(customerData.cancellationRequest.date).toLocaleDateString()}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
 
+              {/* Project Cancelled Message */}
+              {customerData?.activeProjects?.length === 0 && customerData?.completedProjects?.some(p => p.status === 'Cancelled') && (
+                <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-4 mb-6">
+                  <div className="flex items-center">
+                    <XCircle className="h-5 w-5 text-red-400 mr-3" />
+                    <div>
+                      <h3 className="text-red-400 font-medium">Project Cancelled</h3>
+                      <p className="text-red-300 text-sm">
+                        Your project has been cancelled and will expire at the end of your billing period.
+                      </p>
+                      {customerData?.completedProjects?.find(p => p.status === 'Cancelled')?.billingEndDate && (
+                        <p className="text-red-300 text-xs mt-1">
+                          Billing period ends: {new Date(customerData.completedProjects.find(p => p.status === 'Cancelled').billingEndDate).toLocaleDateString()}
+                        </p>
+                      )}
+                      {customerData?.completedProjects?.find(p => p.status === 'Cancelled')?.cancellationReason && (
+                        <p className="text-red-300 text-xs mt-1">
+                          Reason: {customerData.completedProjects.find(p => p.status === 'Cancelled').cancellationReason}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Recent Activity */}
               <motion.div
