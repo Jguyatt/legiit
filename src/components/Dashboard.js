@@ -789,124 +789,6 @@ const Dashboard = () => {
               </div>
             </div>
 
-            {/* Order Timeline */}
-            <div className="bg-slate-800 rounded-lg border border-slate-700 p-6 mb-6">
-              <h2 className="text-lg font-semibold mb-6 flex items-center gap-2 text-white">
-                <Clock className="w-5 h-5 text-blue-400" />
-                Order Progress Timeline
-              </h2>
-              
-              <div className="relative">
-                {/* Timeline Line */}
-                <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-slate-600"></div>
-                
-                {/* Timeline Steps */}
-                <div className="space-y-6">
-                  {[
-                    { key: 'orderPlaced', title: 'Order Placed', description: 'Your order has been received' },
-                    { key: 'onboardingForm', title: 'Onboarding Form', description: 'Complete your business information' },
-                    { key: 'orderInProgress', title: 'Order In Progress', description: 'We\'re working on your campaign' },
-                    { key: 'reviewDelivery', title: 'Review Delivery', description: 'Review and approve deliverables' },
-                    { key: 'orderComplete', title: 'Order Complete', description: 'Your campaign is live!' }
-                  ].map((step, index) => {
-                    const timelineData = customerData?.orderTimeline?.[step.key];
-                    const isCompleted = timelineData?.completed;
-                    const isCurrent = timelineData?.status === 'in_progress';
-                    const isPendingApproval = timelineData?.status === 'pending_approval';
-                    
-                    // Update title for onboarding form when pending approval
-                    let stepTitle = step.title;
-                    if (step.key === 'onboardingForm' && isPendingApproval) {
-                      stepTitle = 'Onboarding Form Pending Approval';
-                    }
-                    
-                    return (
-                      <div key={step.key} className="relative flex items-start gap-4">
-                        {/* Timeline Dot */}
-                        <div className={`relative z-10 w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-                          isCompleted 
-                            ? 'bg-green-500 text-white' 
-                            : isCurrent 
-                              ? 'bg-blue-600 text-white' 
-                              : isPendingApproval
-                                ? 'bg-yellow-500 text-white'
-                                : 'bg-slate-600 text-slate-300'
-                        }`}>
-                          {isCompleted ? (
-                            <CheckCircle className="w-4 h-4" />
-                          ) : (
-                            <span className="text-xs font-semibold">{index + 1}</span>
-                          )}
-                        </div>
-                        
-                        {/* Content */}
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1">
-                            <h3 className={`font-semibold text-sm ${
-                              isCompleted ? 'text-green-400' : isCurrent ? 'text-blue-400' : isPendingApproval ? 'text-yellow-400' : 'text-slate-400'
-                            }`}>
-                              {stepTitle}
-                            </h3>
-                            {isCompleted && (
-                              <span className="bg-green-500/20 text-green-400 px-2 py-1 rounded-full text-xs font-medium">
-                                Completed
-                              </span>
-                            )}
-                            {isCurrent && (
-                              <span className="bg-blue-500/20 text-blue-400 px-2 py-1 rounded-full text-xs font-medium">
-                                In Progress
-                              </span>
-                            )}
-                            {isPendingApproval && (
-                              <span className="bg-yellow-500/20 text-yellow-400 px-2 py-1 rounded-full text-xs font-medium">
-                                Pending Approval
-                              </span>
-                            )}
-                          </div>
-                          <p className="text-slate-400 text-sm mb-1">{step.description}</p>
-                          {timelineData?.date && (
-                            <p className="text-slate-500 text-xs">
-                              {isCompleted ? 'Completed: ' : isPendingApproval ? 'Submitted: ' : 'Started: '}{timelineData.date}
-                            </p>
-                          )}
-                          
-                          {/* Onboarding Form Button */}
-                          {step.key === 'onboardingForm' && !isCompleted && !isPendingApproval && (
-                            <button
-                              onClick={() => {
-                                // Extract service name from project name (remove " Package" suffix)
-                                const projectName = customerData?.activeProjects?.[0]?.name || 'Service';
-                                const serviceName = projectName.replace(' Package', '').replace(' package', '');
-                                openOnboardingForm(serviceName);
-                              }}
-                              className="mt-2 bg-blue-600 hover:bg-blue-700 text-white font-medium px-3 sm:px-4 py-2 rounded-md transition-colors duration-200 text-xs sm:text-sm"
-                            >
-                              Complete Onboarding Form
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
-
-            {/* Completion Message */}
-            {showCompletionMessage && (
-              <div className="bg-green-600/20 border border-green-600/30 rounded-lg p-6 mb-8 text-center">
-                <h2 className="text-xl font-bold text-green-400 mb-2">Your project is complete!</h2>
-                <p className="text-green-200 mb-4">Please check your email for deliverables and next steps.</p>
-                <button
-                  onClick={handleGetStarted}
-                  className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-lg transition-colors text-base shadow"
-                >
-                  Start a New Project
-                  <ArrowRight className="w-5 h-5" />
-                </button>
-              </div>
-            )}
-
             {/* Active Projects and Activity */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
               {/* Active Projects */}
@@ -920,13 +802,13 @@ const Dashboard = () => {
                   <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5 text-[#3abef9]" />
                   Active Projects
                 </h2>
-                <div className="space-y-3">
+                <div className="space-y-4">
                   {customerData?.activeProjects?.length === 0 && (
                     <p className="text-gray-400 text-sm">No active projects. Start a new project below!</p>
                   )}
                   {customerData?.activeProjects?.map((project) => (
                     <div key={project.id} className="bg-[#2a2a2a] rounded-lg border border-gray-700/50 overflow-hidden">
-                      {/* Compact Project Header */}
+                      {/* Project Header */}
                       <div 
                         className="p-4 cursor-pointer hover:bg-[#333333] transition-colors"
                         onClick={() => toggleProjectExpansion(project.id)}
@@ -990,25 +872,87 @@ const Dashboard = () => {
                             </div>
                           </div>
 
-                          {/* Milestones Status */}
+                          {/* Order Progress Timeline for this project */}
                           <div className="mb-4">
-                            <h4 className="text-xs font-medium text-gray-300 mb-2">Project Milestones</h4>
-                            <div className="space-y-1">
-                              {Object.entries(project.milestones || {}).map(([key, milestone]) => (
-                                <div key={key} className="flex items-center justify-between text-xs">
-                                  <span className="text-gray-400 capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</span>
-                                  <div className="flex items-center gap-1">
-                                    {milestone.status === 'completed' ? (
-                                      <CheckCircle className="w-3 h-3 text-green-400" />
-                                    ) : (
-                                      <Clock className="w-3 h-3 text-gray-500" />
-                                    )}
-                                    <span className={milestone.status === 'completed' ? 'text-green-400' : 'text-gray-500'}>
-                                      {milestone.status === 'completed' ? 'Completed' : 'Pending'}
-                                    </span>
+                            <h4 className="text-xs font-medium text-gray-300 mb-3 flex items-center gap-2">
+                              <Clock className="w-4 h-4" />
+                              Order Progress Timeline
+                            </h4>
+                            <div className="space-y-3">
+                              {[
+                                { key: 'orderPlaced', label: 'Order Placed', description: 'Your order has been received' },
+                                { key: 'onboardingForm', label: 'Onboarding Form', description: 'Complete your business information' },
+                                { key: 'orderInProgress', label: 'Order In Progress', description: "We're working on your campaign" },
+                                { key: 'reviewDelivery', label: 'Review Delivery', description: 'Review and approve deliverables' },
+                                { key: 'orderComplete', label: 'Order Complete', description: 'Your campaign is live!' }
+                              ].map((step, index) => {
+                                const timelineData = customerData?.orderTimeline?.[step.key];
+                                const isCompleted = timelineData?.completed || timelineData?.status === 'completed';
+                                const isPendingApproval = timelineData?.status === 'pending_approval';
+                                const isCurrent = !isCompleted && !isPendingApproval && index === 1; // Onboarding is current if not completed
+                                
+                                return (
+                                  <div key={step.key} className="flex items-start gap-3">
+                                    <div className="flex-shrink-0">
+                                      <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium ${
+                                        isCompleted 
+                                          ? 'bg-green-500 text-white' 
+                                          : isPendingApproval
+                                            ? 'bg-yellow-500 text-white'
+                                            : isCurrent
+                                              ? 'bg-blue-500 text-white'
+                                              : 'bg-gray-600 text-gray-400'
+                                      }`}>
+                                        {isCompleted ? (
+                                          <CheckCircle className="w-3 h-3" />
+                                        ) : (
+                                          index + 1
+                                        )}
+                                      </div>
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                      <div className="flex items-center gap-2 mb-1">
+                                        <span className="text-xs font-medium text-white">{step.label}</span>
+                                        {isCompleted && (
+                                          <span className="bg-green-500/20 text-green-400 px-2 py-1 rounded-full text-xs font-medium">
+                                            Completed
+                                          </span>
+                                        )}
+                                        {isCurrent && (
+                                          <span className="bg-blue-500/20 text-blue-400 px-2 py-1 rounded-full text-xs font-medium">
+                                            In Progress
+                                          </span>
+                                        )}
+                                        {isPendingApproval && (
+                                          <span className="bg-yellow-500/20 text-yellow-400 px-2 py-1 rounded-full text-xs font-medium">
+                                            Pending Approval
+                                          </span>
+                                        )}
+                                      </div>
+                                      <p className="text-slate-400 text-xs mb-1">{step.description}</p>
+                                      {timelineData?.date && (
+                                        <p className="text-slate-500 text-xs">
+                                          {isCompleted ? 'Completed: ' : isPendingApproval ? 'Submitted: ' : 'Started: '}{timelineData.date}
+                                        </p>
+                                      )}
+                                      
+                                      {/* Onboarding Form Button */}
+                                      {step.key === 'onboardingForm' && !isCompleted && !isPendingApproval && (
+                                        <button
+                                          onClick={() => {
+                                            const projectName = project.name || 'Service';
+                                            const serviceName = projectName.replace(' Package', '').replace(' package', '');
+                                            openOnboardingForm(serviceName);
+                                          }}
+                                          className="mt-2 bg-blue-600 hover:bg-blue-700 text-white font-medium px-3 py-1.5 rounded-md transition-colors duration-200 text-xs"
+                                        >
+                                          Complete Onboarding Form
+                                        </button>
+                                      )}
+                                    </div>
                                   </div>
-                                </div>
-                              ))}
+                                );
+                              })}
                             </div>
                           </div>
 
@@ -1040,16 +984,6 @@ const Dashboard = () => {
 
                           {/* Action Buttons */}
                           <div className="flex gap-2">
-                            <button
-                              onClick={() => {
-                                const projectName = project.name || 'Service';
-                                const serviceName = projectName.replace(' Package', '').replace(' package', '');
-                                openOnboardingForm(serviceName);
-                              }}
-                              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium px-3 py-2 rounded-md transition-colors duration-200 text-xs"
-                            >
-                              Complete Onboarding
-                            </button>
                             <button
                               onClick={handleCancelMembership}
                               className="bg-red-600 hover:bg-red-700 text-white font-medium px-3 py-2 rounded-md transition-colors duration-200 text-xs"
