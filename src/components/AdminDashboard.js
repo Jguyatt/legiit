@@ -396,8 +396,6 @@ const AdminDashboard = () => {
   };
 
   const handleProjectCancellation = async (customerEmail, projectId) => {
-    console.log('🚫 Cancellation attempt:', { customerEmail, projectId });
-    
     if (!customerEmail) {
       console.error('❌ No customer email provided');
       alert('Error: No customer email provided');
@@ -427,9 +425,7 @@ const AdminDashboard = () => {
           })
         });
         
-        console.log('Response status:', response.status);
         const result = await response.json();
-        console.log('Response data:', result);
         
         if (response.ok && result.success) {
           console.log('✅ Backend cancellation successful:', result);
@@ -795,14 +791,7 @@ const AdminDashboard = () => {
                         Manage Timeline
                       </button>
                       <button
-                        onClick={() => {
-                          console.log('🔍 Cancel button clicked for client:', client);
-                          console.log('📊 Client email:', client.email);
-                          console.log('📊 Client customerData:', client.customerData);
-                          console.log('📊 Active projects:', client.customerData?.activeProjects);
-                          console.log('📊 First project ID:', client.customerData?.activeProjects?.[0]?.id);
-                          handleProjectCancellation(client.email, client.customerData?.activeProjects?.[0]?.id);
-                        }}
+                        onClick={() => handleProjectCancellation(client.email, client.customerData?.activeProjects?.[0]?.id)}
                         className="inline-flex items-center px-3 py-1.5 border border-red-500/20 rounded-md text-sm font-medium text-red-400 hover:bg-red-500/10 transition-colors"
                       >
                         <XCircle className="w-4 h-4 mr-1" />
