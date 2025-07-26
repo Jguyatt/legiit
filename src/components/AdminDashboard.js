@@ -37,7 +37,8 @@ const AdminDashboard = () => {
     };
 
     const handleCustomerAdded = (event) => {
-      console.log('🆕 New customer added, refreshing admin dashboard...', event.detail);
+      console.log('🆕 New customer/user added event received:', event.detail);
+      console.log('🔄 Refreshing admin dashboard...');
       loadAllData();
     };
 

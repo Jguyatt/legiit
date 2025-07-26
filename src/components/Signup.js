@@ -150,6 +150,7 @@ const Signup = () => {
           
           // Sync user data to backend (not customer data)
           try {
+            console.log('🔄 Syncing user data to backend:', userData);
             const syncResponse = await fetch('https://rankly360.up.railway.app/api/sync-data', {
               method: 'POST',
               headers: {
@@ -161,15 +162,17 @@ const Signup = () => {
             });
             
             if (syncResponse.ok) {
-              console.log('✅ User data synced to backend');
+              const result = await syncResponse.json();
+              console.log('✅ User data synced to backend:', result);
             } else {
-              console.error('❌ Failed to sync user data to backend');
+              console.error('❌ Failed to sync user data to backend:', syncResponse.status);
             }
           } catch (error) {
             console.error('❌ Error syncing to backend:', error);
           }
           
           // Dispatch event to notify admin dashboard of new user
+          console.log('📡 Dispatching customerAdded event for new user');
           window.dispatchEvent(new CustomEvent('customerAdded', { 
             detail: { userData: userData } 
           }));
