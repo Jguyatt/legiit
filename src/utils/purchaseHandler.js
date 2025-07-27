@@ -116,6 +116,17 @@ export const purchaseHandler = {
       detail: { customerData } 
     }));
 
+    // Dispatch newPurchase event for admin dashboard notification
+    window.dispatchEvent(new CustomEvent('newPurchase', { 
+      detail: { 
+        customerEmail: finalEmail,
+        customerName: finalName,
+        packageName: packageName,
+        amount: purchaseData.amount,
+        stripeSessionId: purchaseData.stripeSessionId
+      } 
+    }));
+
     console.log('✅ Purchase successfully processed for:', customerEmail);
     return customerData;
   },

@@ -26,6 +26,38 @@ const AdminDashboard = () => {
   const [successMessages, setSuccessMessages] = useState({});
   const [errorMessages, setErrorMessages] = useState({});
 
+  // Event handlers
+  const handleStorageChange = () => {
+    console.log('🔄 Storage changed, refreshing admin dashboard...');
+    loadAllData();
+  };
+
+  const handleCustomerAdded = (event) => {
+    console.log('🆕 New customer/user added event received:', event.detail);
+    console.log('🔄 Refreshing admin dashboard...');
+    loadAllData();
+  };
+
+  const handleOnboardingSubmitted = (event) => {
+    console.log('📋 New onboarding submission, refreshing admin dashboard...', event.detail);
+    loadAllData();
+  };
+
+  const handleUserDeleted = (event) => {
+    console.log('🗑️ User deleted:', event.detail.email);
+    // Refresh data to remove deleted user
+    loadAllData();
+  };
+
+  const handleNewPurchase = (event) => {
+    console.log('💰 New purchase detected:', event.detail);
+    // Show notification and refresh data
+    alert(`🎉 New Project Started!\n\nCustomer: ${event.detail.customerName}\nEmail: ${event.detail.customerEmail}\nService: ${event.detail.packageName}\nAmount: $${event.detail.amount}\n\nCheck the "Current Projects" tab to manage this project.`);
+    loadAllData();
+    // Automatically switch to Current Projects tab
+    setActiveTab('current-projects');
+  };
+
   useEffect(() => {
     const session = adminAuth.initSession();
     if (!session.success) {
@@ -34,40 +66,22 @@ const AdminDashboard = () => {
     }
 
     loadAllData();
-
-    const handleStorageChange = () => {
-      console.log('🔄 Storage changed, refreshing admin dashboard...');
-      loadAllData();
-    };
-
-    const handleCustomerAdded = (event) => {
-      console.log('🆕 New customer/user added event received:', event.detail);
-      console.log('🔄 Refreshing admin dashboard...');
-    loadAllData();
-  };
-
-    const handleOnboardingSubmitted = (event) => {
-      console.log('📋 New onboarding submission, refreshing admin dashboard...', event.detail);
-    loadAllData();
-    };
-
-    // Listen for user deletion events
-    const handleUserDeleted = (event) => {
-      console.log('🗑️ User deleted:', event.detail.email);
-      // Refresh data to remove deleted user
-      loadAllData();
-    };
-
-    window.addEventListener('storage', handleStorageChange);
+    
+    // Listen for new customer additions
     window.addEventListener('customerAdded', handleCustomerAdded);
     window.addEventListener('onboardingSubmitted', handleOnboardingSubmitted);
     window.addEventListener('userDeleted', handleUserDeleted);
+    window.addEventListener('storage', handleStorageChange);
+    
+    // Listen for new purchases
+    window.addEventListener('newPurchase', handleNewPurchase);
     
     return () => {
-      window.removeEventListener('storage', handleStorageChange);
       window.removeEventListener('customerAdded', handleCustomerAdded);
       window.removeEventListener('onboardingSubmitted', handleOnboardingSubmitted);
       window.removeEventListener('userDeleted', handleUserDeleted);
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('newPurchase', handleNewPurchase);
     };
   }, []);
 
@@ -95,17 +109,22 @@ const AdminDashboard = () => {
         
         setClients(backendCustomers);
         
-        // Load users (all signed up users)
-        const allUsers = Object.values(data.users || {}).map(user => ({
-          id: user.email,
-        name: user.name,
-        email: user.email,
-          businessName: user.businessName,
-          isAdmin: user.isAdmin || false,
-          emailVerified: user.emailVerified || false,
-          createdAt: user.createdAt,
-          activeProjects: user.activeProjects || []
-        }));
+        // Load users (all signed up users) - ensure uniqueness
+        const allUsers = Object.values(data.users || {})
+          .filter((user, index, self) => 
+            // Remove duplicates based on email
+            index === self.findIndex(u => u.email === user.email)
+          )
+          .map(user => ({
+            id: user.email,
+            name: user.name,
+            email: user.email,
+            businessName: user.businessName,
+            isAdmin: user.isAdmin || false,
+            emailVerified: user.emailVerified || false,
+            createdAt: user.createdAt,
+            activeProjects: user.activeProjects || []
+          }));
         
         setUsers(allUsers);
         
@@ -148,12 +167,9 @@ const AdminDashboard = () => {
 
   const getCurrentProjects = () => {
     return clients.filter(client => 
-      // Only show clients who have actual active projects (from purchases)
-      client.activeProjects && client.activeProjects.length > 0 &&
-      client.progress > 0 && 
-      client.progress < 100 && 
-      client.subscriptionStatus !== 'Cancelled' &&
-      !client.customerData?.activeProjects?.some(project => project.status === 'Cancelled')
+      // Show clients who have active projects (from purchases)
+      client.customerData?.activeProjects && client.customerData.activeProjects.length > 0 &&
+      client.customerData.subscriptionStatus !== 'Cancelled'
     );
   };
 
@@ -868,90 +884,120 @@ const AdminDashboard = () => {
           </div>
           <div className="p-6">
               <div className="space-y-6">
-                {getCurrentProjects().map((client) => (
-                  <div key={client.id} className="bg-white/5 rounded-lg p-4 border border-white/10">
-                    <div className="flex items-center justify-between mb-4">
+                {getCurrentProjects().map((client) => {
+                  const project = client.customerData?.activeProjects?.[0];
+                  const projectName = project?.name || client.service || 'Unknown Project';
+                  const projectType = project?.type || 'Local SEO';
+                  const startDate = project?.startDate || 'Unknown';
+                  const nextUpdate = project?.nextUpdate || 'Unknown';
+                  
+                  return (
+                    <div key={client.id} className="bg-white/5 rounded-lg p-4 border border-white/10">
+                      <div className="flex items-center justify-between mb-4">
                         <div>
-                        <h4 className="font-medium text-white">{client.name}</h4>
-                        <p className="text-sm text-gray-400">{client.email}</p>
-                        <p className="text-sm text-gray-400">{client.business}</p>
-                        <p className="text-sm font-medium text-white">{client.service} • {client.subscriptionStatus}</p>
+                          <h4 className="font-medium text-white">{client.name}</h4>
+                          <p className="text-sm text-gray-400">{client.email}</p>
+                          <p className="text-sm text-gray-400">{client.customerData?.business || client.business}</p>
+                          <p className="text-sm font-medium text-white">{projectName} • {client.customerData?.subscriptionStatus || client.subscriptionStatus}</p>
                         </div>
                         <div className="text-right">
-                        <p className="text-lg font-medium text-white">{client.amount}</p>
-                        <p className="text-sm text-gray-400">{client.progress}% Complete</p>
+                          <p className="text-lg font-medium text-white">${project?.monthlyRate || client.customerData?.monthlyRate || 'N/A'}</p>
+                          <p className="text-sm text-gray-400">{client.progress || project?.progress || 0}% Complete</p>
                         </div>
                       </div>
                       
-                        <div className="mb-4">
-                      <div className="flex items-center justify-between text-sm text-gray-400 mb-1">
-                            <span>Progress</span>
-                        <span>{client.progress}%</span>
+                      <div className="mb-4">
+                        <div className="flex items-center justify-between text-sm text-gray-400 mb-1">
+                          <span>Progress</span>
+                          <span>{client.progress || project?.progress || 0}%</span>
+                        </div>
+                        <div className="w-full bg-white/10 rounded-full h-2">
+                          <div 
+                            className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full transition-all duration-300" 
+                            style={{ width: `${client.progress || project?.progress || 0}%` }}
+                          ></div>
+                        </div>
+                      </div>
+                      
+                      {/* Project Details */}
+                      <div className="mb-4 p-3 bg-white/5 rounded-lg">
+                        <div className="grid grid-cols-2 gap-4 text-sm">
+                          <div>
+                            <span className="text-gray-400">Project Type:</span>
+                            <p className="text-white">{projectType}</p>
                           </div>
-                      <div className="w-full bg-white/10 rounded-full h-2">
-                            <div 
-                          className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full transition-all duration-300" 
-                          style={{ width: `${client.progress}%` }}
-                            ></div>
+                          <div>
+                            <span className="text-gray-400">Started:</span>
+                            <p className="text-white">{startDate}</p>
+                          </div>
+                          <div>
+                            <span className="text-gray-400">Next Update:</span>
+                            <p className="text-white">{nextUpdate}</p>
+                          </div>
+                          <div>
+                            <span className="text-gray-400">Status:</span>
+                            <p className="text-white">{project?.status || 'Active'}</p>
                           </div>
                         </div>
+                      </div>
                       
-                    <div className="flex space-x-2">
+                      <div className="flex space-x-2">
                         <button
-                        onClick={() => {
-                          // View customer dashboard with onboarding form
-                          const customerEmail = client.email;
-                          const customerData = client.customerData;
-                          
-                          // Check if customer has onboarding submission
-                          const customerSubmission = onboardingSubmissions.find(
-                            submission => submission.customerEmail === customerEmail
-                          );
-                          
-                          if (customerSubmission) {
-                            // Show onboarding review modal
-                            setSelectedOnboarding(customerSubmission);
-                            setShowOnboardingModal(true);
-                          } else {
-                            // Show customer dashboard view
-                            console.log('View dashboard for:', client.name);
-                            alert(`Viewing dashboard for ${client.name}\n\nEmail: ${client.email}\nService: ${client.service}\nProgress: ${client.progress}%\n\nOnboarding form not yet submitted.`);
-                          }
-                        }}
-                        className="inline-flex items-center px-3 py-1.5 border border-white/20 rounded-md text-sm font-medium text-white hover:bg-white/10 transition-colors"
+                          onClick={() => {
+                            // View customer dashboard with onboarding form
+                            const customerEmail = client.email;
+                            const customerData = client.customerData;
+                            
+                            // Check if customer has onboarding submission
+                            const customerSubmission = onboardingSubmissions.find(
+                              submission => submission.customerEmail === customerEmail
+                            );
+                            
+                            if (customerSubmission) {
+                              // Show onboarding review modal
+                              setSelectedOnboarding(customerSubmission);
+                              setShowOnboardingModal(true);
+                            } else {
+                              // Show customer dashboard view
+                              console.log('View dashboard for:', client.name);
+                              alert(`Viewing dashboard for ${client.name}\n\nEmail: ${client.email}\nService: ${projectName}\nProgress: ${client.progress || project?.progress || 0}%\n\nOnboarding form not yet submitted.`);
+                            }
+                          }}
+                          className="inline-flex items-center px-3 py-1.5 border border-white/20 rounded-md text-sm font-medium text-white hover:bg-white/10 transition-colors"
                         >
                           <Eye className="w-4 h-4 mr-1" />
                           View Dashboard
                         </button>
                         <button
                           onClick={() => {
-                          const timelineSubmission = {
-                            id: client.id,
-                            formData: {
-                              email: client.email,
-                              firstName: client.name.split(' ')[0],
-                              lastName: client.name.split(' ').slice(1).join(' ')
-                            },
-                            timelineStatus: client.customerData?.orderTimeline || {}
-                          };
-                          setSelectedSubmission(timelineSubmission);
-                              setShowSubmissionModal(true);
+                            const timelineSubmission = {
+                              id: client.id,
+                              formData: {
+                                email: client.email,
+                                firstName: client.name.split(' ')[0],
+                                lastName: client.name.split(' ').slice(1).join(' ')
+                              },
+                              timelineStatus: client.customerData?.orderTimeline || {}
+                            };
+                            setSelectedSubmission(timelineSubmission);
+                            setShowSubmissionModal(true);
                           }}
-                        className="inline-flex items-center px-3 py-1.5 border border-white/20 rounded-md text-sm font-medium text-white hover:bg-white/10 transition-colors"
+                          className="inline-flex items-center px-3 py-1.5 border border-white/20 rounded-md text-sm font-medium text-white hover:bg-white/10 transition-colors"
                         >
-                        <Settings className="w-4 h-4 mr-1" />
+                          <Settings className="w-4 h-4 mr-1" />
                           Manage Timeline
                         </button>
-                      <button
-                        onClick={() => handleProjectCancellation(client.email, client.customerData?.activeProjects?.[0]?.id)}
-                        className="inline-flex items-center px-3 py-1.5 border border-red-500/20 rounded-md text-sm font-medium text-red-400 hover:bg-red-500/10 transition-colors"
-                      >
-                        <XCircle className="w-4 h-4 mr-1" />
-                        Cancel Project
-                      </button>
+                        <button
+                          onClick={() => handleProjectCancellation(client.email, project?.id)}
+                          className="inline-flex items-center px-3 py-1.5 border border-red-500/20 rounded-md text-sm font-medium text-red-400 hover:bg-red-500/10 transition-colors"
+                        >
+                          <XCircle className="w-4 h-4 mr-1" />
+                          Cancel Project
+                        </button>
                       </div>
                     </div>
-                ))}
+                  );
+                })}
               </div>
           </div>
           </motion.div>
