@@ -112,8 +112,8 @@ const AdminDashboard = () => {
         // Load users (all signed up users) - ensure uniqueness
         const allUsers = Object.values(data.users || {})
           .filter((user, index, self) => 
-            // Remove duplicates based on email
-            index === self.findIndex(u => u.email === user.email)
+            // Remove duplicates based on email (case insensitive)
+            index === self.findIndex(u => u.email.toLowerCase() === user.email.toLowerCase())
           )
           .map(user => ({
             id: user.email,
@@ -819,12 +819,26 @@ const AdminDashboard = () => {
             className="bg-white/5 backdrop-blur-sm rounded-xl border border-white/10"
           >
             <div className="px-6 py-4 border-b border-white/10">
-              <h3 className="text-lg font-medium text-white">Users ({Object.values(users || {}).length + clients.length})</h3>
-                            </div>
+              <h3 className="text-lg font-medium text-white">Users ({Object.values(users || {}).filter(user => {
+                // Only show users who don't have active projects
+                const hasProjects = clients.some(client => 
+                  client.email.toLowerCase() === user.email.toLowerCase() && 
+                  client.customerData?.activeProjects?.length > 0
+                );
+                return !hasProjects;
+              }).length})</h3>
+            </div>
             <div className="p-6">
               <div className="space-y-4">
-                {/* Show all users from users object */}
-                {Object.values(users || {}).map((user) => (
+                {/* Show only users who don't have active projects */}
+                {Object.values(users || {}).filter(user => {
+                  // Only show users who don't have active projects
+                  const hasProjects = clients.some(client => 
+                    client.email.toLowerCase() === user.email.toLowerCase() && 
+                    client.customerData?.activeProjects?.length > 0
+                  );
+                  return !hasProjects;
+                }).map((user) => (
                   <div key={user.email} className="bg-white/5 rounded-lg p-4 border border-white/10">
                     <div className="flex items-center justify-between">
                       <div>
@@ -832,43 +846,17 @@ const AdminDashboard = () => {
                         <p className="text-sm text-gray-400">{user.email}</p>
                         <p className="text-sm text-gray-400">{user.businessName || 'No business name'}</p>
                         <p className="text-xs text-gray-500">Account Type: User</p>
-                          </div>
+                      </div>
                       <div className="text-right">
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                           Active
                         </span>
                       </div>
                     </div>
-              </div>
-                ))}
-                
-                {/* Show all customers from clients object */}
-                {clients.map((client) => (
-                  <div key={client.email} className="bg-white/5 rounded-lg p-4 border border-white/10">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h4 className="font-medium text-white">{client.name}</h4>
-                        <p className="text-sm text-gray-400">{client.email}</p>
-                        <p className="text-sm text-gray-400">{client.business}</p>
-                        <p className="text-xs text-gray-500">
-                          Projects: {client.activeProjects?.length || 0} • 
-                          Status: {client.subscriptionStatus}
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          client.activeProjects?.length > 0 
-                            ? 'bg-blue-100 text-blue-800' 
-                            : 'bg-yellow-100 text-yellow-800'
-                        }`}>
-                          {client.activeProjects?.length > 0 ? 'Has Projects' : 'No Projects'}
-                        </span>
-                      </div>
-                    </div>
                   </div>
                 ))}
               </div>
-          </div>
+            </div>
           </motion.div>
         )}
 
