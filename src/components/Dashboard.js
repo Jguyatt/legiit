@@ -279,6 +279,7 @@ const Dashboard = () => {
     }
     
     const project = currentData.activeProjects[0];
+    const isTestPackage = project.name?.includes('Test') || project.name === 'Test Package';
     
     try {
       // Immediately cancel the project (no approval needed)
@@ -293,7 +294,8 @@ const Dashboard = () => {
         body: JSON.stringify({
           customerEmail: currentData.email,
           projectId: project.id,
-          cancelledBy: 'Customer'
+          cancelledBy: 'Customer',
+          isTestPackage: isTestPackage
         }),
         signal: controller.signal
       });
@@ -303,42 +305,75 @@ const Dashboard = () => {
       const result = await response.json();
       
       if (response.ok && result.success) {
-        // Calculate billing period end date (30 days from now)
-        const billingEndDate = new Date();
-        billingEndDate.setDate(billingEndDate.getDate() + 30);
-        
-        // Update customer data to show immediate cancellation
-        const updatedData = {
-          ...currentData,
-          activeProjects: [], // Remove from active projects
-          completedProjects: [
-            ...(currentData.completedProjects || []),
-            {
-              ...project,
-              status: 'Cancelled',
-              cancelledDate: new Date().toISOString(),
-              cancelledBy: 'Customer',
-              billingEndDate: billingEndDate.toISOString(),
-              cancellationReason: 'Customer requested cancellation'
-            }
-          ],
-          recentActivity: [
-            {
-              type: 'project_cancelled',
-              message: 'Project cancelled by customer',
-              date: new Date().toISOString().split('T')[0]
-            },
-            ...currentData.recentActivity
-          ]
-        };
+        if (isTestPackage) {
+          // For TEST package (one-time payment) - remove immediately
+          const updatedData = {
+            ...currentData,
+            activeProjects: [], // Remove from active projects immediately
+            completedProjects: [
+              ...(currentData.completedProjects || []),
+              {
+                ...project,
+                status: 'Cancelled',
+                cancelledDate: new Date().toISOString(),
+                cancelledBy: 'Customer',
+                cancellationReason: 'Customer requested cancellation (one-time payment)'
+              }
+            ],
+            recentActivity: [
+              {
+                type: 'project_cancelled',
+                message: 'Test project cancelled by customer',
+                date: new Date().toISOString().split('T')[0]
+              },
+              ...currentData.recentActivity
+            ]
+          };
 
-        setCustomerData(updatedData);
-        customerAuth.updateCustomerData(updatedData);
-        setShowCancelConfirmation(false);
+          setCustomerData(updatedData);
+          customerAuth.updateCustomerData(updatedData);
+          setShowCancelConfirmation(false);
 
-        // Show improved cancellation message
-        const message = `We're sorry to see you go! 😔\n\n✅ Your project has been successfully cancelled.\n\nYour service will remain active until ${billingEndDate.toLocaleDateString()} (end of billing period).\n\nAfter this date, your project will be moved to completed projects.\n\nThank you for choosing our services!`;
-        alert(message);
+          // Show immediate cancellation message for TEST package
+          const message = `We're sorry to see you go! 😔\n\n✅ Your test project has been successfully cancelled.\n\nSince this was a one-time payment, your project has been removed immediately.\n\nThank you for trying our services!`;
+          alert(message);
+        } else {
+          // For monthly subscriptions - keep for 30 days
+          const billingEndDate = new Date();
+          billingEndDate.setDate(billingEndDate.getDate() + 30);
+          
+          const updatedData = {
+            ...currentData,
+            activeProjects: [], // Remove from active projects
+            completedProjects: [
+              ...(currentData.completedProjects || []),
+              {
+                ...project,
+                status: 'Cancelled',
+                cancelledDate: new Date().toISOString(),
+                cancelledBy: 'Customer',
+                billingEndDate: billingEndDate.toISOString(),
+                cancellationReason: 'Customer requested cancellation'
+              }
+            ],
+            recentActivity: [
+              {
+                type: 'project_cancelled',
+                message: 'Project cancelled by customer',
+                date: new Date().toISOString().split('T')[0]
+              },
+              ...currentData.recentActivity
+            ]
+          };
+
+          setCustomerData(updatedData);
+          customerAuth.updateCustomerData(updatedData);
+          setShowCancelConfirmation(false);
+
+          // Show billing period message for monthly subscriptions
+          const message = `We're sorry to see you go! 😔\n\n✅ Your project has been successfully cancelled.\n\nYour service will remain active until ${billingEndDate.toLocaleDateString()} (end of billing period).\n\nAfter this date, your project will be moved to completed projects.\n\nThank you for choosing our services!`;
+          alert(message);
+        }
       } else {
         console.error('Backend error:', result);
         alert(`Error cancelling project: ${result.error || 'Unknown error'}. Please try again.`);
