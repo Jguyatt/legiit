@@ -89,7 +89,7 @@ const AdminDashboard = () => {
     setLoading(true);
     try {
       // Load customers from backend
-      const response = await fetch('http://localhost:3001/api/all-customers');
+      const response = await fetch('https://rankly360.up.railway.app/api/all-customers');
       const data = await response.json();
       
       if (data.success) {
@@ -154,7 +154,7 @@ const AdminDashboard = () => {
         setOnboardingSubmissions(allSubmissions);
         
         // Load cancellation requests
-        const cancellationResponse = await fetch('http://localhost:3001/api/cancellation-requests');
+        const cancellationResponse = await fetch('https://rankly360.up.railway.app/api/cancellation-requests');
         const cancellationData = await cancellationResponse.json();
         
         if (cancellationData.success) {
