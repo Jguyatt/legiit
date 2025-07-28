@@ -157,7 +157,12 @@ const Signup = () => {
                 'Content-Type': 'application/json',
               },
               body: JSON.stringify({
-                userData: userData
+                email: email,
+                customerData: {
+                  ...userData,
+                  activeProjects: [], // Empty array to satisfy backend requirement
+                  createdAt: new Date().toISOString()
+                }
               })
             });
             
