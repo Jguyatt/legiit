@@ -129,7 +129,7 @@ const AdminDashboard = () => {
         // Load onboarding submissions - COMBINE BACKEND AND LOCAL STORAGE
         let backendSubmissions = [];
         try {
-          const onboardingResponse = await fetch('http://localhost:3001/api/onboarding-submissions');
+          const onboardingResponse = await fetch('https://rankly360.up.railway.app/api/onboarding-submissions');
           const onboardingData = await onboardingResponse.json();
           
           if (onboardingData.success) {
