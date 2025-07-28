@@ -197,6 +197,175 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+// Simple in-memory storage for testing (will be replaced with database in production)
+let customerDataStorage = {};
+let usersStorage = {};
+let onboardingSubmissionsStorage = [];
+let deletedUsersStorage = []; // Track deleted users
+
+// Helper functions for in-memory storage
+function readStorage(filename) {
+  if (filename === 'customerData.json') return customerDataStorage;
+  if (filename === 'users.json') return usersStorage;
+  if (filename === 'onboarding-submissions.json') return onboardingSubmissionsStorage;
+  if (filename === 'deletedUsers.json') return deletedUsersStorage;
+  if (filename === 'cancellation-requests.json') return [];
+  return null;
+}
+
+function writeStorage(filename, data) {
+  if (filename === 'customerData.json') {
+    customerDataStorage = data;
+    console.log('💾 Customer data stored:', Object.keys(customerDataStorage).length, 'customers');
+  }
+  if (filename === 'users.json') {
+    usersStorage = data;
+    console.log('💾 Users stored:', Object.keys(usersStorage).length, 'users');
+  }
+  if (filename === 'onboarding-submissions.json') {
+    onboardingSubmissionsStorage = data;
+    console.log('💾 Onboarding submissions stored:', onboardingSubmissionsStorage.length, 'submissions');
+  }
+  if (filename === 'deletedUsers.json') {
+    deletedUsersStorage = data;
+    console.log('💾 Deleted users stored:', deletedUsersStorage.length, 'deleted users');
+  }
+  if (filename === 'cancellation-requests.json') {
+    console.log('💾 Cancellation requests stored in memory:', data.length, 'requests');
+  }
+  return true;
+}
+
+// Endpoint to sync customer data from frontend
+app.post('/api/sync-data', (req, res) => {
+  try {
+    const { email, customerData } = req.body;
+    
+    if (!email || !customerData) {
+      return res.status(400).json({ error: 'Email and customer data are required' });
+    }
+    
+    console.log('🔄 Syncing customer data for:', email);
+    
+    // Get existing customer data
+    const existingCustomerData = readStorage('customerData.json') || {};
+    
+    // Update customer data
+    existingCustomerData[email.toLowerCase()] = customerData;
+    
+    // Save to storage
+    writeStorage('customerData.json', existingCustomerData);
+    
+    console.log('✅ Customer data synced successfully for:', email);
+    res.json({ success: true, message: 'Customer data synced successfully' });
+    
+  } catch (error) {
+    console.error('❌ Error syncing customer data:', error);
+    res.status(500).json({ error: 'Failed to sync customer data' });
+  }
+});
+
+// Endpoint to handle onboarding submissions
+app.post('/api/onboarding-submission', (req, res) => {
+  try {
+    const submissionData = req.body;
+    
+    // Get existing submissions
+    const existingSubmissions = readStorage('onboarding-submissions.json') || [];
+    
+    // Add new submission
+    existingSubmissions.push(submissionData);
+    
+    // Save to storage
+    writeStorage('onboarding-submissions.json', existingSubmissions);
+    
+    console.log('✅ Onboarding submission received:', submissionData.customerEmail);
+    res.json({ success: true, message: 'Onboarding submission saved' });
+    
+  } catch (error) {
+    console.error('❌ Error saving onboarding submission:', error);
+    res.status(500).json({ error: 'Failed to save onboarding submission' });
+  }
+});
+
+// Endpoint to get all onboarding submissions
+app.get('/api/onboarding-submissions', (req, res) => {
+  try {
+    const submissions = readStorage('onboarding-submissions.json') || [];
+    res.json({ success: true, submissions });
+  } catch (error) {
+    console.error('❌ Error retrieving onboarding submissions:', error);
+    res.status(500).json({ error: 'Failed to retrieve onboarding submissions' });
+  }
+});
+
+// Endpoint to get all customers and users
+app.get('/api/all-customers', (req, res) => {
+  try {
+    const customerData = readStorage('customerData.json') || {};
+    const users = readStorage('users.json') || {};
+    const onboardingSubmissions = readStorage('onboarding-submissions.json') || [];
+    const deletedUsers = readStorage('deletedUsers.json') || [];
+    
+    res.json({
+      success: true,
+      customers: customerData,
+      users: users,
+      onboardingSubmissions: onboardingSubmissions,
+      deletedUsers: deletedUsers
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to load customer data' });
+  }
+});
+
+// Endpoint to store cancellation requests from users
+app.post('/api/cancellation-request', (req, res) => {
+  try {
+    const { customerEmail, customerName, projectId, reason } = req.body;
+    
+    console.log('📝 New cancellation request:', { customerEmail, customerName, projectId, reason });
+    
+    // Get existing cancellation requests
+    const existingRequests = readStorage('cancellation-requests.json') || [];
+    
+    // Create new cancellation request
+    const newRequest = {
+      id: Date.now().toString(),
+      customerEmail,
+      customerName,
+      projectId,
+      reason: reason || 'Customer requested cancellation',
+      requestDate: new Date().toISOString(),
+      status: 'pending', // pending, approved, denied
+      reviewedBy: null,
+      reviewedDate: null
+    };
+    
+    // Add to existing requests
+    existingRequests.push(newRequest);
+    writeStorage('cancellation-requests.json', existingRequests);
+    
+    console.log('✅ Cancellation request stored successfully');
+    res.json({ success: true, message: 'Cancellation request submitted successfully' });
+    
+  } catch (error) {
+    console.error('❌ Error storing cancellation request:', error);
+    res.status(500).json({ error: 'Failed to store cancellation request' });
+  }
+});
+
+// Endpoint to get all cancellation requests for admin dashboard
+app.get('/api/cancellation-requests', (req, res) => {
+  try {
+    const requests = readStorage('cancellation-requests.json') || [];
+    res.json({ success: true, requests });
+  } catch (error) {
+    console.error('❌ Error retrieving cancellation requests:', error);
+    res.status(500).json({ error: 'Failed to retrieve cancellation requests' });
+  }
+});
+
 // Serve React app
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'build', 'index.html'));

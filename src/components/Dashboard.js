@@ -399,8 +399,8 @@ const Dashboard = () => {
           ...customerData.orderTimeline,
           onboardingForm: {
             status: 'pending_approval',
-            date: new Date().toISOString().split('T')[0],
-            completed: false
+            completed: false,
+            date: new Date().toISOString().split('T')[0]
           }
         },
         recentActivity: [
@@ -479,8 +479,12 @@ const Dashboard = () => {
           detail: { submissionData } 
         }));
         
+        // Show success message
+        alert('✅ Onboarding form submitted successfully! Your account manager will review it and get back to you soon.');
+        
       } catch (error) {
         console.error('❌ Failed to sync onboarding submission:', error);
+        alert('⚠️ Form submitted but there was an issue syncing with our servers. Please contact support if you don\'t see updates soon.');
       }
     }
     
@@ -984,16 +988,20 @@ const Dashboard = () => {
                           )}
                           
                           {/* Onboarding Form Button */}
-                                      {step.key === 'onboardingForm' && !isCompleted && !isPendingApproval && (
+                          {step.key === 'onboardingForm' && !isCompleted && (
                             <button
-                                          onClick={() => {
-                                            const projectName = project.name || 'Service';
-                                            const serviceName = projectName.replace(' Package', '').replace(' package', '');
-                                            openOnboardingForm(serviceName);
-                                          }}
-                                          className="mt-2 bg-blue-600 hover:bg-blue-700 text-white font-medium px-3 py-1.5 rounded-md transition-colors duration-200 text-xs"
+                              onClick={() => {
+                                const projectName = project.name || 'Service';
+                                const serviceName = projectName.replace(' Package', '').replace(' package', '');
+                                openOnboardingForm(serviceName);
+                              }}
+                              className={`mt-2 font-medium px-3 py-1.5 rounded-md transition-colors duration-200 text-xs ${
+                                isPendingApproval 
+                                  ? 'bg-yellow-600 hover:bg-yellow-700 text-white' 
+                                  : 'bg-blue-600 hover:bg-blue-700 text-white'
+                              }`}
                             >
-                              Complete Onboarding Form
+                              {isPendingApproval ? 'Resubmit Onboarding Form' : 'Complete Onboarding Form'}
                             </button>
                           )}
                         </div>

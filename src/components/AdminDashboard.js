@@ -89,7 +89,7 @@ const AdminDashboard = () => {
     setLoading(true);
     try {
       // Load customers from backend
-      const response = await fetch('https://rankly360.up.railway.app/api/all-customers');
+      const response = await fetch('http://localhost:3001/api/all-customers');
       const data = await response.json();
       
       if (data.success) {
@@ -112,32 +112,49 @@ const AdminDashboard = () => {
         // Load users (all signed up users) - ensure uniqueness
         const allUsers = Object.values(data.users || {})
           .filter((user, index, self) => 
-            // Remove duplicates based on email (case insensitive)
-            index === self.findIndex(u => u.email.toLowerCase() === user.email.toLowerCase())
+            index === self.findIndex(u => u.email === user.email)
           )
           .map(user => ({
             id: user.email,
             name: user.name,
             email: user.email,
             businessName: user.businessName,
-            isAdmin: user.isAdmin || false,
-            emailVerified: user.emailVerified || false,
-            createdAt: user.createdAt,
-            activeProjects: user.activeProjects || []
+            activeClients: user.activeClients || 0,
+            signupDate: user.signupDate || new Date().toISOString(),
+            lastLogin: user.lastLogin || new Date().toISOString()
           }));
         
         setUsers(allUsers);
         
-        // Load onboarding submissions
-        const onboardingResponse = await fetch('https://rankly360.up.railway.app/api/onboarding-submissions');
-        const onboardingData = await onboardingResponse.json();
-        
-        if (onboardingData.success) {
-          setOnboardingSubmissions(onboardingData.submissions || []);
+        // Load onboarding submissions - COMBINE BACKEND AND LOCAL STORAGE
+        let backendSubmissions = [];
+        try {
+          const onboardingResponse = await fetch('http://localhost:3001/api/onboarding-submissions');
+          const onboardingData = await onboardingResponse.json();
+          
+          if (onboardingData.success) {
+            backendSubmissions = onboardingData.submissions || [];
+          }
+        } catch (error) {
+          console.log('Backend onboarding submissions not available, using local storage only');
         }
         
+        // Get local storage submissions
+        const localSubmissions = JSON.parse(localStorage.getItem('onboarding-submissions') || '[]');
+        
+        // Combine and deduplicate submissions
+        const allSubmissions = [...backendSubmissions];
+        localSubmissions.forEach(localSub => {
+          const exists = allSubmissions.find(sub => sub.id === localSub.id || sub.customerEmail === localSub.customerEmail);
+          if (!exists) {
+            allSubmissions.push(localSub);
+          }
+        });
+        
+        setOnboardingSubmissions(allSubmissions);
+        
         // Load cancellation requests
-        const cancellationResponse = await fetch('https://rankly360.up.railway.app/api/cancellation-requests');
+        const cancellationResponse = await fetch('http://localhost:3001/api/cancellation-requests');
         const cancellationData = await cancellationResponse.json();
         
         if (cancellationData.success) {
@@ -147,7 +164,7 @@ const AdminDashboard = () => {
         console.log('✅ Admin dashboard data loaded successfully');
         console.log('📊 Active clients:', backendCustomers.length);
         console.log('📊 Total users:', allUsers.length);
-        console.log('📊 Onboarding submissions:', onboardingData.submissions?.length || 0);
+        console.log('📊 Onboarding submissions:', allSubmissions.length);
         console.log('📊 Cancellation requests:', cancellationData.requests?.length || 0);
         
       } else {
