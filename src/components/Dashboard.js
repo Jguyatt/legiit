@@ -39,20 +39,29 @@ const Dashboard = () => {
       if (result.success && result.customers) {
         // Find the customer data for this email
         let customerData = null;
+        let bestMatch = null;
         
         // Try to find by email in different key formats
         for (const [key, customer] of Object.entries(result.customers)) {
           if (customer.email && customer.email.toLowerCase() === email.toLowerCase()) {
-            customerData = customer;
-            break;
+            // Prioritize entries with active projects
+            if (customer.activeProjects && customer.activeProjects.length > 0) {
+              bestMatch = customer;
+              break; // Found one with projects, use this one
+            } else if (!customerData) {
+              customerData = customer; // Keep this as fallback
+            }
           }
         }
         
-        if (customerData) {
-          console.log('🔄 Synced with backend:', customerData);
-          setCustomerData(customerData);
-          localStorage.setItem('customerData', JSON.stringify(customerData));
-          return customerData;
+        // Use the best match (with projects) if found, otherwise use the fallback
+        const finalCustomerData = bestMatch || customerData;
+        
+        if (finalCustomerData) {
+          console.log('🔄 Synced with backend:', finalCustomerData);
+          setCustomerData(finalCustomerData);
+          localStorage.setItem('customerData', JSON.stringify(finalCustomerData));
+          return finalCustomerData;
         } else {
           console.log('❌ Customer not found in backend data');
         }
