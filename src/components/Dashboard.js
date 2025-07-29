@@ -818,7 +818,7 @@ const Dashboard = () => {
         ) : (
           <>
             {/* Stats Overview */}
-            <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
               <div className="bg-slate-800 rounded-lg p-4 border border-slate-700">
                 <div className="flex items-center justify-between">
                   <div>
@@ -826,6 +826,16 @@ const Dashboard = () => {
                     <p className="text-xl font-semibold text-white">{customerData?.activeProjects?.length || 0}</p>
                   </div>
                   <BarChart3 className="w-6 h-6 text-blue-400" />
+                </div>
+              </div>
+
+              <div className="bg-slate-800 rounded-lg p-4 border border-slate-700">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-slate-400 text-sm">Completed Projects</p>
+                    <p className="text-xl font-semibold text-white">{customerData?.completedProjects?.length || 0}</p>
+                  </div>
+                  <CheckCircle className="w-6 h-6 text-green-400" />
                 </div>
               </div>
 
@@ -1066,6 +1076,130 @@ const Dashboard = () => {
                   ))}
                 </div>
               </motion.div>
+
+              {/* Completed Projects */}
+              {customerData?.completedProjects && customerData.completedProjects.length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.7 }}
+                  className="bg-[#1a1a1a] rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-[#3abef9]/20"
+                >
+                  <h2 className="text-lg sm:text-xl font-bold mb-4 flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-green-400" />
+                    Completed Projects
+                  </h2>
+                  <div className="space-y-4">
+                    {customerData.completedProjects.map((project) => (
+                      <div key={project.id} className="bg-[#2a2a2a] rounded-lg border border-gray-700/50 overflow-hidden">
+                        {/* Project Header */}
+                        <div className="p-4">
+                          <div className="flex items-center justify-between">
+                            <div className="flex-1 min-w-0">
+                              <h3 className="font-semibold text-white text-sm truncate">{project.name}</h3>
+                              <div className="flex items-center gap-2 mt-1">
+                                <span className="text-xs text-[#3abef9] font-medium">{project.type}</span>
+                                <span className="text-xs text-gray-500">•</span>
+                                <span className="text-xs text-gray-400">{project.category}</span>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                project.status === 'Completed' 
+                                  ? 'bg-green-500/20 text-green-400'
+                                  : project.status === 'Cancelled'
+                                    ? 'bg-red-500/20 text-red-400'
+                                    : 'bg-gray-500/20 text-gray-400'
+                              }`}>
+                                {project.status}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Project Details */}
+                          <div className="grid grid-cols-2 gap-4 mt-3 text-xs">
+                            <div>
+                              <span className="text-gray-400">Started:</span>
+                              <p className="text-white">{project.startDate}</p>
+                            </div>
+                            <div>
+                              <span className="text-gray-400">Completed:</span>
+                              <p className="text-white">{project.completedDate || project.endDate || 'N/A'}</p>
+                            </div>
+                            <div>
+                              <span className="text-gray-400">Duration:</span>
+                              <p className="text-white">{project.estimatedDuration}</p>
+                            </div>
+                            <div>
+                              <span className="text-gray-400">Final Progress:</span>
+                              <p className="text-white">{project.progress || 100}%</p>
+                            </div>
+                          </div>
+
+                          {/* Final Results Summary */}
+                          {project.status === 'Completed' && (
+                            <div className="mt-3 p-3 bg-green-500/10 rounded-lg border border-green-500/20">
+                              <h4 className="text-xs font-medium text-green-400 mb-2 flex items-center gap-1">
+                                <CheckCircle className="w-3 h-3" />
+                                Project Results
+                              </h4>
+                              <div className="grid grid-cols-2 gap-3 text-xs">
+                                <div>
+                                  <span className="text-gray-400">Final Ranking:</span>
+                                  <p className="text-white">{project.finalRanking || 'Improved'}</p>
+                                </div>
+                                <div>
+                                  <span className="text-gray-400">Leads Generated:</span>
+                                  <p className="text-white">{project.leadsGenerated || 'N/A'}</p>
+                                </div>
+                                <div>
+                                  <span className="text-gray-400">Calls Received:</span>
+                                  <p className="text-white">{project.callsReceived || 'N/A'}</p>
+                                </div>
+                                <div>
+                                  <span className="text-gray-400">Website Traffic:</span>
+                                  <p className="text-white">{project.websiteTraffic || 'N/A'}</p>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Cancellation Info */}
+                          {project.status === 'Cancelled' && project.cancellationReason && (
+                            <div className="mt-3 p-3 bg-red-500/10 rounded-lg border border-red-500/20">
+                              <h4 className="text-xs font-medium text-red-400 mb-2 flex items-center gap-1">
+                                <XCircle className="w-3 h-3" />
+                                Cancellation Details
+                              </h4>
+                              <p className="text-red-300 text-xs">{project.cancellationReason}</p>
+                              {project.billingEndDate && (
+                                <p className="text-red-300 text-xs mt-1">
+                                  Billing ended: {new Date(project.billingEndDate).toLocaleDateString()}
+                                </p>
+                              )}
+                            </div>
+                          )}
+
+                          {/* Deliverables Summary */}
+                          {project.deliverables && project.deliverables.length > 0 && (
+                            <div className="mt-3">
+                              <h4 className="text-xs font-medium text-gray-300 mb-2">Deliverables Completed</h4>
+                              <ul className="space-y-1">
+                                {project.deliverables.map((deliverable, index) => (
+                                  <li key={index} className="text-xs text-gray-400 flex items-center gap-1">
+                                    <CheckCircle className="w-3 h-3 text-green-400" />
+                                    {deliverable}
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
 
               {/* Cancellation Messages */}
               {customerData?.cancellationRequest && (
