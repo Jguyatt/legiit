@@ -16,6 +16,8 @@ const AdminDashboard = () => {
   const [deletedUsers, setDeletedUsers] = useState([]);
   const [selectedSubmission, setSelectedSubmission] = useState(null);
   const [showSubmissionModal, setShowSubmissionModal] = useState(false);
+  const [selectedOnboardingReview, setSelectedOnboardingReview] = useState(null);
+  const [showOnboardingReviewModal, setShowOnboardingReviewModal] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
   const [loadingStates, setLoadingStates] = useState({});
   const [errorMessages, setErrorMessages] = useState({});
@@ -738,9 +740,9 @@ const AdminDashboard = () => {
                           </div>
                 <button
                             onClick={() => {
-                              // Show customer dashboard view with submission status
-                              console.log('View dashboard for:', submission.customerName);
-                              alert(`Viewing dashboard for ${submission.customerName}\n\nEmail: ${submission.customerEmail}\nService: ${submission.service}\nProgress: ${submission.progress || 0}%\n\nOnboarding form status: ${submission.status}`);
+                              // Show detailed onboarding form review
+                              setSelectedOnboardingReview(submission);
+                              setShowOnboardingReviewModal(true);
                             }}
                             className="inline-flex items-center px-3 py-2 border border-blue-500/20 rounded-md text-sm font-medium text-blue-400 hover:bg-blue-500/10 transition-colors"
                           >
@@ -1292,113 +1294,120 @@ const AdminDashboard = () => {
         )}
 
         {/* Onboarding Review Modal */}
-        {/* This modal is no longer needed as admin can approve/reject directly in the timeline */}
-        {/* Keeping it for now in case it's used elsewhere or for future functionality */}
-        {/* {showOnboardingModal && selectedOnboarding && (
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm overflow-y-auto h-full w-full z-50">
-            <div className="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-2/3 shadow-lg rounded-xl bg-gradient-to-br from-[#0f172a] via-[#10111a] to-black border-white/10">
-            <div className="flex justify-between items-center mb-6">
-                <h3 className="text-xl font-medium text-white">
-                  Review Onboarding - {selectedOnboarding.customerName}
-              </h3>
-              <button
+        {showOnboardingReviewModal && selectedOnboardingReview && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+            <div className="bg-[#1a1a1a] rounded-xl border border-white/10 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+              <div className="px-6 py-4 border-b border-white/10 flex items-center justify-between">
+                <h3 className="text-lg font-medium text-white">Onboarding Form Review</h3>
+                <button
                   onClick={() => {
-                    setShowOnboardingModal(false);
-                    setSelectedOnboarding(null);
-                    setOnboardingNotes('');
+                    setShowOnboardingReviewModal(false);
+                    setSelectedOnboardingReview(null);
                   }}
                   className="text-gray-400 hover:text-white"
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
 
-              <div className="space-y-6">
+              <div className="p-6 space-y-6">
                 {/* Customer Information */}
-                  {/* <div>
+                <div>
                   <h4 className="text-md font-medium text-white mb-4">Customer Information</h4>
                   <div className="bg-white/5 p-4 rounded-lg border border-white/10">
                     <div className="grid grid-cols-2 gap-4">
-                  <div>
+                      <div>
                         <p className="text-sm font-medium text-gray-400">Name</p>
-                        <p className="text-sm text-white">{selectedOnboarding.customerName}</p>
-                  </div>
-                  <div>
+                        <p className="text-sm text-white">{selectedOnboardingReview.customerName}</p>
+                      </div>
+                      <div>
                         <p className="text-sm font-medium text-gray-400">Email</p>
-                        <p className="text-sm text-white">{selectedOnboarding.customerEmail}</p>
-                  </div>
-                  <div>
+                        <p className="text-sm text-white">{selectedOnboardingReview.customerEmail}</p>
+                      </div>
+                      <div>
                         <p className="text-sm font-medium text-gray-400">Service</p>
-                        <p className="text-sm text-white">{selectedOnboarding.service}</p>
-                  </div>
+                        <p className="text-sm text-white">{selectedOnboardingReview.service}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-400">Status</p>
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                          selectedOnboardingReview.status === 'pending_approval' 
+                            ? 'bg-yellow-100 text-yellow-800' 
+                            : selectedOnboardingReview.status === 'approved'
+                            ? 'bg-green-100 text-green-800'
+                            : 'bg-red-100 text-red-800'
+                        }`}>
+                          {selectedOnboardingReview.status.replace('_', ' ')}
+                        </span>
+                      </div>
                       <div>
                         <p className="text-sm font-medium text-gray-400">Submitted</p>
-                        <p className="text-sm text-white">{new Date(selectedOnboarding.submittedAt || selectedOnboarding.submittedDate).toLocaleDateString()}</p>
+                        <p className="text-sm text-white">{new Date(selectedOnboardingReview.submittedAt || selectedOnboardingReview.submittedDate).toLocaleDateString()}</p>
                       </div>
-                      </div>
+                    </div>
+                  </div>
                 </div>
-              </div>
 
                 {/* Form Data */}
-                        {/* <div>
+                <div>
                   <h4 className="text-md font-medium text-white mb-4">Form Data</h4>
                   <div className="bg-white/5 p-4 rounded-lg border border-white/10">
-                    <div className="space-y-3">
-                      {Object.entries(selectedOnboarding.formData || {}).map(([key, value]) => (
-                        <div key={key}>
-                          <p className="text-sm font-medium text-gray-400 capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</p>
-                          <p className="text-sm text-white">{value}</p>
+                    <div className="space-y-4">
+                      {Object.entries(selectedOnboardingReview.formData || {}).map(([key, value]) => (
+                        <div key={key} className="border-b border-white/10 pb-3 last:border-b-0">
+                          <p className="text-sm font-medium text-gray-400 capitalize mb-1">
+                            {key.replace(/([A-Z])/g, ' $1').replace(/([A-Z])/g, ' $1').trim()}
+                          </p>
+                          <p className="text-sm text-white break-words">{value || 'Not provided'}</p>
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-                {/* Admin Notes */}
-                {/* <div>
-                  <h4 className="text-md font-medium text-white mb-4">Admin Notes (Optional)</h4>
-                  <textarea
-                    value={onboardingNotes}
-                    onChange={(e) => setOnboardingNotes(e.target.value)}
-                    placeholder="Add any notes about this submission..."
-                    className="w-full p-3 border border-white/20 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/5 text-white placeholder-gray-400"
-                    rows={3}
-                  />
+                  </div>
                 </div>
 
                 {/* Action Buttons */}
-                {/* <div className="flex justify-end space-x-3">
+                <div className="flex justify-end space-x-3 pt-4 border-t border-white/10">
                   <button
                     onClick={() => {
-                      setShowOnboardingModal(false);
-                      setSelectedOnboarding(null);
-                      setOnboardingNotes('');
+                      setShowOnboardingReviewModal(false);
+                      setSelectedOnboardingReview(null);
                     }}
                     className="px-4 py-2 border border-white/20 rounded-md text-sm font-medium text-white hover:bg-white/10 transition-colors"
                   >
-                    Cancel
+                    Close
                   </button>
                   <button
-                    onClick={() => handleOnboardingAction(selectedOnboarding.id, 'reject')}
-                    className="px-4 py-2 border border-red-500/20 rounded-md text-sm font-medium text-red-400 hover:bg-red-500/10 transition-colors"
+                    onClick={() => {
+                      // Navigate to timeline management for this customer
+                      const customer = clients.find(c => c.email === selectedOnboardingReview.customerEmail);
+                      if (customer) {
+                        const timelineSubmission = {
+                          id: customer.id,
+                          formData: {
+                            email: customer.email,
+                            firstName: customer.name.split(' ')[0],
+                            lastName: customer.name.split(' ').slice(1).join(' ')
+                          },
+                          timelineStatus: customer.customerData?.orderTimeline || {}
+                        };
+                        setSelectedSubmission(timelineSubmission);
+                        setShowSubmissionModal(true);
+                        setShowOnboardingReviewModal(false);
+                        setSelectedOnboardingReview(null);
+                      }
+                    }}
+                    className="px-4 py-2 border border-blue-500/20 rounded-md text-sm font-medium text-blue-400 hover:bg-blue-500/10 transition-colors"
                   >
-                    <XCircle className="w-4 h-4 mr-1 inline" />
-                    Reject
-                  </button>
-                  <button
-                    onClick={() => handleOnboardingAction(selectedOnboarding.id, 'approve')}
-                    className="px-4 py-2 border border-transparent rounded-md text-sm font-medium text-white bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 transition-colors"
-                  >
-                    <CheckCircle className="w-4 h-4 mr-1 inline" />
-                    Approve
+                    <Settings className="w-4 h-4 mr-1 inline" />
+                    Manage Timeline
                   </button>
                 </div>
               </div>
             </div>
           </div>
-        )} */}
+        )}
     </div>
   );
 };
