@@ -13,18 +13,15 @@ const AdminDashboard = () => {
   const [users, setUsers] = useState([]);
   const [onboardingSubmissions, setOnboardingSubmissions] = useState([]);
   const [cancellationRequests, setCancellationRequests] = useState([]);
-  const [selectedOnboarding, setSelectedOnboarding] = useState(null);
-  const [showOnboardingModal, setShowOnboardingModal] = useState(false);
   const [deletedUsers, setDeletedUsers] = useState([]);
-  const [onboardingNotes, setOnboardingNotes] = useState('');
   const [selectedSubmission, setSelectedSubmission] = useState(null);
   const [showSubmissionModal, setShowSubmissionModal] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const [loadingStates, setLoadingStates] = useState({});
-  const [successMessages, setSuccessMessages] = useState({});
   const [errorMessages, setErrorMessages] = useState({});
+  const [successMessages, setSuccessMessages] = useState({});
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   // Event handlers
   const handleStorageChange = () => {
@@ -232,61 +229,6 @@ const AdminDashboard = () => {
       setTimeout(() => {
         setIsRefreshing(false);
       }, 500);
-    }
-  };
-
-  const handleOnboardingAction = async (submissionId, action) => {
-    try {
-      const session = adminAuth.initSession();
-      const adminEmail = session.data?.email || 'admin@rankly360.com';
-      
-      const submissions = JSON.parse(localStorage.getItem('onboarding-submissions') || '[]');
-      const submission = submissions.find(s => s.id === submissionId);
-      
-      if (!submission) {
-        alert('Onboarding submission not found!');
-        return;
-      }
-      
-      const updatedSubmissions = submissions.map(s => {
-        if (s.id === submissionId) {
-          return {
-            ...s,
-            status: action === 'approve' ? 'approved' : 'rejected',
-            adminNotes: onboardingNotes,
-            processedDate: new Date().toISOString(),
-            processedBy: adminEmail
-          };
-        }
-        return s;
-      });
-      
-      localStorage.setItem('onboarding-submissions', JSON.stringify(updatedSubmissions));
-      
-      if (action === 'approve') {
-        await updateCustomerTimelineStep(submission.customerEmail, 'onboardingForm', 'completed');
-        await updateCustomerTimelineStep(submission.customerEmail, 'orderInProgress', 'in_progress');
-      } else {
-        await updateCustomerTimelineStep(submission.customerEmail, 'onboardingForm', 'pending');
-      }
-      
-      // Update onboarding submissions state immediately
-      setOnboardingSubmissions(updatedSubmissions);
-      
-      setShowOnboardingModal(false);
-      setSelectedOnboarding(null);
-      setOnboardingNotes('');
-      
-      // Refresh admin dashboard data in background
-      setTimeout(() => {
-        loadAllData();
-      }, 100);
-      
-      const actionText = action === 'approve' ? 'approved' : 'rejected';
-      alert(`✅ Onboarding ${actionText} successfully!\n\nCustomer: ${submission.customerEmail}\nAction: ${actionText.toUpperCase()}`);
-    } catch (error) {
-      console.error('Error processing onboarding action:', error);
-      alert('Error processing onboarding action. Please try again.');
     }
   };
 
@@ -796,8 +738,9 @@ const AdminDashboard = () => {
                           </div>
                 <button
                             onClick={() => {
-                              setSelectedOnboarding(submission);
-                              setShowOnboardingModal(true);
+                              // Show customer dashboard view
+                              console.log('View dashboard for:', submission.customerName);
+                              alert(`Viewing dashboard for ${submission.customerName}\n\nEmail: ${submission.customerEmail}\nService: ${submission.service}\nProgress: ${submission.progress || 0}%\n\nOnboarding form not yet submitted.`);
                             }}
                             className="inline-flex items-center px-3 py-2 border border-blue-500/20 rounded-md text-sm font-medium text-blue-400 hover:bg-blue-500/10 transition-colors"
                           >
@@ -954,9 +897,9 @@ const AdminDashboard = () => {
                             );
                             
                             if (customerSubmission) {
-                              // Show onboarding review modal
-                              setSelectedOnboarding(customerSubmission);
-                              setShowOnboardingModal(true);
+                              // Show customer dashboard view
+                              console.log('View dashboard for:', client.name);
+                              alert(`Viewing dashboard for ${client.name}\n\nEmail: ${client.email}\nService: ${projectName}\nProgress: ${client.progress || project?.progress || 0}%\n\nOnboarding form not yet submitted.`);
                             } else {
                               // Show customer dashboard view
                               console.log('View dashboard for:', client.name);
@@ -1349,7 +1292,9 @@ const AdminDashboard = () => {
         )}
 
         {/* Onboarding Review Modal */}
-        {showOnboardingModal && selectedOnboarding && (
+        {/* This modal is no longer needed as admin can approve/reject directly in the timeline */}
+        {/* Keeping it for now in case it's used elsewhere or for future functionality */}
+        {/* {showOnboardingModal && selectedOnboarding && (
           <div className="fixed inset-0 bg-black/50 backdrop-blur-sm overflow-y-auto h-full w-full z-50">
             <div className="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-2/3 shadow-lg rounded-xl bg-gradient-to-br from-[#0f172a] via-[#10111a] to-black border-white/10">
             <div className="flex justify-between items-center mb-6">
@@ -1372,7 +1317,7 @@ const AdminDashboard = () => {
 
               <div className="space-y-6">
                 {/* Customer Information */}
-                  <div>
+                  {/* <div>
                   <h4 className="text-md font-medium text-white mb-4">Customer Information</h4>
                   <div className="bg-white/5 p-4 rounded-lg border border-white/10">
                     <div className="grid grid-cols-2 gap-4">
@@ -1397,7 +1342,7 @@ const AdminDashboard = () => {
               </div>
 
                 {/* Form Data */}
-                        <div>
+                        {/* <div>
                   <h4 className="text-md font-medium text-white mb-4">Form Data</h4>
                   <div className="bg-white/5 p-4 rounded-lg border border-white/10">
                     <div className="space-y-3">
@@ -1412,7 +1357,7 @@ const AdminDashboard = () => {
             </div>
 
                 {/* Admin Notes */}
-                <div>
+                {/* <div>
                   <h4 className="text-md font-medium text-white mb-4">Admin Notes (Optional)</h4>
                   <textarea
                     value={onboardingNotes}
@@ -1424,7 +1369,7 @@ const AdminDashboard = () => {
                 </div>
 
                 {/* Action Buttons */}
-                <div className="flex justify-end space-x-3">
+                {/* <div className="flex justify-end space-x-3">
                   <button
                     onClick={() => {
                       setShowOnboardingModal(false);
@@ -1453,7 +1398,7 @@ const AdminDashboard = () => {
               </div>
             </div>
           </div>
-        )}
+        )} */}
     </div>
   );
 };
