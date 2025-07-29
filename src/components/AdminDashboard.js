@@ -738,9 +738,9 @@ const AdminDashboard = () => {
                           </div>
                 <button
                             onClick={() => {
-                              // Show customer dashboard view
+                              // Show customer dashboard view with submission status
                               console.log('View dashboard for:', submission.customerName);
-                              alert(`Viewing dashboard for ${submission.customerName}\n\nEmail: ${submission.customerEmail}\nService: ${submission.service}\nProgress: ${submission.progress || 0}%\n\nOnboarding form not yet submitted.`);
+                              alert(`Viewing dashboard for ${submission.customerName}\n\nEmail: ${submission.customerEmail}\nService: ${submission.service}\nProgress: ${submission.progress || 0}%\n\nOnboarding form status: ${submission.status}`);
                             }}
                             className="inline-flex items-center px-3 py-2 border border-blue-500/20 rounded-md text-sm font-medium text-blue-400 hover:bg-blue-500/10 transition-colors"
                           >
@@ -887,21 +887,16 @@ const AdminDashboard = () => {
                       <div className="flex space-x-2">
                         <button
                           onClick={() => {
-                            // View customer dashboard with onboarding form
-                            const customerEmail = client.email;
-                            const customerData = client.customerData;
-                            
-                            // Check if customer has onboarding submission
                             const customerSubmission = onboardingSubmissions.find(
-                              submission => submission.customerEmail === customerEmail
+                              submission => submission.customerEmail === client.email
                             );
                             
                             if (customerSubmission) {
-                              // Show customer dashboard view
+                              // Show customer dashboard view with submission status
                               console.log('View dashboard for:', client.name);
-                              alert(`Viewing dashboard for ${client.name}\n\nEmail: ${client.email}\nService: ${projectName}\nProgress: ${client.progress || project?.progress || 0}%\n\nOnboarding form not yet submitted.`);
+                              alert(`Viewing dashboard for ${client.name}\n\nEmail: ${client.email}\nService: ${projectName}\nProgress: ${client.progress || project?.progress || 0}%\n\nOnboarding form status: ${customerSubmission.status}`);
                             } else {
-                              // Show customer dashboard view
+                              // Show customer dashboard view without submission
                               console.log('View dashboard for:', client.name);
                               alert(`Viewing dashboard for ${client.name}\n\nEmail: ${client.email}\nService: ${projectName}\nProgress: ${client.progress || project?.progress || 0}%\n\nOnboarding form not yet submitted.`);
                             }
