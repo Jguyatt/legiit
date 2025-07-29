@@ -33,14 +33,29 @@ const Dashboard = () => {
   // Sync data with backend API
   const syncWithBackend = async (email) => {
     try {
-      const response = await fetch(`https://rankly360.up.railway.app/api/customer-data/${email}`);
+      const response = await fetch('https://rankly360.up.railway.app/api/all-customers');
       const result = await response.json();
       
-      if (result.success && result.data) {
-        console.log('🔄 Synced with backend:', result.data);
-        setCustomerData(result.data);
-        localStorage.setItem('customerData', JSON.stringify(result.data));
-        return result.data;
+      if (result.success && result.customers) {
+        // Find the customer data for this email
+        let customerData = null;
+        
+        // Try to find by email in different key formats
+        for (const [key, customer] of Object.entries(result.customers)) {
+          if (customer.email && customer.email.toLowerCase() === email.toLowerCase()) {
+            customerData = customer;
+            break;
+          }
+        }
+        
+        if (customerData) {
+          console.log('🔄 Synced with backend:', customerData);
+          setCustomerData(customerData);
+          localStorage.setItem('customerData', JSON.stringify(customerData));
+          return customerData;
+        } else {
+          console.log('❌ Customer not found in backend data');
+        }
       }
     } catch (error) {
       console.error('Failed to sync with backend:', error);
