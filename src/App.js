@@ -25,6 +25,7 @@ import AdminLogin from './components/AdminLogin';
 import Login from './components/Login';
 import Signup from './components/Signup';
 import ProtectedRoute from './components/ProtectedRoute';
+import AdminProtectedRoute from './components/AdminProtectedRoute';
 import AuthenticatedLayout from './components/AuthenticatedLayout';
 import HomePage from './components/HomePage';
 import Account from './components/Account';
@@ -115,9 +116,9 @@ function App() {
           {/* Admin Routes */}
           <Route path="/admin-login" element={<AdminLogin />} />
           <Route path="/admin" element={
-            <ProtectedRoute>
+            <AdminProtectedRoute>
               <AdminDashboard />
-            </ProtectedRoute>
+            </AdminProtectedRoute>
           } />
           
           {/* Legal pages */}

@@ -4,6 +4,7 @@ import { Menu, X } from 'lucide-react';
 import { animateScroll as scroll } from 'react-scroll';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { userAuth } from '../utils/userAuth';
+import adminAuth from '../utils/adminAuth';
 
 const navItems = [
   { name: 'Home', to: 'hero' },
@@ -103,17 +104,17 @@ const Navbar = () => {
           <div className="hidden md:flex items-center space-x-4">
             {userAuth.isLoggedIn() ? (
               <>
-                {!userAuth.isAdmin() && (
+                {userAuth.isLoggedIn() && (
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => navigate('/dashboard')}
-                    className="bg-transparent border-2 border-[#3ABEF9] text-[#3ABEF9] hover:bg-[#3ABEF9] hover:text-white font-semibold px-6 py-2 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[#3ABEF9] focus:ring-offset-2"
+                    className="bg-gradient-to-r from-[#3ABEF9] to-[#007BFF] hover:from-[#007BFF] hover:to-[#0052CC] text-white font-semibold px-4 py-2 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[#3ABEF9] focus:ring-offset-2"
                   >
                     My Dashboard
                   </motion.button>
                 )}
-                {userAuth.isAdmin() && (
+                {adminAuth.isLoggedIn() && (
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
@@ -128,6 +129,7 @@ const Navbar = () => {
                   whileTap={{ scale: 0.95 }}
                   onClick={() => {
                     userAuth.logout();
+                    adminAuth.logout();
                     navigate('/');
                   }}
                   className="bg-transparent border border-gray-600 text-gray-300 hover:text-white hover:border-gray-500 font-semibold px-4 py-2 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
@@ -188,7 +190,7 @@ const Navbar = () => {
               <div className="pt-4 border-t border-[#3ABEF9]/20 space-y-3">
                 {userAuth.isLoggedIn() ? (
                   <>
-                    {!userAuth.isAdmin() && (
+                    {userAuth.isLoggedIn() && (
                       <button 
                         onClick={() => {
                           navigate('/dashboard');
@@ -199,7 +201,7 @@ const Navbar = () => {
                         My Dashboard
                       </button>
                     )}
-                    {userAuth.isAdmin() && (
+                    {adminAuth.isLoggedIn() && (
                       <button 
                         onClick={() => {
                           navigate('/admin');
@@ -213,6 +215,7 @@ const Navbar = () => {
                     <button 
                       onClick={() => {
                         userAuth.logout();
+                        adminAuth.logout();
                         navigate('/');
                         setIsOpen(false);
                       }}
