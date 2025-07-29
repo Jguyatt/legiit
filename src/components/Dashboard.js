@@ -44,8 +44,9 @@ const Dashboard = () => {
         // Try to find by email in different key formats
         for (const [key, customer] of Object.entries(result.customers)) {
           if (customer.email && customer.email.toLowerCase() === email.toLowerCase()) {
-            // Prioritize entries with active projects
-            if (customer.activeProjects && customer.activeProjects.length > 0) {
+            // Prioritize entries with active projects OR completed projects
+            if ((customer.activeProjects && customer.activeProjects.length > 0) || 
+                (customer.completedProjects && customer.completedProjects.length > 0)) {
               bestMatch = customer;
               break; // Found one with projects, use this one
             } else if (!customerData) {
@@ -58,10 +59,29 @@ const Dashboard = () => {
         const finalCustomerData = bestMatch || customerData;
         
         if (finalCustomerData) {
-          console.log('🔄 Synced with backend:', finalCustomerData);
-          setCustomerData(finalCustomerData);
-          localStorage.setItem('customerData', JSON.stringify(finalCustomerData));
-          return finalCustomerData;
+          // Apply completion logic to ensure projects are in the right state
+          const processedData = moveCompletedProjects(finalCustomerData);
+          
+          console.log('🔄 Synced with backend:', processedData);
+          setCustomerData(processedData);
+          localStorage.setItem('customerData', JSON.stringify(processedData));
+          
+          // Sync the processed data back to backend if there were changes
+          if (JSON.stringify(processedData) !== JSON.stringify(finalCustomerData)) {
+            await fetch('https://rankly360.up.railway.app/api/sync-data', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                email: email,
+                customerData: processedData
+              })
+            });
+            console.log('✅ Processed data synced back to backend');
+          }
+          
+          return processedData;
         } else {
           console.log('❌ Customer not found in backend data');
         }
@@ -255,6 +275,37 @@ const Dashboard = () => {
     if (customerData) {
       fixProjectDurations(customerData);
       checkExpiredCancellations(customerData);
+      
+      // Check for project completion and move to completed if needed
+      const processedData = moveCompletedProjects(customerData);
+      if (JSON.stringify(processedData) !== JSON.stringify(customerData)) {
+        console.log('🔄 Moving completed projects...');
+        setCustomerData(processedData);
+        localStorage.setItem('customerData', JSON.stringify(processedData));
+        
+        // Sync the updated data to backend
+        const userSession = userAuth.getSession();
+        if (userSession?.email) {
+          fetch('https://rankly360.up.railway.app/api/sync-data', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              email: userSession.email,
+              customerData: processedData
+            })
+          }).then(response => response.json())
+          .then(result => {
+            if (result.success) {
+              console.log('✅ Completed projects synced to backend');
+            }
+          })
+          .catch(error => {
+            console.error('❌ Failed to sync completed projects:', error);
+          });
+        }
+      }
     }
   }, [customerData]);
 
