@@ -118,14 +118,11 @@ const Account = () => {
       
       // Remove user from backend
       try {
-        const response = await fetch('https://rankly360.up.railway.app/api/delete-user', {
-          method: 'POST',
+        const response = await fetch(`https://rankly360.up.railway.app/api/delete-user/${encodeURIComponent(userSession.email)}`, {
+          method: 'DELETE',
           headers: {
             'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            email: userSession.email
-          })
+          }
         });
         
         if (response.ok) {
