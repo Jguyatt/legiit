@@ -630,9 +630,23 @@ const Dashboard = () => {
   // Watch for project completion
   useEffect(() => {
     if (customerData && customerData.activeProjects && customerData.activeProjects.length > 0) {
-      const justCompleted = customerData.activeProjects.find(
-        (p) => p.progress === 100 || p.currentPhase === 'Order Complete' || p.status === 'Completed'
-      );
+      const project = customerData.activeProjects[0];
+      
+      // Check if all timeline steps are completed
+      const timeline = customerData.orderTimeline;
+      let allStepsCompleted = false;
+      
+      if (timeline) {
+        allStepsCompleted = Object.values(timeline).every(step => 
+          step.completed === true || step.status === 'completed'
+        );
+      }
+      
+      const justCompleted = allStepsCompleted || 
+        project.progress === 100 || 
+        project.currentPhase === 'Order Complete' || 
+        project.status === 'Completed';
+        
       if (justCompleted) {
         setShowCompletionMessage(true);
         // Move to completedProjects

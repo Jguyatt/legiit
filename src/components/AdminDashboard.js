@@ -190,11 +190,21 @@ const AdminDashboard = () => {
   };
 
   const getCompletedProjects = () => {
-    return clients.filter(client => 
-      client.progress === 100 || 
-      client.customerData?.activeProjects?.some(project => project.status === 'Cancelled') ||
-      client.subscriptionStatus === 'Cancelled'
-    );
+    return clients.filter(client => {
+      // Check if all timeline steps are completed
+      const timeline = client.customerData?.orderTimeline;
+      if (timeline) {
+        const allStepsCompleted = Object.values(timeline).every(step => 
+          step.completed === true || step.status === 'completed'
+        );
+        if (allStepsCompleted) return true;
+      }
+      
+      // Check other completion conditions
+      return client.progress === 100 || 
+        client.customerData?.activeProjects?.some(project => project.status === 'Cancelled') ||
+        client.subscriptionStatus === 'Cancelled';
+    });
   };
 
   const handleLogout = () => {
