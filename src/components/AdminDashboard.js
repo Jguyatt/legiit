@@ -107,10 +107,12 @@ const AdminDashboard = () => {
         
         setClients(backendCustomers);
         
-        // Load users (all signed up users) - ensure uniqueness
+        // Load users (all signed up users) - ensure uniqueness and filter out duplicates with customers
+        const customerEmails = new Set(backendCustomers.map(customer => customer.email.toLowerCase()));
         const allUsers = Object.values(data.users || {})
+          .filter(user => !customerEmails.has(user.email.toLowerCase())) // Filter out users that are already customers
           .filter((user, index, self) => 
-            index === self.findIndex(u => u.email === user.email)
+            index === self.findIndex(u => u.email.toLowerCase() === user.email.toLowerCase())
           )
           .map(user => ({
             id: user.email,
@@ -184,8 +186,17 @@ const AdminDashboard = () => {
     return clients.filter(client => 
       // Show clients who have active projects (from purchases)
       client.customerData?.activeProjects && client.customerData.activeProjects.length > 0 &&
-      client.customerData.subscriptionStatus !== 'Cancelled'
+      client.subscriptionStatus === 'Active'
     );
+  };
+
+  const getUniqueUsers = () => {
+    // Combine customers and users, filtering out duplicates by email
+    const allUsers = [...clients, ...users];
+    const uniqueUsers = allUsers.filter((user, index, self) => 
+      index === self.findIndex(u => u.email.toLowerCase() === user.email.toLowerCase())
+    );
+    return uniqueUsers;
   };
 
   const getCompletedProjects = () => {
@@ -790,12 +801,12 @@ const AdminDashboard = () => {
             className="bg-white/5 backdrop-blur-sm rounded-xl border border-white/10"
           >
             <div className="px-6 py-4 border-b border-white/10">
-              <h3 className="text-lg font-medium text-white">Users ({Object.values(clients || {}).length})</h3>
+              <h3 className="text-lg font-medium text-white">Users ({getUniqueUsers().length})</h3>
             </div>
             <div className="p-6">
               <div className="space-y-4">
-                {/* Show all customers as users */}
-                {Object.values(clients || {}).map((user) => (
+                {/* Show unique users by combining customers and users */}
+                {getUniqueUsers().map((user) => (
                   <div key={user.email} className="bg-white/5 rounded-lg p-4 border border-white/10">
                     <div className="flex items-center justify-between">
                       <div>
