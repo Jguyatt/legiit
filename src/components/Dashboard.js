@@ -712,10 +712,13 @@ const Dashboard = () => {
         );
       }
       
+      // Use the same completion criteria as admin dashboard
       const justCompleted = allStepsCompleted || 
         project.progress === 100 || 
         project.currentPhase === 'Order Complete' || 
-        project.status === 'Completed';
+        project.status === 'Completed' ||
+        project.status === 'Cancelled' ||
+        customerData.subscriptionStatus === 'Cancelled';
         
       if (justCompleted) {
         setShowCompletionMessage(true);
