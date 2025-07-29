@@ -589,6 +589,52 @@ const Dashboard = () => {
     const now = new Date();
     const updatedData = { ...data };
     
+    // Check for projects that should be moved to completed
+    const projectsToMove = [];
+    const remainingActiveProjects = [];
+    
+    updatedData.activeProjects.forEach(project => {
+      // Check if project is completed (100% progress, all timeline steps done, or status is Completed)
+      const timeline = data.orderTimeline;
+      let allStepsCompleted = false;
+      
+      if (timeline) {
+        allStepsCompleted = Object.values(timeline).every(step => 
+          step.completed === true || step.status === 'completed'
+        );
+      }
+      
+      const isCompleted = allStepsCompleted || 
+        project.progress === 100 || 
+        project.currentPhase === 'Order Complete' || 
+        project.status === 'Completed';
+      
+      if (isCompleted) {
+        // Move to completed projects
+        const completedProject = {
+          ...project,
+          status: 'Completed',
+          completedDate: now.toISOString(),
+          finalProgress: project.progress || 100
+        };
+        projectsToMove.push(completedProject);
+      } else {
+        // Keep in active projects
+        remainingActiveProjects.push(project);
+      }
+    });
+    
+    // Update the data structure
+    if (projectsToMove.length > 0) {
+      updatedData.activeProjects = remainingActiveProjects;
+      updatedData.completedProjects = [
+        ...(updatedData.completedProjects || []),
+        ...projectsToMove
+      ];
+      
+      console.log('✅ Moved', projectsToMove.length, 'project(s) to completed section');
+    }
+    
     // Check for cancelled projects that have passed their billing period
     if (updatedData.completedProjects) {
       updatedData.completedProjects = updatedData.completedProjects.map(project => {
@@ -664,10 +710,38 @@ const Dashboard = () => {
         
       if (justCompleted) {
         setShowCompletionMessage(true);
+        
         // Move to completedProjects
         const updated = moveCompletedProjects(customerData);
-        setCustomerData(updated);
-        localStorage.setItem('customerData', JSON.stringify(updated));
+        
+        // Only update if there were changes
+        if (updated.activeProjects.length !== customerData.activeProjects.length) {
+          setCustomerData(updated);
+          localStorage.setItem('customerData', JSON.stringify(updated));
+          
+          // Sync with backend
+          const userSession = userAuth.getSession();
+          if (userSession?.email) {
+            fetch('https://rankly360.up.railway.app/api/sync-data', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                email: userSession.email,
+                customerData: updated
+              })
+            }).then(response => response.json())
+            .then(result => {
+              if (result.success) {
+                console.log('✅ Project completion synced with backend');
+              }
+            })
+            .catch(error => {
+              console.error('❌ Failed to sync project completion:', error);
+            });
+          }
+        }
       }
     }
   }, [customerData]);
