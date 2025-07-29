@@ -93,14 +93,13 @@ const AdminDashboard = () => {
       const data = await response.json();
       
       if (data.success) {
-        // Convert backend customers to frontend format - ONLY those with active projects
+        // Convert backend customers to frontend format - SHOW ALL CUSTOMERS (not just those with active projects)
         const backendCustomers = Object.values(data.customers || {})
-          .filter(customer => customer.activeProjects && customer.activeProjects.length > 0) // Only customers with actual projects
           .map(customer => ({
             id: customer.email,
             name: customer.name,
             email: customer.email,
-            service: customer.activeProjects?.[0]?.service || 'Unknown Service',
+            service: customer.activeProjects?.[0]?.service || 'No Active Service',
             progress: customer.activeProjects?.[0]?.progress || 0,
             subscriptionStatus: customer.subscriptionStatus || 'Active',
             customerData: customer,
