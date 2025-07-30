@@ -2,6 +2,8 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, MapPin, CheckCircle, Target, Navigation, Zap, Globe, TrendingUp } from 'lucide-react';
 
+// Map PowerBoost payment link: https://buy.stripe.com/6oU3cvcVy5PaeNM7yudAk03
+
 const features = [
   {
     label: '300 Local Places (Geotagged Google Map Points)',
