@@ -476,6 +476,21 @@ const Dashboard = () => {
     return () => clearInterval(interval);
   }, [customerData]);
 
+  // Check for pending purchases on page load
+  useEffect(() => {
+    console.log('🔄 Checking for pending purchases on page load...');
+    const pendingPurchase = purchaseHandler.checkForPendingPurchases();
+    if (pendingPurchase) {
+      console.log('💰 Found pending purchase, updating dashboard...');
+      console.log('💰 Pending purchase data:', pendingPurchase);
+      console.log('💰 Active projects count:', pendingPurchase?.activeProjects?.length);
+      setCustomerData(pendingPurchase);
+      fixProjectDurations(pendingPurchase);
+    } else {
+      console.log('📊 No pending purchases found');
+    }
+  }, []);
+
   const handleGetStarted = () => {
     navigate('/packages');
   };
@@ -1181,6 +1196,26 @@ const Dashboard = () => {
                 <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
               
+              {/* Test button for debugging */}
+              <button
+                onClick={() => {
+                  console.log('🧪 Testing purchase flow...');
+                  const testPurchaseData = {
+                    customerEmail: 'tryranklyai@gmail.com',
+                    customerName: 'Jerry',
+                    packageName: 'Test Service',
+                    amount: 99,
+                    stripeSessionId: 'test_session_' + Date.now(),
+                    stripeCustomerId: 'cus_test_' + Date.now()
+                  };
+                  console.log('🧪 Test purchase data:', testPurchaseData);
+                  const result = purchaseHandler.handleSuccessfulPurchase(testPurchaseData);
+                  console.log('🧪 Test purchase result:', result);
+                }}
+                className="mt-4 bg-red-500 hover:bg-red-600 text-white font-semibold px-4 py-2 rounded-lg transition-all duration-300"
+              >
+                🧪 Test Purchase Flow
+              </button>
 
             </div>
           </div>
