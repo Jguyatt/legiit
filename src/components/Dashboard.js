@@ -1076,6 +1076,17 @@ const Dashboard = () => {
                             ></div>
                           </div>
                         </div>
+
+                        {/* Account Manager Information (always visible) */}
+                        <div className="mt-3 p-2 bg-blue-600/10 rounded-lg border border-blue-600/20">
+                          <div className="flex items-center gap-2">
+                            <User className="w-3 h-3 text-blue-400" />
+                            <span className="text-xs text-blue-400 font-medium">Account Manager:</span>
+                            <span className="text-xs text-white">Jacob Guyatt</span>
+                            <span className="text-xs text-gray-400">•</span>
+                            <span className="text-xs text-blue-400">guyattj39@gmail.com</span>
+                          </div>
+                        </div>
                       </div>
 
                       {/* Expanded Project Details */}
