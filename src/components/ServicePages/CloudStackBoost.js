@@ -140,7 +140,7 @@ export default function CloudStackBoost() {
           {/* CTA Buttons */}
           <div className="mb-12 flex flex-col sm:flex-row gap-4 justify-center">
             <a
-              href="https://buy.stripe.com/3cIeVdf3G2CY9ts7yudAk04"
+              href="https://buy.stripe.com/cNi6oH6xab9u354062dAk09"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-4 rounded-lg transition-colors"
@@ -256,7 +256,7 @@ export default function CloudStackBoost() {
             Join businesses that have achieved top rankings with our cloud-based SEO strategy.
           </p>
           <a
-            href="https://buy.stripe.com/3cIeVdf3G2CY9ts7yudAk04"
+                            href="https://buy.stripe.com/cNi6oH6xab9u354062dAk09"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-4 rounded-lg transition-colors"
