@@ -133,7 +133,7 @@ const Signup = () => {
         clearSavedFormData();
         
         // Auto-login the user after successful signup
-        const loginResult = userAuth.login(email, password);
+        const loginResult = await userAuth.login(email, password);
         if (loginResult.success) {
           // Create user data structure (no customer data until purchase)
           const userData = {
