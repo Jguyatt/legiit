@@ -1731,6 +1731,72 @@ const Dashboard = () => {
             </div>
           </div>
         </div>
+        
+        {/* Completed Projects - Always show this section */}
+        {customerData?.completedProjects && customerData.completedProjects.length > 0 && (
+          <div className="mt-6">
+            <div className="bg-[#1a1a1a] rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-green-500/20">
+              <h2 className="text-lg sm:text-xl font-bold mb-4 flex items-center gap-2">
+                <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-green-400" />
+                Completed Projects
+              </h2>
+              <div className="space-y-4">
+                {customerData.completedProjects.map((project) => (
+                  <div key={project.id} className="bg-[#2a2a2a] rounded-lg border border-gray-700/50 overflow-hidden">
+                    <div className="p-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-semibold text-white text-sm truncate">{project.name}</h3>
+                          <div className="flex items-center gap-2 mt-1">
+                            <span className="text-xs text-[#3abef9] font-medium">{project.type}</span>
+                            <span className="text-xs text-gray-500">•</span>
+                            <span className="text-xs text-gray-400">{project.category}</span>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="px-2 py-1 rounded-full text-xs font-medium bg-green-500/20 text-green-400">
+                            {project.status}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-4 mt-3 text-xs">
+                        <div>
+                          <span className="text-gray-400">Started:</span>
+                          <p className="text-white">{project.startDate}</p>
+                        </div>
+                        <div>
+                          <span className="text-gray-400">Completed:</span>
+                          <p className="text-white">{project.completedDate || project.endDate || 'N/A'}</p>
+                        </div>
+                        <div>
+                          <span className="text-gray-400">Duration:</span>
+                          <p className="text-white">{project.estimatedDuration}</p>
+                        </div>
+                        <div>
+                          <span className="text-gray-400">Progress:</span>
+                          <p className="text-green-400 font-medium">100%</p>
+                        </div>
+                      </div>
+                      {project.deliverables && project.deliverables.length > 0 && (
+                        <div className="mt-3">
+                          <h4 className="text-xs font-medium text-gray-300 mb-2">Deliverables Completed</h4>
+                          <ul className="space-y-1">
+                            {project.deliverables.map((deliverable, index) => (
+                              <li key={index} className="text-xs text-gray-400 flex items-center gap-1">
+                                <CheckCircle className="w-3 h-3 text-green-400" />
+                                {deliverable}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
       
       {/* Cancel Membership Confirmation Modal */}
