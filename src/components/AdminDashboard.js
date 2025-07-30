@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { 
   Users, DollarSign, AlertCircle, RefreshCw, LogOut, 
   Eye, XCircle, CheckCircle, Clock, BarChart3, Settings,
-  TrendingUp, AlertTriangle
+  TrendingUp, AlertTriangle, MessageSquare, Send
 } from 'lucide-react';
 import adminAuth from '../utils/adminAuth';
 
@@ -24,6 +24,78 @@ const AdminDashboard = () => {
   const [successMessages, setSuccessMessages] = useState({});
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
+  const [showChatModal, setShowChatModal] = useState(false);
+  const [chatMessages, setChatMessages] = useState({});
+  const [newMessage, setNewMessage] = useState('');
+
+  // Chat functionality
+  const openChat = (customer) => {
+    setSelectedCustomer(customer);
+    setShowChatModal(true);
+    // Initialize chat messages if not exists
+    if (!chatMessages[customer.email]) {
+      setChatMessages(prev => ({
+        ...prev,
+        [customer.email]: []
+      }));
+    }
+  };
+
+  const sendMessage = async (customerEmail, message) => {
+    if (!message.trim()) return;
+
+    const newMsg = {
+      id: Date.now(),
+      sender: 'admin',
+      message: message.trim(),
+      timestamp: new Date().toISOString(),
+      read: false
+    };
+
+    // Add message to chat
+    setChatMessages(prev => ({
+      ...prev,
+      [customerEmail]: [...(prev[customerEmail] || []), newMsg]
+    }));
+
+    // Clear input
+    setNewMessage('');
+
+    // TODO: Send message to backend for persistence
+    try {
+      await fetch('https://rankly360.up.railway.app/api/chat-message', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          customerEmail,
+          message: newMsg.message,
+          sender: 'admin',
+          timestamp: newMsg.timestamp
+        })
+      });
+    } catch (error) {
+      console.error('Failed to send message to backend:', error);
+    }
+  };
+
+  const loadChatMessages = async (customerEmail) => {
+    try {
+      const response = await fetch(`https://rankly360.up.railway.app/api/chat-messages/${customerEmail}`);
+      const data = await response.json();
+      
+      if (data.success) {
+        setChatMessages(prev => ({
+          ...prev,
+          [customerEmail]: data.messages || []
+        }));
+      }
+    } catch (error) {
+      console.error('Failed to load chat messages:', error);
+    }
+  };
 
   // Event handlers
   const handleStorageChange = () => {
@@ -102,7 +174,12 @@ const AdminDashboard = () => {
             progress: customer.activeProjects?.[0]?.progress || 0,
             subscriptionStatus: customer.subscriptionStatus || 'Active',
             customerData: customer,
-            recentActivity: customer.recentActivity || []
+            recentActivity: customer.recentActivity || [],
+            accountManager: {
+              name: 'Jacob Guyatt',
+              email: 'guyattj39@gmail.com',
+              phone: '+1 (555) 123-4567'
+            }
           }));
         
         setClients(backendCustomers);
@@ -842,6 +919,12 @@ const AdminDashboard = () => {
                           <p className="text-sm text-gray-400">{client.email}</p>
                           <p className="text-sm text-gray-400">{client.customerData?.business || client.business}</p>
                           <p className="text-sm font-medium text-white">{projectName} • {client.customerData?.subscriptionStatus || client.subscriptionStatus}</p>
+                          {/* Account Manager Information */}
+                          <div className="mt-2 p-2 bg-blue-500/10 rounded border border-blue-500/20">
+                            <p className="text-xs text-blue-300 font-medium">Account Manager</p>
+                            <p className="text-xs text-white">{client.accountManager?.name || 'Jacob Guyatt'}</p>
+                            <p className="text-xs text-gray-400">{client.accountManager?.email || 'guyattj39@gmail.com'}</p>
+                          </div>
                         </div>
                         <div className="text-right">
                           <p className="text-lg font-medium text-white">${project?.monthlyRate || client.customerData?.monthlyRate || 'N/A'}</p>
@@ -910,6 +993,13 @@ const AdminDashboard = () => {
                         >
                           <Eye className="w-4 h-4 mr-1" />
                           View Dashboard
+                        </button>
+                        <button
+                          onClick={() => openChat(client)}
+                          className="inline-flex items-center px-3 py-1.5 border border-blue-500/20 rounded-md text-sm font-medium text-blue-400 hover:bg-blue-500/10 transition-colors"
+                        >
+                          <MessageSquare className="w-4 h-4 mr-1" />
+                          Chat
                         </button>
                         <button
                           onClick={() => {
@@ -1406,6 +1496,86 @@ const AdminDashboard = () => {
             </div>
           </div>
         )}
+      </div>
+
+      {/* Chat Modal */}
+      {showChatModal && selectedCustomer && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-slate-800 rounded-lg max-w-2xl w-full max-h-[80vh] flex flex-col">
+            {/* Chat Header */}
+            <div className="flex items-center justify-between p-4 border-b border-slate-700">
+              <div>
+                <h3 className="text-lg font-semibold text-white">Chat with {selectedCustomer.name}</h3>
+                <p className="text-sm text-gray-400">{selectedCustomer.email}</p>
+              </div>
+              <button
+                onClick={() => {
+                  setShowChatModal(false);
+                  setSelectedCustomer(null);
+                }}
+                className="text-gray-400 hover:text-white"
+              >
+                <XCircle className="w-6 h-6" />
+              </button>
+            </div>
+
+            {/* Chat Messages */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-4 max-h-96">
+              {chatMessages[selectedCustomer.email]?.length > 0 ? (
+                chatMessages[selectedCustomer.email].map((message) => (
+                  <div
+                    key={message.id}
+                    className={`flex ${message.sender === 'admin' ? 'justify-end' : 'justify-start'}`}
+                  >
+                    <div
+                      className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
+                        message.sender === 'admin'
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-slate-700 text-white'
+                      }`}
+                    >
+                      <p className="text-sm">{message.message}</p>
+                      <p className="text-xs opacity-70 mt-1">
+                        {new Date(message.timestamp).toLocaleTimeString()}
+                      </p>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="text-center text-gray-400 py-8">
+                  <MessageSquare className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                  <p>No messages yet. Start the conversation!</p>
+                </div>
+              )}
+            </div>
+
+            {/* Message Input */}
+            <div className="p-4 border-t border-slate-700">
+              <div className="flex space-x-2">
+                <input
+                  type="text"
+                  value={newMessage}
+                  onChange={(e) => setNewMessage(e.target.value)}
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      sendMessage(selectedCustomer.email, newMessage);
+                    }
+                  }}
+                  placeholder="Type your message..."
+                  className="flex-1 bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
+                />
+                <button
+                  onClick={() => sendMessage(selectedCustomer.email, newMessage)}
+                  disabled={!newMessage.trim()}
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-600/50 text-white rounded-lg transition-colors flex items-center"
+                >
+                  <Send className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

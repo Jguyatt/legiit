@@ -1044,6 +1044,20 @@ const Dashboard = () => {
                 </div>
               </div>
             </div>
+            
+            {/* Account Manager Information */}
+            <div className="bg-slate-800 rounded border border-slate-700 p-4 sm:col-span-2">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-purple-500/20 rounded flex items-center justify-center">
+                  <User className="w-4 h-4 text-purple-400" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm text-slate-400">Account Manager</p>
+                  <p className="text-lg font-semibold text-white">Jacob Guyatt</p>
+                  <p className="text-sm text-gray-400">guyattj39@gmail.com</p>
+                </div>
+              </div>
+            </div>
         </div>
       </div>
 
