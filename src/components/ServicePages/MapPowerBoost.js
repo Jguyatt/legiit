@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, MapPin, CheckCircle, Target, Navigation, Zap, Globe, TrendingUp } from 'lucide-react';
 
-// Map PowerBoost payment link: https://buy.stripe.com/6oU3cvcVy5PaeNM7yudAk03
+// Map PowerBoost payment link: https://buy.stripe.com/4gM9AT4p2cdycFE2eadAk08
 
 const features = [
   {
@@ -135,7 +135,7 @@ export default function MapPowerBoost() {
           {/* CTA Buttons */}
           <div className="mb-8 sm:mb-12 flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
             <a
-              href="https://buy.stripe.com/6oU3cvcVy5PaeNM7yudAk03"
+              href="https://buy.stripe.com/4gM9AT4p2cdycFE2eadAk08"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 sm:px-8 py-3 sm:py-4 rounded-lg transition-colors text-sm sm:text-base"
@@ -274,7 +274,7 @@ export default function MapPowerBoost() {
             Join businesses that have achieved top rankings with our proven geotagging strategy.
           </p>
           <a
-            href="https://buy.stripe.com/6oU3cvcVy5PaeNM7yudAk03"
+                            href="https://buy.stripe.com/4gM9AT4p2cdycFE2eadAk08"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-4 rounded-lg transition-colors"
