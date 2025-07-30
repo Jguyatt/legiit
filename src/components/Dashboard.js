@@ -569,6 +569,7 @@ const Dashboard = () => {
   };
 
   const openOnboardingForm = (service) => {
+    console.log('Opening onboarding form for service:', service);
     setCurrentService(service);
     setShowOnboardingForm(true);
   };

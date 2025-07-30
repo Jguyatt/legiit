@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { X, CheckCircle, ArrowRight } from 'lucide-react';
 
 const OnboardingForm = ({ isOpen, onClose, service, onSubmit }) => {
+  console.log('OnboardingForm received service:', service);
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
