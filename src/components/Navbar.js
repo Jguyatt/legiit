@@ -83,7 +83,7 @@ const Navbar = () => {
 
           {/* Desktop Navigation - Center */}
           <div className="hidden md:flex items-center space-x-8">
-            {userAuth.isLoggedIn() && navItems.map((item) => (
+            {navItems.map((item) => (
               <span
                 key={item.name}
                 onClick={() => handleNavClick(item.to)}
@@ -108,34 +108,16 @@ const Navbar = () => {
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    onClick={() => navigate('/dashboard')}
-                    className="bg-gradient-to-r from-[#3ABEF9] to-[#007BFF] hover:from-[#007BFF] hover:to-[#0052CC] text-white font-semibold px-4 py-2 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[#3ABEF9] focus:ring-offset-2"
+                    onClick={() => {
+                      userAuth.logout();
+                      adminAuth.logout();
+                      navigate('/');
+                    }}
+                    className="bg-transparent border border-gray-600 text-gray-300 hover:text-white hover:border-gray-500 font-semibold px-4 py-2 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
                   >
-                    My Dashboard
+                    Logout
                   </motion.button>
                 )}
-                {userAuth.isAdmin() && (
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => navigate('/admin')}
-                    className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-semibold px-4 py-2 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
-                  >
-                    Admin Dashboard
-                  </motion.button>
-                )}
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => {
-                    userAuth.logout();
-                    adminAuth.logout();
-                    navigate('/');
-                  }}
-                  className="bg-transparent border border-gray-600 text-gray-300 hover:text-white hover:border-gray-500 font-semibold px-4 py-2 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
-                >
-                  Logout
-                </motion.button>
               </>
             ) : (
               <motion.button
@@ -177,7 +159,7 @@ const Navbar = () => {
             className="md:hidden bg-[#0f0f0f]/95 backdrop-blur-sm shadow-lg border-t border-[#3ABEF9]/20"
           >
             <div className="px-4 py-6 space-y-4">
-              {userAuth.isLoggedIn() && navItems.map((item) => (
+              {navItems.map((item) => (
                 <span
                   key={item.name}
                   onClick={() => handleNavClick(item.to)}
@@ -193,36 +175,16 @@ const Navbar = () => {
                     {userAuth.isLoggedIn() && (
                       <button 
                         onClick={() => {
-                          navigate('/dashboard');
+                          userAuth.logout();
+                          adminAuth.logout();
+                          navigate('/');
                           setIsOpen(false);
                         }}
-                        className="w-full bg-transparent border-2 border-[#3ABEF9] text-[#3ABEF9] hover:bg-[#3ABEF9] hover:text-white font-semibold px-6 py-3 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[#3ABEF9] focus:ring-offset-2"
+                        className="w-full bg-transparent border-2 border-gray-600 text-gray-300 hover:text-white hover:border-gray-500 font-semibold px-6 py-3 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
                       >
-                        My Dashboard
+                        Logout
                       </button>
                     )}
-                    {userAuth.isAdmin() && (
-                      <button 
-                        onClick={() => {
-                          navigate('/admin');
-                          setIsOpen(false);
-                        }}
-                        className="w-full bg-transparent border-2 border-green-500 text-green-500 hover:bg-green-500 hover:text-white font-semibold px-6 py-3 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
-                      >
-                        Admin Dashboard
-                      </button>
-                    )}
-                    <button 
-                      onClick={() => {
-                        userAuth.logout();
-                        adminAuth.logout();
-                        navigate('/');
-                        setIsOpen(false);
-                      }}
-                      className="w-full bg-transparent border-2 border-gray-600 text-gray-300 hover:text-white hover:border-gray-500 font-semibold px-6 py-3 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
-                    >
-                      Logout
-                    </button>
                   </>
                 ) : (
                   <button 
