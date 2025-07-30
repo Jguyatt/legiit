@@ -27,7 +27,6 @@ import OnboardingForm from './OnboardingForm';
 const Dashboard = () => {
   const [isCustomer, setIsCustomer] = useState(false);
   const [customerData, setCustomerData] = useState(null);
-  const [showCancelConfirmation, setShowCancelConfirmation] = useState(false);
   const [expandedProjects, setExpandedProjects] = useState(new Set());
   const [loading, setLoading] = useState(true);
   const [showOnboardingForm, setShowOnboardingForm] = useState(false);
@@ -391,145 +390,19 @@ const Dashboard = () => {
   };
 
   const toggleProjectExpansion = (projectId) => {
-    setExpandedProjects(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(projectId)) {
-        newSet.delete(projectId);
-      } else {
-        newSet.add(projectId);
-      }
-      return newSet;
-    });
+    setExpandedProjects(prev => ({
+      ...prev,
+      [projectId]: !prev[projectId]
+    }));
   };
 
-
-
-
-
   const handleCancelMembership = () => {
-    setShowCancelConfirmation(true);
+    // This function is no longer needed as cancel functionality is removed
   };
 
   const confirmCancelMembership = async () => {
-    // Get current customer data
-    const currentData = customerAuth.getCustomerData();
-    
-    if (!currentData || !currentData.activeProjects || currentData.activeProjects.length === 0) {
-      alert('No active projects to cancel');
-      return;
-    }
-    
-    const project = currentData.activeProjects[0];
-    const isTestPackage = project.name?.includes('Test') || project.name === 'Test Package';
-    
-    try {
-      // Immediately cancel the project (no approval needed)
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
-      
-      const response = await fetch('https://rankly360.up.railway.app/api/cancel-project', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          customerEmail: currentData.email,
-          projectId: project.id,
-          cancelledBy: 'Customer',
-          isTestPackage: isTestPackage
-        }),
-        signal: controller.signal
-      });
-      
-      clearTimeout(timeoutId);
-      
-      const result = await response.json();
-      
-      if (response.ok && result.success) {
-        if (isTestPackage) {
-          // For TEST package (one-time payment) - remove immediately
-          const updatedData = {
-            ...currentData,
-            activeProjects: [], // Remove from active projects immediately
-            completedProjects: [
-              ...(currentData.completedProjects || []),
-              {
-                ...project,
-                status: 'Cancelled',
-                cancelledDate: new Date().toISOString(),
-                cancelledBy: 'Customer',
-                cancellationReason: 'Customer requested cancellation (one-time payment)'
-              }
-            ],
-            recentActivity: [
-              {
-                type: 'project_cancelled',
-                message: 'Test project cancelled by customer',
-                date: new Date().toISOString().split('T')[0]
-              },
-              ...currentData.recentActivity
-            ]
-          };
-
-          setCustomerData(updatedData);
-          customerAuth.updateCustomerData(updatedData);
-          setShowCancelConfirmation(false);
-
-          // Show immediate cancellation message for TEST package
-          const message = `We're sorry to see you go! 😔\n\n✅ Your test project has been successfully cancelled.\n\nSince this was a one-time payment, your project has been removed immediately.\n\nThank you for trying our services!`;
-          alert(message);
-        } else {
-          // For monthly subscriptions - keep for 30 days
-          const billingEndDate = new Date();
-          billingEndDate.setDate(billingEndDate.getDate() + 30);
-          
-          const updatedData = {
-            ...currentData,
-            activeProjects: [], // Remove from active projects
-            completedProjects: [
-              ...(currentData.completedProjects || []),
-              {
-                ...project,
-                status: 'Cancelled',
-                cancelledDate: new Date().toISOString(),
-                cancelledBy: 'Customer',
-                billingEndDate: billingEndDate.toISOString(),
-                cancellationReason: 'Customer requested cancellation'
-              }
-            ],
-            recentActivity: [
-              {
-                type: 'project_cancelled',
-                message: 'Project cancelled by customer',
-                date: new Date().toISOString().split('T')[0]
-              },
-              ...currentData.recentActivity
-            ]
-          };
-
-          setCustomerData(updatedData);
-          customerAuth.updateCustomerData(updatedData);
-          setShowCancelConfirmation(false);
-
-          // Show billing period message for monthly subscriptions
-          const message = `We're sorry to see you go! 😔\n\n✅ Your project has been successfully cancelled.\n\nYour service will remain active until ${billingEndDate.toLocaleDateString()} (end of billing period).\n\nAfter this date, your project will be moved to completed projects.\n\nThank you for choosing our services!`;
-          alert(message);
-        }
-      } else {
-        console.error('Backend error:', result);
-        alert(`Error cancelling project: ${result.error || 'Unknown error'}. Please try again.`);
-      }
-    } catch (error) {
-      console.error('Network error cancelling project:', error);
-      if (error.name === 'AbortError') {
-        alert('Request timed out. Please check your connection and try again.');
-      } else {
-        alert('Network error. Please check your connection and try again.');
-      }
-    }
+    // This function is no longer needed as cancel functionality is removed
   };
-
-
 
   const handleOnboardingSubmit = async (formData) => {
     // Update the timeline to mark onboarding as pending approval
@@ -637,59 +510,6 @@ const Dashboard = () => {
     setCurrentService(service);
     setShowOnboardingForm(true);
   };
-
-  // Helper function to calculate progress based on completed timeline steps
-  // const calculateProgressFromTimeline = (orderTimeline) => {
-  //   if (!orderTimeline) return 0;
-  //   const completedSteps = Object.values(orderTimeline).filter(step => step.completed).length;
-  //   return Math.min(completedSteps * 20, 100); // Each step is 20%, max 100%
-  // };
-
-  // Helper function to update timeline step and recalculate progress
-  // const updateTimelineStep = (stepKey, status) => {
-  //   if (!customerData) return;
-
-  //   const updatedData = {
-  //     ...customerData,
-  //     orderTimeline: {
-  //       ...customerData.orderTimeline,
-  //       [stepKey]: {
-  //         status: status,
-  //         date: status === 'completed' ? new Date().toISOString().split('T')[0] : null,
-  //         completed: status === 'completed'
-  //       }
-  //     }
-  //   };
-
-  //   // Calculate new progress based on completed steps
-  //   const newProgress = calculateProgressFromTimeline(updatedData.orderTimeline);
-    
-  //   // Update progress in active projects
-  //   if (updatedData.activeProjects && updatedData.activeProjects.length > 0) {
-  //     updatedData.activeProjects[0].progress = newProgress;
-  //   }
-
-  //   // Add activity log entry
-  //   const stepNames = {
-  //     orderPlaced: 'Order Placed',
-  //     onboardingForm: 'Onboarding Form',
-  //     orderInProgress: 'Order In Progress',
-  //     reviewDelivery: 'Review Delivery',
-  //     orderComplete: 'Order Complete'
-  //   };
-
-  //   updatedData.recentActivity = [
-  //     {
-  //       type: 'timeline_update',
-  //       message: `${stepNames[stepKey]} ${status === 'completed' ? 'completed' : 'started'}`,
-  //       date: new Date().toISOString().split('T')[0]
-  //     },
-  //     ...updatedData.recentActivity
-  //   ];
-
-  //   setCustomerData(updatedData);
-  //   localStorage.setItem('customerData', JSON.stringify(updatedData));
-  // };
 
   const clearBillyData = () => {
     localStorage.removeItem('billyData');
@@ -1451,13 +1271,8 @@ const Dashboard = () => {
 
                           {/* Action Buttons */}
                           <div className="flex gap-2">
-                            <button
-                              onClick={handleCancelMembership}
-                              className="bg-red-600 hover:bg-red-700 text-white font-medium px-3 py-2 rounded-md transition-colors duration-200 text-xs"
-                            >
-                              Cancel Project
-                            </button>
-                        </div>
+                            {/* Cancel Project button removed - users cannot cancel their own projects */}
+                          </div>
                       </div>
                       )}
                     </div>
@@ -1698,42 +1513,8 @@ const Dashboard = () => {
       </div>
       
       {/* Cancel Membership Confirmation Modal */}
-      {showCancelConfirmation && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9 }}
-            className="bg-[#1a1a1a] rounded-2xl p-6 max-w-md w-full border border-[#3abef9]/20"
-          >
-            <div className="text-center mb-6">
-              <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                <XCircle className="w-8 h-8 text-red-400" />
-              </div>
-              <h3 className="text-xl font-bold text-white mb-2">Cancel Membership?</h3>
-              <p className="text-gray-400 text-sm">
-                Are you sure you want to cancel your membership? This action will submit a cancellation request for review.
-              </p>
-            </div>
-            
-            <div className="flex gap-3">
-              <button
-                onClick={() => setShowCancelConfirmation(false)}
-                className="flex-1 bg-gray-600 hover:bg-gray-700 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-300"
-              >
-                Keep Membership
-              </button>
-              <button
-                onClick={confirmCancelMembership}
-                className="flex-1 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-300"
-              >
-                Yes, Cancel
-              </button>
-            </div>
-          </motion.div>
-        </div>
-      )}
-      
+      {/* This modal is no longer needed as cancel functionality is removed */}
+
       {/* Onboarding Form Modal */}
       {showOnboardingForm && (
         <OnboardingForm
