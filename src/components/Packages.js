@@ -25,7 +25,7 @@ const Packages = () => {
     {
       name: 'Map PowerBoost',
       desc: 'Supercharge your Google Maps ranking with advanced geo-optimization.',
-      price: '$249/mo',
+      price: '$299',
       icon: Navigation,
       color: 'from-blue-500 to-blue-600',
       route: '/service/map-powerboost',
@@ -33,7 +33,7 @@ const Packages = () => {
     {
       name: 'Local Citations',
       desc: 'Boost local authority with 100+ high-quality business listings.',
-      price: '$299/mo',
+      price: '$299',
       icon: Database,
       color: 'from-green-500 to-green-600',
       route: '/service/local-citations',
@@ -41,7 +41,7 @@ const Packages = () => {
     {
       name: 'Cloud Stack Boost',
       desc: 'Dominate search with powerful cloud entity stacking and map embeds.',
-      price: '$347/mo',
+      price: '$349',
       icon: Cloud,
       color: 'from-purple-500 to-purple-600',
       route: '/service/cloud-stack-boost',
@@ -59,7 +59,7 @@ const Packages = () => {
   const bundles = [
     {
       name: 'Platinum Local SEO',
-      price: '$849/mo',
+      price: '$849',
       description: 'Everything in Map PowerBoost, Cloud Stack Boost, Local Citations, and more. Priority support & dedicated account manager.',
       icon: Star,
       color: 'from-yellow-400 to-yellow-600',
