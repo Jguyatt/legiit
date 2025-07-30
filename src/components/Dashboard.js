@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { 
   BarChart3, 
@@ -38,6 +38,15 @@ const Dashboard = () => {
   const [showChatModal, setShowChatModal] = useState(false);
   const [chatMessages, setChatMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
+  const chatMessagesEndRef = useRef(null);
+
+  const scrollToBottom = () => {
+    chatMessagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [chatMessages]);
   const navigate = useNavigate();
 
   // Generate notifications from timeline updates
@@ -535,13 +544,19 @@ const Dashboard = () => {
 
   const loadChatMessages = async () => {
     try {
+      console.log('Loading chat messages for:', customerData.email);
       const response = await fetch(`https://rankly360.up.railway.app/api/chat-messages/${customerData.email}`);
       if (response.ok) {
         const data = await response.json();
+        console.log('Loaded chat messages:', data);
         setChatMessages(data.messages || []);
+      } else {
+        console.error('Failed to load chat messages:', response.status);
+        setChatMessages([]);
       }
     } catch (error) {
       console.error('Failed to load chat messages:', error);
+      setChatMessages([]);
     }
   };
 
@@ -567,6 +582,7 @@ const Dashboard = () => {
 
       if (response.ok) {
         console.log('Message sent successfully');
+        // Add message to local state immediately for instant feedback
         setChatMessages(prev => [...prev, messageData]);
         setNewMessage('');
       } else {
@@ -1633,7 +1649,7 @@ const Dashboard = () => {
               {chatMessages.length > 0 ? (
                 chatMessages.map((message, index) => (
                   <div
-                    key={index}
+                    key={message.id || index}
                     className={`flex ${message.sender === 'admin' ? 'justify-end' : 'justify-start'}`}
                   >
                     <div
@@ -1645,7 +1661,7 @@ const Dashboard = () => {
                     >
                       <p className="text-sm">{message.message}</p>
                       <p className="text-xs opacity-70 mt-1">
-                        {new Date(message.timestamp).toLocaleTimeString()}
+                        {new Date(message.timestamp).toLocaleString()}
                       </p>
                     </div>
                   </div>
@@ -1654,8 +1670,10 @@ const Dashboard = () => {
                 <div className="text-center text-gray-400 py-8">
                   <MessageSquare className="w-12 h-12 mx-auto mb-2 opacity-50" />
                   <p>No messages yet. Start the conversation!</p>
+                  <p className="text-xs mt-2">Messages are saved and will persist between sessions.</p>
                 </div>
               )}
+              <div ref={chatMessagesEndRef} />
             </div>
             
             {/* Message Input */}
