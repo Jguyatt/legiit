@@ -24,7 +24,7 @@ const Packages = () => {
     'Platinum Local SEO': '/services/platinum-local-seo'
   };
 
-  const managedServices = [
+  const services = [
     {
       name: 'Map PowerBoost',
       desc: 'Supercharge your Google Maps ranking with advanced geo-optimization.',
@@ -106,7 +106,7 @@ const Packages = () => {
           <p className="text-gray-300">Enhance your SEO with powerful one-time services.</p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {managedServices.map((service, index) => {
+          {services.map((service, index) => {
             const IconComponent = service.icon;
             return (
               <motion.div
