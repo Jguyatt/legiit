@@ -36,7 +36,7 @@ const Login = () => {
     }
 
     // Use the proper userAuth system
-    const result = userAuth.login(email, password);
+    const result = await userAuth.login(email, password);
     
     if (result.success) {
       setLoading(false);

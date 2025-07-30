@@ -100,7 +100,7 @@ export const userAuth = {
 
 
   // Login user (only works for existing accounts)
-  login: (email, password) => {
+  login: async (email, password) => {
     const users = getStoredUsers();
     const emailLower = email.toLowerCase();
 
@@ -117,7 +117,7 @@ export const userAuth = {
       return { success: true, data: userSession };
     }
 
-    // Check if user exists in active users
+    // First check localStorage
     if (users.hasOwnProperty(emailLower)) {
       const user = users[emailLower];
 
@@ -138,6 +138,56 @@ export const userAuth = {
       localStorage.setItem('userSession', JSON.stringify(userSession));
       
       return { success: true, data: userSession };
+    }
+
+    // If not found in localStorage, check backend
+    try {
+      console.log('🔍 Checking backend for user:', emailLower);
+      const response = await fetch('https://rankly360.up.railway.app/api/all-customers');
+      
+      if (response.ok) {
+        const data = await response.json();
+        const allUsers = { ...data.users, ...data.customers };
+        
+        // Find user in backend data
+        const backendUser = allUsers[emailLower];
+        
+        if (backendUser) {
+          console.log('✅ Found user in backend:', backendUser);
+          
+          // Check password (assuming password is stored in backend)
+          if (backendUser.password && backendUser.password === password) {
+            // Create session
+            userSession = {
+              email: backendUser.email,
+              name: backendUser.name || backendUser.businessName || 'User',
+              isAdmin: false,
+              loginTime: new Date().toISOString(),
+              token: 'user_token_' + Date.now()
+            };
+            
+            localStorage.setItem('userSession', JSON.stringify(userSession));
+            
+            // Also save to localStorage for future local access
+            users[emailLower] = {
+              email: backendUser.email,
+              password: backendUser.password,
+              name: backendUser.name || backendUser.businessName || 'User',
+              businessName: backendUser.businessName,
+              isAdmin: false,
+              emailVerified: true,
+              createdAt: backendUser.createdAt || new Date().toISOString()
+            };
+            saveUsers(users);
+            
+            return { success: true, data: userSession };
+          } else {
+            return { success: false, error: 'Incorrect password' };
+          }
+        }
+      }
+    } catch (error) {
+      console.error('❌ Error checking backend for user:', error);
     }
 
     return { success: false, error: 'Account not found. Please sign up first.' };
