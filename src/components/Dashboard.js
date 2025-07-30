@@ -161,54 +161,9 @@ const Dashboard = () => {
   const generateNotifications = (customerData) => {
     const notifications = [];
     
-    // Check for new chat messages
-    if (chatMessages.length > 0) {
-      const latestMessage = chatMessages[chatMessages.length - 1];
-      if (latestMessage.sender === 'admin') {
-        notifications.push({
-          id: `chat-${Date.now()}`,
-          type: 'chat',
-          message: `New message from Jacob Guyatt: "${latestMessage.message.substring(0, 50)}${latestMessage.message.length > 50 ? '...' : ''}"`,
-          timestamp: new Date().toISOString(),
-          unread: true
-        });
-      }
-    }
-
-    // Check for timeline updates
-    if (customerData?.activeProjects) {
-      customerData.activeProjects.forEach(project => {
-        if (project.orderTimeline) {
-          Object.entries(project.orderTimeline).forEach(([step, status]) => {
-            if (status.completed && !status.notified) {
-              notifications.push({
-                id: `timeline-${step}-${Date.now()}`,
-                type: 'timeline',
-                message: `${step.replace(/([A-Z])/g, ' $1').trim()} completed for ${project.name}`,
-                timestamp: new Date().toISOString(),
-                unread: true
-              });
-            }
-          });
-        }
-      });
-    }
-
-    // Check for project completion
-    if (customerData?.completedProjects && customerData.completedProjects.length > 0) {
-      customerData.completedProjects.forEach(project => {
-        if (!project.completionNotified) {
-          notifications.push({
-            id: `completion-${project.id}-${Date.now()}`,
-            type: 'completion',
-            message: `Project "${project.name}" has been completed!`,
-            timestamp: new Date().toISOString(),
-            unread: true
-          });
-        }
-      });
-    }
-
+    // Only generate notifications for new admin messages, not from recent activity
+    // This prevents random notifications from popping up on page refresh
+    
     return notifications;
   };
 
@@ -664,9 +619,11 @@ const Dashboard = () => {
     setNotifications([]);
     setUnreadCount(0);
     setNotifiedMessages(new Set());
+    setLastNotificationCheck(null);
     localStorage.setItem('rankly360_notifications', JSON.stringify([]));
     localStorage.setItem('rankly360_unreadCount', '0');
     localStorage.setItem('rankly360_notifiedMessages', JSON.stringify([]));
+    localStorage.setItem('rankly360_lastNotificationCheck', null);
   };
 
   const loadChatMessages = async () => {
@@ -907,33 +864,34 @@ const Dashboard = () => {
   }, [customerData]);
 
   // Generate notifications when customer data changes
-  useEffect(() => {
-    if (customerData) {
-      // Only generate notifications if we haven't checked recently (prevent refresh notifications)
-      const now = Date.now();
-      const lastCheck = lastNotificationCheck || 0;
-      const timeSinceLastCheck = now - lastCheck;
-      
-      // Only check for new notifications if it's been more than 5 minutes since last check
-      if (timeSinceLastCheck > 5 * 60 * 1000) {
-        const newNotifications = generateNotifications(customerData);
-        if (newNotifications.length > 0) {
-          setNotifications(prev => {
-            const updatedNotifications = [...newNotifications, ...prev];
-            localStorage.setItem('rankly360_notifications', JSON.stringify(updatedNotifications));
-            return updatedNotifications;
-          });
-          setUnreadCount(prev => {
-            const newCount = prev + newNotifications.length;
-            localStorage.setItem('rankly360_unreadCount', newCount.toString());
-            return newCount;
-          });
-        }
-        setLastNotificationCheck(now);
-        localStorage.setItem('rankly360_lastNotificationCheck', now.toString());
-      }
-    }
-  }, [customerData, lastNotificationCheck]);
+  // Disabled automatic notification generation to prevent random notifications
+  // useEffect(() => {
+  //   if (customerData) {
+  //     // Only generate notifications if we haven't checked recently (prevent refresh notifications)
+  //     const now = Date.now();
+  //     const lastCheck = lastNotificationCheck || 0;
+  //     const timeSinceLastCheck = now - lastCheck;
+  //     
+  //     // Only check for new notifications if it's been more than 5 minutes since last check
+  //     if (timeSinceLastCheck > 5 * 60 * 1000) {
+  //       const newNotifications = generateNotifications(customerData);
+  //       if (newNotifications.length > 0) {
+  //         setNotifications(prev => {
+  //           const updatedNotifications = [...newNotifications, ...prev];
+  //           localStorage.setItem('rankly360_notifications', JSON.stringify(updatedNotifications));
+  //           return updatedNotifications;
+  //         });
+  //         setUnreadCount(prev => {
+  //           const newCount = prev + newNotifications.length;
+  //           localStorage.setItem('rankly360_unreadCount', newCount.toString());
+  //           return newCount;
+  //         });
+  //       }
+  //       setLastNotificationCheck(now);
+  //       localStorage.setItem('rankly360_lastNotificationCheck', now.toString());
+  //     }
+  //   }
+  // }, [customerData, lastNotificationCheck]);
 
   // Close notifications dropdown when clicking outside
   useEffect(() => {
