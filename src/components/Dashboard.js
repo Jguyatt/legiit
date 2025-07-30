@@ -1704,34 +1704,33 @@ const Dashboard = () => {
                 </div>
               </motion.div>
 
-              {/* Add Another Service */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.8 }}
-                className="bg-gradient-to-r from-[#3abef9]/10 to-[#6366f1]/10 rounded-xl sm:rounded-2xl p-6 border border-[#3abef9]/20"
-              >
-                <div className="text-center">
-                  <div className="w-12 h-12 bg-gradient-to-r from-[#3abef9] to-[#6366f1] rounded-lg flex items-center justify-center mx-auto mb-4">
-                    <BarChart3 className="w-6 h-6 text-white" />
-                  </div>
-                  <h3 className="text-lg sm:text-xl font-bold text-white mb-2">Add Another Service</h3>
-                  <p className="text-gray-300 text-sm mb-6 max-w-md mx-auto">
-                    Expand your local SEO presence with additional services. Each service works together to maximize your Google Maps rankings.
-                  </p>
-                  <button
-                    onClick={handleGetStarted}
-                    className="bg-gradient-to-r from-[#3abef9] to-[#6366f1] hover:from-[#3abef9]/90 hover:to-[#6366f1]/90 text-white font-semibold px-6 py-3 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center gap-2 mx-auto"
-                  >
-                    <BarChart3 className="w-4 h-4" />
-                    Browse Services
-                    <ArrowRight className="w-4 h-4" />
-                  </button>
-                </div>
-              </motion.div>
+
             </div>
           </>
         )}
+        
+        {/* Add Another Service - Always show this section */}
+        <div className="mt-6">
+          <div className="bg-gradient-to-r from-[#3abef9]/10 to-[#6366f1]/10 rounded-xl sm:rounded-2xl p-6 border border-[#3abef9]/20">
+            <div className="text-center">
+              <div className="w-12 h-12 bg-gradient-to-r from-[#3abef9] to-[#6366f1] rounded-lg flex items-center justify-center mx-auto mb-4">
+                <BarChart3 className="w-6 h-6 text-white" />
+              </div>
+              <h3 className="text-lg sm:text-xl font-bold text-white mb-2">Add Another Service</h3>
+              <p className="text-gray-300 text-sm mb-6 max-w-md mx-auto">
+                Expand your local SEO presence with additional services. You can add as many services as you want - each one works together to maximize your Google Maps rankings.
+              </p>
+              <button
+                onClick={handleGetStarted}
+                className="bg-gradient-to-r from-[#3abef9] to-[#6366f1] hover:from-[#3abef9]/90 hover:to-[#6366f1]/90 text-white font-semibold px-6 py-3 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center gap-2 mx-auto"
+              >
+                <BarChart3 className="w-4 h-4" />
+                Browse Services
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
       
       {/* Cancel Membership Confirmation Modal */}
