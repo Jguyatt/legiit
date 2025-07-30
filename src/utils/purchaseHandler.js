@@ -8,6 +8,7 @@ export const purchaseHandler = {
   // Handle successful purchase from Stripe
   handleSuccessfulPurchase: (purchaseData) => {
     console.log('💰 Processing successful purchase:', purchaseData);
+    console.log('💰 Purchase data keys:', Object.keys(purchaseData));
     
     const {
       customerEmail,
@@ -149,8 +150,11 @@ export const purchaseHandler = {
     createOnboardingSubmission(finalEmail, finalName, packageName);
 
     // Dispatch events to notify components
+    console.log('🚀 Dispatching purchaseCompleted event with data:', customerData);
+    console.log('🚀 Active projects in event:', customerData?.activeProjects);
+    console.log('🚀 Active projects count:', customerData?.activeProjects?.length);
     window.dispatchEvent(new CustomEvent('purchaseCompleted', { 
-      detail: { customerData } 
+      detail: customerData 
     }));
 
     // Dispatch event for admin dashboard to refresh

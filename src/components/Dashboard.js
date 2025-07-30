@@ -399,6 +399,8 @@ const Dashboard = () => {
 
     const handlePurchaseCompleted = async (event) => {
       console.log('📊 Purchase completed event received:', event.detail);
+      console.log('📊 Event detail type:', typeof event.detail);
+      console.log('📊 Event detail keys:', Object.keys(event.detail || {}));
       const newCustomerData = event.detail;
       console.log('📊 Active projects count:', newCustomerData?.activeProjects?.length);
       console.log('📊 Active projects:', newCustomerData?.activeProjects);
@@ -407,6 +409,8 @@ const Dashboard = () => {
         console.log('✅ Setting new customer data with', newCustomerData.activeProjects?.length, 'active projects');
         setCustomerData(newCustomerData);
         fixProjectDurations(newCustomerData);
+      } else {
+        console.log('❌ No customer data received in event');
       }
     };
 
