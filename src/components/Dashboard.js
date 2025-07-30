@@ -1582,33 +1582,7 @@ const Dashboard = () => {
                             </div>
                           </div>
 
-                          {/* Final Results Summary */}
-                          {project.status === 'Completed' && (
-                            <div className="mt-3 p-3 bg-green-500/10 rounded-lg border border-green-500/20">
-                              <h4 className="text-xs font-medium text-green-400 mb-2 flex items-center gap-1">
-                                <CheckCircle className="w-3 h-3" />
-                                Project Results
-                              </h4>
-                              <div className="grid grid-cols-2 gap-3 text-xs">
-                                <div>
-                                  <span className="text-gray-400">Final Ranking:</span>
-                                  <p className="text-white">{project.finalRanking || 'Improved'}</p>
-                                </div>
-                                <div>
-                                  <span className="text-gray-400">Leads Generated:</span>
-                                  <p className="text-white">{project.leadsGenerated || 'N/A'}</p>
-                                </div>
-                                <div>
-                                  <span className="text-gray-400">Calls Received:</span>
-                                  <p className="text-white">{project.callsReceived || 'N/A'}</p>
-                                </div>
-                                <div>
-                                  <span className="text-gray-400">Website Traffic:</span>
-                                  <p className="text-white">{project.websiteTraffic || 'N/A'}</p>
-                                </div>
-                              </div>
-                            </div>
-                          )}
+
 
                           {/* Cancellation Info */}
                           {project.status === 'Cancelled' && project.cancellationReason && (
