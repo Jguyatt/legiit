@@ -139,6 +139,7 @@ const Signup = () => {
           const userData = {
             name: name,
             email: email,
+            password: password, // Include password for cross-device login
             business: businessName,
             businessName: businessName,
             firstName: name.split(' ')[0] || name,
