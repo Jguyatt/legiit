@@ -397,13 +397,28 @@ const Dashboard = () => {
       }
     };
 
+    const handlePurchaseCompleted = async (event) => {
+      console.log('📊 Purchase completed event received:', event.detail);
+      const newCustomerData = event.detail;
+      console.log('📊 Active projects count:', newCustomerData?.activeProjects?.length);
+      console.log('📊 Active projects:', newCustomerData?.activeProjects);
+      console.log('📊 Full customer data structure:', JSON.stringify(newCustomerData, null, 2));
+      if (newCustomerData) {
+        console.log('✅ Setting new customer data with', newCustomerData.activeProjects?.length, 'active projects');
+        setCustomerData(newCustomerData);
+        fixProjectDurations(newCustomerData);
+      }
+    };
+
     window.addEventListener('timelineUpdated', handleTimelineUpdate);
     window.addEventListener('projectCancelled', handleProjectCancelled);
+    window.addEventListener('purchaseCompleted', handlePurchaseCompleted);
 
     return () => {
       window.removeEventListener('storage', handleStorageChange);
       window.removeEventListener('timelineUpdated', handleTimelineUpdate);
       window.removeEventListener('projectCancelled', handleProjectCancelled);
+      window.removeEventListener('purchaseCompleted', handlePurchaseCompleted);
     };
   }, [navigate]);
 
