@@ -94,7 +94,7 @@ const Packages = () => {
         </div>
       </motion.div>
 
-      {/* Managed Services Section */}
+      {/* One-Time Add-Ons Section */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -102,8 +102,8 @@ const Packages = () => {
         className="mb-12"
       >
         <div className="mb-6 text-center">
-          <h2 className="text-2xl font-bold text-white mb-2">Our Services</h2>
-          <p className="text-gray-300">Choose the perfect solution for your business.</p>
+          <h2 className="text-2xl font-bold text-white mb-2">One-Time Add-Ons</h2>
+          <p className="text-gray-300">Enhance your SEO with powerful one-time services.</p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {managedServices.map((service, index) => {
@@ -137,7 +137,7 @@ const Packages = () => {
                     className="mt-auto w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg transition-colors text-sm shadow group-hover:shadow-md"
                     onClick={e => { e.stopPropagation(); handleServiceClick(service.name); }}
                   >
-                    Learn More
+                    Add Service
                   </button>
                 )}
               </motion.div>
