@@ -40,6 +40,7 @@ const Dashboard = () => {
   const [newMessage, setNewMessage] = useState('');
   const [lastMessageCount, setLastMessageCount] = useState(0);
   const [notifiedMessages, setNotifiedMessages] = useState(new Set());
+  const [lastNotificationCheck, setLastNotificationCheck] = useState(null);
   const chatMessagesEndRef = useRef(null);
 
   // Load notification state from localStorage on component mount
@@ -47,6 +48,7 @@ const Dashboard = () => {
     const savedNotifications = localStorage.getItem('rankly360_notifications');
     const savedUnreadCount = localStorage.getItem('rankly360_unreadCount');
     const savedNotifiedMessages = localStorage.getItem('rankly360_notifiedMessages');
+    const savedLastNotificationCheck = localStorage.getItem('rankly360_lastNotificationCheck');
     
     if (savedNotifications) {
       setNotifications(JSON.parse(savedNotifications));
@@ -56,6 +58,9 @@ const Dashboard = () => {
     }
     if (savedNotifiedMessages) {
       setNotifiedMessages(new Set(JSON.parse(savedNotifiedMessages)));
+    }
+    if (savedLastNotificationCheck) {
+      setLastNotificationCheck(parseInt(savedLastNotificationCheck));
     }
   }, []);
 
@@ -904,15 +909,31 @@ const Dashboard = () => {
   // Generate notifications when customer data changes
   useEffect(() => {
     if (customerData) {
-      const newNotifications = generateNotifications(customerData);
-      if (newNotifications.length > 0) {
-        setNotifications(prev => [...newNotifications, ...prev]);
-        setUnreadCount(prev => prev + newNotifications.length);
-        localStorage.setItem('rankly360_notifications', JSON.stringify([...newNotifications, ...prev]));
-        localStorage.setItem('rankly360_unreadCount', (prev + newNotifications.length).toString());
+      // Only generate notifications if we haven't checked recently (prevent refresh notifications)
+      const now = Date.now();
+      const lastCheck = lastNotificationCheck || 0;
+      const timeSinceLastCheck = now - lastCheck;
+      
+      // Only check for new notifications if it's been more than 5 minutes since last check
+      if (timeSinceLastCheck > 5 * 60 * 1000) {
+        const newNotifications = generateNotifications(customerData);
+        if (newNotifications.length > 0) {
+          setNotifications(prev => {
+            const updatedNotifications = [...newNotifications, ...prev];
+            localStorage.setItem('rankly360_notifications', JSON.stringify(updatedNotifications));
+            return updatedNotifications;
+          });
+          setUnreadCount(prev => {
+            const newCount = prev + newNotifications.length;
+            localStorage.setItem('rankly360_unreadCount', newCount.toString());
+            return newCount;
+          });
+        }
+        setLastNotificationCheck(now);
+        localStorage.setItem('rankly360_lastNotificationCheck', now.toString());
       }
     }
-  }, [customerData]);
+  }, [customerData, lastNotificationCheck]);
 
   // Close notifications dropdown when clicking outside
   useEffect(() => {
