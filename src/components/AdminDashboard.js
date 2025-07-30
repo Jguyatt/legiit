@@ -630,7 +630,7 @@ const AdminDashboard = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="flex space-x-1 mb-8 bg-white/5 rounded-lg p-1 backdrop-blur-sm"
+          className="flex overflow-x-auto space-x-1 mb-8 bg-white/5 rounded-lg p-1 backdrop-blur-sm"
         >
           {[
             { id: 'overview', label: 'Overview', icon: BarChart3 },
@@ -643,14 +643,15 @@ const AdminDashboard = () => {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex-1 flex items-center justify-center px-4 py-3 text-sm font-medium rounded-md transition-colors ${
+              className={`flex-shrink-0 flex items-center justify-center px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium rounded-md transition-colors whitespace-nowrap ${
                 activeTab === tab.id
                   ? 'bg-blue-600 text-white shadow-lg'
                   : 'text-gray-400 hover:text-white hover:bg-white/5'
               }`}
             >
-              <tab.icon className="w-4 h-4 mr-2" />
-              {tab.label}
+              <tab.icon className="w-4 h-4 mr-1 sm:mr-2" />
+              <span className="hidden sm:inline">{tab.label}</span>
+              <span className="sm:hidden">{tab.label.split(' ')[0]}</span>
             </button>
           ))}
         </motion.div>
@@ -664,73 +665,73 @@ const AdminDashboard = () => {
             className="space-y-8"
           >
             {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-3 sm:gap-6">
               <div 
                 onClick={() => setActiveTab('users')}
-                className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10 cursor-pointer hover:bg-white/10 transition-all duration-200 hover:scale-105"
-              >
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                    <Users className="h-8 w-8 text-blue-400" />
-              </div>
-                  <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-400">Users</p>
-                    <p className="text-2xl font-bold text-white">{Object.values(clients || {}).length}</p>
-              </div>
-            </div>
-          </div>
-
-              <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                    <DollarSign className="h-8 w-8 text-green-400" />
-              </div>
-                  <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-400">Active Clients</p>
-                    <p className="text-2xl font-bold text-white">{getActiveClients().length}</p>
-              </div>
-            </div>
-          </div>
-
-              <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                    <TrendingUp className="h-8 w-8 text-purple-400" />
-              </div>
-                  <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-400">Current Projects</p>
-                    <p className="text-2xl font-bold text-white">{getCurrentProjects().length}</p>
-              </div>
-            </div>
-          </div>
-
-              <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                    <AlertCircle className="h-8 w-8 text-orange-400" />
-              </div>
-                  <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-400">Pending Approvals</p>
-                    <p className="text-2xl font-bold text-white">{onboardingSubmissions.filter(s => s.status === 'pending' || s.status === 'pending_approval').length}</p>
-            </div>
-          </div>
-        </div>
-
-              <div 
-                onClick={() => setActiveTab('deleted-users')}
-                className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10 cursor-pointer hover:bg-white/10 transition-all duration-200 hover:scale-105"
+                className="bg-white/5 backdrop-blur-sm rounded-xl p-4 sm:p-6 border border-white/10 cursor-pointer hover:bg-white/10 transition-all duration-200 hover:scale-105"
               >
                 <div className="flex items-center">
                   <div className="flex-shrink-0">
-                    <XCircle className="h-8 w-8 text-red-400" />
-          </div>
-                  <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-400">Deleted Users</p>
-                    <p className="text-2xl font-bold text-white">{deletedUsers.length}</p>
+                    <Users className="h-6 w-6 sm:h-8 sm:w-8 text-blue-400" />
+                  </div>
+                  <div className="ml-3 sm:ml-4">
+                    <p className="text-xs sm:text-sm font-medium text-gray-400">Users</p>
+                    <p className="text-lg sm:text-2xl font-bold text-white">{Object.values(clients || {}).length}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white/5 backdrop-blur-sm rounded-xl p-4 sm:p-6 border border-white/10">
+                <div className="flex items-center">
+                  <div className="flex-shrink-0">
+                    <DollarSign className="h-6 w-6 sm:h-8 sm:w-8 text-green-400" />
+                  </div>
+                  <div className="ml-3 sm:ml-4">
+                    <p className="text-xs sm:text-sm font-medium text-gray-400">Active Clients</p>
+                    <p className="text-lg sm:text-2xl font-bold text-white">{getActiveClients().length}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white/5 backdrop-blur-sm rounded-xl p-4 sm:p-6 border border-white/10">
+                <div className="flex items-center">
+                  <div className="flex-shrink-0">
+                    <TrendingUp className="h-6 w-6 sm:h-8 sm:w-8 text-purple-400" />
+                  </div>
+                  <div className="ml-3 sm:ml-4">
+                    <p className="text-xs sm:text-sm font-medium text-gray-400">Current Projects</p>
+                    <p className="text-lg sm:text-2xl font-bold text-white">{getCurrentProjects().length}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white/5 backdrop-blur-sm rounded-xl p-4 sm:p-6 border border-white/10">
+                <div className="flex items-center">
+                  <div className="flex-shrink-0">
+                    <AlertCircle className="h-6 w-6 sm:h-8 sm:w-8 text-orange-400" />
+                  </div>
+                  <div className="ml-3 sm:ml-4">
+                    <p className="text-xs sm:text-sm font-medium text-gray-400">Pending Approvals</p>
+                    <p className="text-lg sm:text-2xl font-bold text-white">{onboardingSubmissions.filter(s => s.status === 'pending' || s.status === 'pending_approval').length}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div 
+                onClick={() => setActiveTab('deleted-users')}
+                className="bg-white/5 backdrop-blur-sm rounded-xl p-4 sm:p-6 border border-white/10 cursor-pointer hover:bg-white/10 transition-all duration-200 hover:scale-105"
+              >
+                <div className="flex items-center">
+                  <div className="flex-shrink-0">
+                    <XCircle className="h-6 w-6 sm:h-8 sm:w-8 text-red-400" />
+                  </div>
+                  <div className="ml-3 sm:ml-4">
+                    <p className="text-xs sm:text-sm font-medium text-gray-400">Deleted Users</p>
+                    <p className="text-lg sm:text-2xl font-bold text-white">{deletedUsers.length}</p>
+                  </div>
+                </div>
+              </div>
             </div>
-            </div>
-          </div>
-        </div>
 
             {/* Onboarding Approval Section */}
             {onboardingSubmissions.filter(s => s.status === 'pending' || s.status === 'pending_approval').length > 0 && (

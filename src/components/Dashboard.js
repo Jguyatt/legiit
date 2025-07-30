@@ -10,7 +10,8 @@ import {
   Clock,
   XCircle,
   AlertTriangle,
-  ChevronDown
+  ChevronDown,
+  FolderOpen
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { customerAuth } from '../utils/customerAuth';
@@ -970,48 +971,48 @@ const Dashboard = () => {
         ) : (
           <>
             {/* Stats Overview */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-              <div className="bg-slate-800 rounded-lg p-4 border border-slate-700">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
+              <div className="bg-slate-800 rounded-lg p-3 sm:p-4 border border-slate-700">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-slate-400 text-sm">Active Projects</p>
-                    <p className="text-xl font-semibold text-white">{customerData?.activeProjects?.length || 0}</p>
+                    <p className="text-slate-400 text-xs sm:text-sm">Active Projects</p>
+                    <p className="text-lg sm:text-xl font-semibold text-white">{customerData?.activeProjects?.length || 0}</p>
                   </div>
-                  <BarChart3 className="w-6 h-6 text-blue-400" />
+                  <BarChart3 className="w-5 h-5 sm:w-6 sm:h-6 text-blue-400" />
                 </div>
               </div>
 
-              <div className="bg-slate-800 rounded-lg p-4 border border-slate-700">
+              <div className="bg-slate-800 rounded-lg p-3 sm:p-4 border border-slate-700">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-slate-400 text-sm">Completed Projects</p>
-                    <p className="text-xl font-semibold text-white">{customerData?.completedProjects?.length || 0}</p>
+                    <p className="text-slate-400 text-xs sm:text-sm">Completed Projects</p>
+                    <p className="text-lg sm:text-xl font-semibold text-white">{customerData?.completedProjects?.length || 0}</p>
                   </div>
-                  <CheckCircle className="w-6 h-6 text-green-400" />
+                  <CheckCircle className="w-5 h-5 sm:w-6 sm:h-6 text-green-400" />
                 </div>
               </div>
 
-              <div className="bg-slate-800 rounded-lg p-4 border border-slate-700">
+              <div className="bg-slate-800 rounded-lg p-3 sm:p-4 border border-slate-700">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-slate-400 text-sm">Avg. Progress</p>
-                    <p className="text-xl font-semibold text-white">
-                      {customerData?.activeProjects?.length > 0 
-                        ? Math.round(customerData.activeProjects.reduce((sum, project) => sum + project.progress, 0) / customerData.activeProjects.length)
-                        : 0}%
+                    <p className="text-slate-400 text-xs sm:text-sm">Total Projects</p>
+                    <p className="text-lg sm:text-xl font-semibold text-white">
+                      {(customerData?.activeProjects?.length || 0) + (customerData?.completedProjects?.length || 0)}
                     </p>
                   </div>
-                  <TrendingUp className="w-6 h-6 text-green-400" />
+                  <FolderOpen className="w-5 h-5 sm:w-6 sm:h-6 text-purple-400" />
                 </div>
               </div>
 
-              <div className="bg-slate-800 rounded-lg p-4 border border-slate-700">
+              <div className="bg-slate-800 rounded-lg p-3 sm:p-4 border border-slate-700">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-slate-400 text-sm">Reports</p>
-                    <p className="text-xl font-semibold text-white">{customerData?.recentActivity?.length || 0}</p>
+                    <p className="text-slate-400 text-xs sm:text-sm">Status</p>
+                    <p className="text-lg sm:text-xl font-semibold text-white">
+                      {customerData?.activeProjects?.length > 0 ? 'Active' : 'Ready'}
+                    </p>
                   </div>
-                  <FileText className="w-6 h-6 text-purple-400" />
+                  <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6 text-orange-400" />
                 </div>
               </div>
             </div>

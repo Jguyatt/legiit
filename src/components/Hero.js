@@ -288,7 +288,7 @@ const Hero = () => {
           </motion.p>
 
           {/* Enhanced CTA Buttons with Professional Styling */}
-          <motion.div {...fadeIn(0.5)} className="flex flex-col sm:flex-row gap-4 items-center justify-center lg:justify-start px-4 w-full mb-12">
+          <motion.div {...fadeIn(0.5)} className="flex flex-col sm:flex-row gap-4 items-center justify-center lg:justify-start px-4 w-full mb-8 sm:mb-12">
             <button
               onClick={() => {
                 trackButtonClick('Sign Up Today to Get Started', {
@@ -299,10 +299,10 @@ const Hero = () => {
                 });
                 navigate('/signup');
               }}
-              className="group relative w-full sm:w-auto px-10 py-5 rounded-2xl bg-gradient-to-r from-[#3abef9] to-[#1e40af] text-white text-xl font-bold shadow-2xl transition-all duration-300 hover:from-[#1e40af] hover:to-[#3abef9] focus:outline-none focus:ring-4 focus:ring-[#3abef9]/50 active:scale-95 touch-manipulation transform hover:scale-110 hover:-translate-y-1"
+              className="group relative w-full sm:w-auto px-6 sm:px-10 py-4 sm:py-5 rounded-2xl bg-gradient-to-r from-[#3abef9] to-[#1e40af] text-white text-lg sm:text-xl font-bold shadow-2xl transition-all duration-300 hover:from-[#1e40af] hover:to-[#3abef9] focus:outline-none focus:ring-4 focus:ring-[#3abef9]/50 active:scale-95 touch-manipulation transform hover:scale-105 sm:hover:scale-110 hover:-translate-y-1"
               style={{ 
                 fontFamily: "'Inter', 'Poppins', system-ui, sans-serif", 
-                minHeight: '64px',
+                minHeight: '56px',
                 boxShadow: '0 10px 40px rgba(58, 190, 249, 0.4), 0 0 20px rgba(58, 190, 249, 0.2)'
               }}
             >
@@ -310,19 +310,19 @@ const Hero = () => {
               <div className="absolute inset-0 bg-gradient-to-r from-[#3abef9] to-[#1e40af] rounded-2xl blur-xl opacity-50 group-hover:opacity-75 transition-opacity duration-300"></div>
               
               {/* Button content */}
-              <div className="relative flex items-center justify-center gap-3">
-                <svg className="w-6 h-6 group-hover:animate-bounce" fill="currentColor" viewBox="0 0 20 20">
+              <div className="relative flex items-center justify-center gap-2 sm:gap-3">
+                <svg className="w-5 h-5 sm:w-6 sm:h-6 group-hover:animate-bounce" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.293l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13a1 1 0 102 0V9.414l1.293 1.293a1 1 0 001.414-1.414z" clipRule="evenodd" />
                 </svg>
-                <span>Sign Up Today to Get Started</span>
-                <svg className="w-5 h-5 transform group-hover:translate-x-1 transition-transform duration-300" fill="currentColor" viewBox="0 0 20 20">
+                <span className="text-sm sm:text-base">Sign Up Today to Get Started</span>
+                <svg className="w-4 h-4 sm:w-5 sm:h-5 transform group-hover:translate-x-1 transition-transform duration-300" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
                 </svg>
               </div>
               
               {/* Sparkle effects */}
-              <div className="absolute -top-2 -left-2 w-4 h-4 bg-yellow-400 rounded-full opacity-0 group-hover:opacity-100 group-hover:animate-ping transition-opacity duration-300"></div>
-              <div className="absolute -bottom-2 -right-2 w-3 h-3 bg-blue-400 rounded-full opacity-0 group-hover:opacity-100 group-hover:animate-ping transition-opacity duration-300 delay-100"></div>
+              <div className="absolute -top-2 -left-2 w-3 h-3 sm:w-4 sm:h-4 bg-yellow-400 rounded-full opacity-0 group-hover:opacity-100 group-hover:animate-ping transition-opacity duration-300"></div>
+              <div className="absolute -bottom-2 -right-2 w-2 h-2 sm:w-3 sm:h-3 bg-blue-400 rounded-full opacity-0 group-hover:opacity-100 group-hover:animate-ping transition-opacity duration-300 delay-100"></div>
             </button>
             
             <button
@@ -403,18 +403,18 @@ const Hero = () => {
                 `);
                 newWindow.document.close();
               }}
-              className="group w-full sm:w-auto px-8 py-4 rounded-xl bg-slate-800/80 text-white text-lg font-semibold shadow-2xl transition-all duration-300 hover:bg-slate-700/80 focus:outline-none focus:ring-4 focus:ring-slate-500/50 active:scale-95 touch-manipulation transform hover:scale-105 border border-slate-600/50 backdrop-blur-sm"
+              className="group w-full sm:w-auto px-6 sm:px-8 py-4 sm:py-4 rounded-xl bg-slate-800/80 text-white text-lg sm:text-lg font-semibold shadow-2xl transition-all duration-300 hover:bg-slate-700/80 focus:outline-none focus:ring-4 focus:ring-slate-500/50 active:scale-95 touch-manipulation transform hover:scale-105 border border-slate-600/50 backdrop-blur-sm"
               style={{ 
                 fontFamily: "'Inter', 'Poppins', system-ui, sans-serif", 
                 minHeight: '56px',
                 boxShadow: '0 8px 25px rgba(0, 0, 0, 0.2)'
               }}
             >
-              <span className="flex items-center justify-center gap-2">
-                <svg className="w-5 h-5 group-hover:animate-pulse" fill="currentColor" viewBox="0 0 20 20">
+              <span className="flex items-center justify-center gap-2 sm:gap-3">
+                <svg className="w-5 h-5 sm:w-5 sm:h-5 group-hover:animate-pulse" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
                 </svg>
-                AI Overview Video
+                <span className="text-sm sm:text-base">AI Overview Video</span>
               </span>
             </button>
           </motion.div>
