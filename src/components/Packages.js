@@ -11,6 +11,9 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
+// Updated pricing - Map PowerBoost: $299, Cloud Stack Boost: $349, Local Citations: $299
+// All prices are one-time payments, not monthly subscriptions
+
 const Packages = () => {
   const navigate = useNavigate();
 
