@@ -12,7 +12,8 @@ import {
   AlertTriangle,
   ChevronDown,
   FolderOpen,
-  User
+  User,
+  Bell
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { customerAuth } from '../utils/customerAuth';
@@ -30,7 +31,54 @@ const Dashboard = () => {
   const [showOnboardingForm, setShowOnboardingForm] = useState(false);
   const [currentService, setCurrentService] = useState('');
   const [showCompletionMessage, setShowCompletionMessage] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
   const navigate = useNavigate();
+
+  // Generate notifications from timeline updates
+  const generateNotifications = (customerData) => {
+    const newNotifications = [];
+    
+    if (customerData?.activeProjects) {
+      customerData.activeProjects.forEach(project => {
+        // Check for timeline updates
+        if (project.milestones) {
+          Object.entries(project.milestones).forEach(([key, milestone]) => {
+            if (milestone.status === 'completed' && !milestone.notified) {
+              newNotifications.push({
+                id: `timeline-${key}-${Date.now()}`,
+                type: 'timeline',
+                title: 'Timeline Update',
+                message: `${key.replace(/([A-Z])/g, ' $1').trim()} step completed`,
+                timestamp: new Date().toISOString(),
+                read: false,
+                projectName: project.name
+              });
+              // Mark as notified
+              milestone.notified = true;
+            }
+          });
+        }
+        
+        // Check for project status changes
+        if (project.status === 'Completed' && !project.completionNotified) {
+          newNotifications.push({
+            id: `completion-${Date.now()}`,
+            type: 'completion',
+            title: 'Project Completed',
+            message: `${project.name} has been completed successfully!`,
+            timestamp: new Date().toISOString(),
+            read: false,
+            projectName: project.name
+          });
+          project.completionNotified = true;
+        }
+      });
+    }
+    
+    return newNotifications;
+  };
 
   // Sync data with backend API
   const syncWithBackend = async (email) => {
@@ -812,6 +860,31 @@ const Dashboard = () => {
     }
   }, [customerData]);
 
+  // Generate notifications when customer data changes
+  useEffect(() => {
+    if (customerData) {
+      const newNotifications = generateNotifications(customerData);
+      if (newNotifications.length > 0) {
+        setNotifications(prev => [...newNotifications, ...prev]);
+        setUnreadCount(prev => prev + newNotifications.length);
+      }
+    }
+  }, [customerData]);
+
+  // Close notifications dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (showNotifications && !event.target.closest('.notifications-dropdown')) {
+        setShowNotifications(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showNotifications]);
+
 
   if (loading) {
     return (
@@ -856,29 +929,93 @@ const Dashboard = () => {
               </div>
             </div>
             
-            {/* Refresh Button */}
-            <button
-              onClick={async () => {
-                setLoading(true);
-                const userSession = userAuth.getSession();
-                if (userSession?.email) {
-                  const backendData = await syncWithBackend(userSession.email);
-                  if (backendData) {
-                    setCustomerData(backendData);
-                    fixProjectDurations(backendData);
+            <div className="flex items-center gap-3">
+              {/* Notifications Bell */}
+              <div className="relative">
+                <button
+                  onClick={() => setShowNotifications(!showNotifications)}
+                  className="relative p-2 text-gray-400 hover:text-white transition-colors duration-200"
+                >
+                  <Bell className="w-6 h-6" />
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                      {unreadCount}
+                    </span>
+                  )}
+                </button>
+                
+                {/* Notifications Dropdown */}
+                {showNotifications && (
+                  <div className="absolute right-0 top-full mt-2 w-80 bg-slate-800 border border-slate-700 rounded-lg shadow-xl z-50 notifications-dropdown">
+                    <div className="p-4 border-b border-slate-700">
+                      <h3 className="text-white font-semibold">Notifications</h3>
+                    </div>
+                    <div className="max-h-64 overflow-y-auto">
+                      {notifications.length > 0 ? (
+                        notifications.map((notification) => (
+                          <div
+                            key={notification.id}
+                            className={`p-4 border-b border-slate-700 last:border-b-0 hover:bg-slate-700 transition-colors ${
+                              !notification.read ? 'bg-blue-500/10' : ''
+                            }`}
+                            onClick={() => {
+                              // Mark as read
+                              setNotifications(prev => 
+                                prev.map(n => 
+                                  n.id === notification.id ? { ...n, read: true } : n
+                                )
+                              );
+                              setUnreadCount(prev => Math.max(0, prev - 1));
+                            }}
+                          >
+                            <div className="flex items-start gap-3">
+                              <div className={`w-2 h-2 rounded-full mt-2 ${
+                                notification.type === 'timeline' ? 'bg-blue-400' : 'bg-green-400'
+                              }`}></div>
+                              <div className="flex-1">
+                                <h4 className="text-white font-medium text-sm">{notification.title}</h4>
+                                <p className="text-slate-300 text-xs mt-1">{notification.message}</p>
+                                <p className="text-slate-500 text-xs mt-2">
+                                  {new Date(notification.timestamp).toLocaleDateString()}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="p-4 text-center text-slate-400 text-sm">
+                          No notifications yet
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+              
+              {/* Refresh Button */}
+              <button
+                onClick={async () => {
+                  setLoading(true);
+                  const userSession = userAuth.getSession();
+                  if (userSession?.email) {
+                    const backendData = await syncWithBackend(userSession.email);
+                    if (backendData) {
+                      setCustomerData(backendData);
+                      fixProjectDurations(backendData);
+                    }
                   }
-                }
-                setLoading(false);
-              }}
-              disabled={loading}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-600/50 text-white rounded-lg transition-colors duration-200 text-sm font-medium"
-            >
-              <svg className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-              </svg>
-              {loading ? 'Refreshing...' : 'Refresh Data'}
-            </button>
+                  setLoading(false);
+                }}
+                disabled={loading}
+                className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-600/50 text-white rounded-lg transition-colors duration-200 text-sm font-medium"
+              >
+                <svg className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                {loading ? 'Refreshing...' : 'Refresh Data'}
+              </button>
             </div>
+          </div>
             
           {/* Quick Stats */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
