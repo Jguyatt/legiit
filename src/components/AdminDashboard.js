@@ -36,9 +36,7 @@ const AdminDashboard = () => {
     setShowChatModal(true);
     
     // Load existing chat messages for this customer
-    console.log('🔍 Opening chat for customer:', customer.email);
     await loadChatMessages(customer.email);
-    console.log('✅ Chat messages loaded for:', customer.email);
   };
 
   const sendMessage = async (customerEmail, message) => {
@@ -83,14 +81,10 @@ const AdminDashboard = () => {
   const loadChatMessages = async (customerEmail) => {
     try {
       setChatLoading(true);
-      console.log('🔍 Loading chat messages for:', customerEmail);
       const response = await fetch(`https://rankly360.up.railway.app/api/chat-messages/${customerEmail}`);
       const data = await response.json();
       
-      console.log('📨 Chat messages response:', data);
-      
       if (data.success) {
-        console.log('✅ Chat messages loaded successfully, count:', data.messages?.length || 0);
         setChatMessages(prev => ({
           ...prev,
           [customerEmail]: data.messages || []
@@ -1528,9 +1522,6 @@ const AdminDashboard = () => {
             {/* Chat Messages */}
             <div className="flex-1 overflow-y-auto p-4 space-y-4 max-h-96">
               {(() => {
-                console.log('🔍 Rendering chat messages for:', selectedCustomer.email);
-                console.log('📨 Available messages:', chatMessages[selectedCustomer.email]);
-                console.log('📊 Message count:', chatMessages[selectedCustomer.email]?.length || 0);
                 return null;
               })()}
               {chatLoading ? (
