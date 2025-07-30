@@ -25,21 +25,24 @@ const AdminDashboard = () => {
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
+  const [currentProjectId, setCurrentProjectId] = useState(null);
   const [showChatModal, setShowChatModal] = useState(false);
   const [chatMessages, setChatMessages] = useState({});
   const [newMessage, setNewMessage] = useState('');
   const [chatLoading, setChatLoading] = useState(false);
 
   // Chat functionality
-  const openChat = async (customer) => {
+  const openChat = async (customer, projectId = null) => {
     setSelectedCustomer(customer);
+    setCurrentProjectId(projectId);
     setShowChatModal(true);
     
-    // Load existing chat messages for this customer
-    await loadChatMessages(customer.email);
+    // Load existing chat messages for this customer/project
+    const chatKey = projectId ? `${customer.email}_${projectId}` : customer.email;
+    await loadChatMessages(chatKey);
   };
 
-  const sendMessage = async (customerEmail, message) => {
+  const sendMessage = async (customerEmail, message, projectId = null) => {
     if (!message.trim()) return;
 
     const newMsg = {
@@ -51,9 +54,10 @@ const AdminDashboard = () => {
     };
 
     // Add message to chat
+    const chatKey = projectId ? `${customerEmail}_${projectId}` : customerEmail;
     setChatMessages(prev => ({
       ...prev,
-      [customerEmail]: [...(prev[customerEmail] || []), newMsg]
+      [chatKey]: [...(prev[chatKey] || []), newMsg]
     }));
 
     // Clear input
@@ -68,6 +72,7 @@ const AdminDashboard = () => {
         },
         body: JSON.stringify({
           customerEmail,
+          projectId,
           message: newMsg.message,
           sender: 'admin',
           timestamp: newMsg.timestamp
@@ -78,16 +83,16 @@ const AdminDashboard = () => {
     }
   };
 
-  const loadChatMessages = async (customerEmail) => {
+  const loadChatMessages = async (chatKey) => {
     try {
       setChatLoading(true);
-      const response = await fetch(`https://rankly360.up.railway.app/api/chat-messages/${customerEmail}`);
+      const response = await fetch(`https://rankly360.up.railway.app/api/chat-messages/${chatKey}`);
       const data = await response.json();
       
       if (data.success) {
         setChatMessages(prev => ({
           ...prev,
-          [customerEmail]: data.messages || []
+          [chatKey]: data.messages || []
         }));
       } else {
         console.error('❌ Failed to load chat messages:', data);
@@ -1001,8 +1006,17 @@ const AdminDashboard = () => {
                           className="inline-flex items-center px-3 py-1.5 border border-blue-500/20 rounded-md text-sm font-medium text-blue-400 hover:bg-blue-500/10 transition-colors"
                         >
                           <MessageSquare className="w-4 h-4 mr-1" />
-                          Chat
+                          General Chat
                         </button>
+                        {project && (
+                          <button
+                            onClick={() => openChat(client, project.id)}
+                            className="inline-flex items-center px-3 py-1.5 border border-green-500/20 rounded-md text-sm font-medium text-green-400 hover:bg-green-500/10 transition-colors"
+                          >
+                            <MessageSquare className="w-4 h-4 mr-1" />
+                            Project Chat
+                          </button>
+                        )}
                         <button
                           onClick={() => {
                             const timelineSubmission = {
@@ -1506,7 +1520,12 @@ const AdminDashboard = () => {
             <div className="flex items-center justify-between p-4 border-b border-slate-700">
               <div>
                 <h3 className="text-lg font-semibold text-white">Chat with {selectedCustomer.name}</h3>
-                <p className="text-sm text-gray-400">{selectedCustomer.email}</p>
+                <p className="text-sm text-gray-400">
+                  {currentProjectId 
+                    ? `${selectedCustomer.email} - Project: ${selectedCustomer.customerData?.activeProjects?.find(p => p.id === currentProjectId)?.name || 'Unknown Project'}`
+                    : selectedCustomer.email
+                  }
+                </p>
               </div>
               <button
                 onClick={() => {
@@ -1521,40 +1540,42 @@ const AdminDashboard = () => {
 
             {/* Chat Messages */}
             <div className="flex-1 overflow-y-auto p-4 space-y-4 max-h-96">
-              {(() => {
-                return null;
-              })()}
               {chatLoading ? (
                 <div className="text-center text-gray-400 py-8">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-2"></div>
                   <p>Loading messages...</p>
                 </div>
-              ) : chatMessages[selectedCustomer.email]?.length > 0 ? (
-                chatMessages[selectedCustomer.email].map((message) => (
-                  <div
-                    key={message.id}
-                    className={`flex ${message.sender === 'admin' ? 'justify-end' : 'justify-start'}`}
-                  >
+              ) : (() => {
+                const chatKey = currentProjectId ? `${selectedCustomer.email}_${currentProjectId}` : selectedCustomer.email;
+                const messages = chatMessages[chatKey] || [];
+                
+                return messages.length > 0 ? (
+                  messages.map((message) => (
                     <div
-                      className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
-                        message.sender === 'admin'
-                          ? 'bg-blue-600 text-white'
-                          : 'bg-slate-700 text-white'
-                      }`}
+                      key={message.id}
+                      className={`flex ${message.sender === 'admin' ? 'justify-end' : 'justify-start'}`}
                     >
-                      <p className="text-sm">{message.message}</p>
-                      <p className="text-xs opacity-70 mt-1">
-                        {new Date(message.timestamp).toLocaleTimeString()}
-                      </p>
+                      <div
+                        className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
+                          message.sender === 'admin'
+                            ? 'bg-blue-600 text-white'
+                            : 'bg-slate-700 text-white'
+                        }`}
+                      >
+                        <p className="text-sm">{message.message}</p>
+                        <p className="text-xs opacity-70 mt-1">
+                          {new Date(message.timestamp).toLocaleTimeString()}
+                        </p>
+                      </div>
                     </div>
+                  ))
+                ) : (
+                  <div className="text-center text-gray-400 py-8">
+                    <MessageSquare className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                    <p>No messages yet. Start the conversation!</p>
                   </div>
-                ))
-              ) : (
-                <div className="text-center text-gray-400 py-8">
-                  <MessageSquare className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                  <p>No messages yet. Start the conversation!</p>
-                </div>
-              )}
+                );
+              })()}
             </div>
 
             {/* Message Input */}
@@ -1566,14 +1587,14 @@ const AdminDashboard = () => {
                   onChange={(e) => setNewMessage(e.target.value)}
                   onKeyPress={(e) => {
                     if (e.key === 'Enter') {
-                      sendMessage(selectedCustomer.email, newMessage);
+                      sendMessage(selectedCustomer.email, newMessage, currentProjectId);
                     }
                   }}
                   placeholder="Type your message..."
                   className="flex-1 bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
                 />
                 <button
-                  onClick={() => sendMessage(selectedCustomer.email, newMessage)}
+                  onClick={() => sendMessage(selectedCustomer.email, newMessage, currentProjectId)}
                   disabled={!newMessage.trim()}
                   className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-600/50 text-white rounded-lg transition-colors flex items-center"
                 >

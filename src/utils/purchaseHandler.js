@@ -25,28 +25,67 @@ export const purchaseHandler = {
     
     console.log('👤 Using user data:', { email: finalEmail, name: finalName });
 
-    // Create customer data structure
-    const customerData = {
+    // Check if user already has customer data
+    const existingCustomerData = customerAuth.getCustomerData();
+    console.log('🔍 Existing customer data:', existingCustomerData);
+    
+    // Create new project
+    const newProject = {
+      id: Date.now(),
+      name: `${packageName} Package`,
+      status: 'Active',
+      startDate: new Date().toISOString().split('T')[0],
+      progress: 20, // Purchase completed, onboarding pending
+      nextUpdate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      type: getProjectType(packageName),
+      category: getProjectCategory(packageName),
+      requirements: getProjectRequirements(packageName),
+      estimatedDuration: getProjectDuration(packageName),
+      deliverables: getProjectDeliverables(packageName)
+    };
+
+    // Create customer data structure - either new or updated
+    if (existingCustomerData) {
+      console.log('📝 Updating existing customer with new project...');
+      console.log('📝 Existing active projects:', existingCustomerData.activeProjects);
+      console.log('📝 New project to add:', newProject);
+    }
+    const customerData = existingCustomerData ? {
+      ...existingCustomerData,
+      // Add new project to existing active projects
+      activeProjects: [...(existingCustomerData.activeProjects || []), newProject],
+      // Update recent activity
+      recentActivity: [
+        { 
+          type: 'purchase_completed', 
+          message: `New project added: ${packageName} Package`, 
+          date: new Date().toISOString().split('T')[0] 
+        },
+        ...(existingCustomerData.recentActivity || [])
+      ],
+      // Update subscription info for the new project
+      subscription: {
+        status: 'Active',
+        plan: `${packageName} Package`,
+        monthlyRate: amount,
+        nextBilling: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+      },
+      billing: {
+        plan: `${packageName} Package`,
+        amount: `$${amount}`,
+        nextBilling: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        status: 'Active'
+      },
+      stripeCustomerId,
+      stripeSessionId
+    } : {
+      // New customer - create full structure
       name: finalName,
       email: finalEmail,
       business: finalName + ' Business',
       package: packageName,
       monthlyRate: amount,
-      activeProjects: [
-        {
-          id: Date.now(),
-          name: `${packageName} Package`,
-          status: 'Active',
-          startDate: new Date().toISOString().split('T')[0],
-          progress: 20, // Purchase completed, onboarding pending
-          nextUpdate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-          type: getProjectType(packageName),
-          category: getProjectCategory(packageName),
-          requirements: getProjectRequirements(packageName),
-          estimatedDuration: getProjectDuration(packageName),
-          deliverables: getProjectDeliverables(packageName)
-        }
-      ],
+      activeProjects: [newProject],
       orderTimeline: {
         orderPlaced: {
           status: 'completed',
@@ -98,6 +137,9 @@ export const purchaseHandler = {
     };
 
     // Store customer data
+    console.log('💾 Final customer data to store:', customerData);
+    console.log('💾 Active projects in final data:', customerData.activeProjects);
+    console.log('💾 Active projects count:', customerData.activeProjects?.length);
     customerAuth.loginAsCustomer(customerData);
 
     // Update user account if it exists

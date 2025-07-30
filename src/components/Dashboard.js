@@ -700,6 +700,9 @@ const Dashboard = () => {
   const moveCompletedProjects = (data) => {
     if (!data || !data.activeProjects) return data;
     
+    console.log('🔄 Checking for projects to move to completed...');
+    console.log('📊 Active projects count:', data.activeProjects?.length);
+    
     const now = new Date();
     const updatedData = { ...data };
     
@@ -708,6 +711,7 @@ const Dashboard = () => {
     const remainingActiveProjects = [];
     
     updatedData.activeProjects.forEach(project => {
+      console.log('🔍 Checking project:', project.name, project.status, project.progress);
       // Check if project is completed (100% progress, all timeline steps done, or status is Completed)
       const timeline = data.orderTimeline;
       let allStepsCompleted = false;
@@ -722,6 +726,14 @@ const Dashboard = () => {
         project.progress === 100 || 
         project.currentPhase === 'Order Complete' || 
         project.status === 'Completed';
+      
+      console.log('📊 Project completion check:', {
+        allStepsCompleted,
+        progress: project.progress,
+        currentPhase: project.currentPhase,
+        status: project.status,
+        isCompleted
+      });
       
       if (isCompleted) {
         // Move to completed projects
@@ -747,7 +759,13 @@ const Dashboard = () => {
       ];
       
       console.log('✅ Moved', projectsToMove.length, 'project(s) to completed section');
+      console.log('📊 Remaining active projects:', remainingActiveProjects.length);
+      console.log('📊 Total completed projects:', updatedData.completedProjects.length);
+    } else {
+      console.log('📊 No projects moved to completed, keeping all active');
     }
+    
+    console.log('📊 Final active projects count:', updatedData.activeProjects?.length);
     
     // Check for cancelled projects that have passed their billing period
     if (updatedData.completedProjects) {
@@ -1087,8 +1105,8 @@ const Dashboard = () => {
         </div>
       </div>
 
-        {/* Check if customer has any projects (active OR completed) */}
-        {(!customerData?.activeProjects || customerData.activeProjects.length === 0) && (!customerData?.completedProjects || customerData.completedProjects.length === 0) ? (
+        {/* Check if customer has any active projects - if not, show the "no projects" view even if they have completed projects */}
+        {(!customerData?.activeProjects || customerData.activeProjects.length === 0) ? (
           <div className="bg-slate-800 rounded border border-slate-700 p-6">
             <div className="text-center mb-6">
               <div className="mx-auto mb-4">
