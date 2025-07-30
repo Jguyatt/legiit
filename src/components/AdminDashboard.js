@@ -30,16 +30,12 @@ const AdminDashboard = () => {
   const [newMessage, setNewMessage] = useState('');
 
   // Chat functionality
-  const openChat = (customer) => {
+  const openChat = async (customer) => {
     setSelectedCustomer(customer);
     setShowChatModal(true);
-    // Initialize chat messages if not exists
-    if (!chatMessages[customer.email]) {
-      setChatMessages(prev => ({
-        ...prev,
-        [customer.email]: []
-      }));
-    }
+    
+    // Load existing chat messages for this customer
+    await loadChatMessages(customer.email);
   };
 
   const sendMessage = async (customerEmail, message) => {
