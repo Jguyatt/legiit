@@ -30,7 +30,7 @@ const GoogleBusinessProfileResults = () => {
         >
           <div className="relative max-w-4xl w-full">
             <img
-              src="/success.jpg"
+              src="/images/success.jpg"
               alt="Rankly360 SEO ranking #1 for local seo near me"
               className="w-full h-auto max-h-[600px] object-contain rounded-lg shadow-2xl border border-[#3abef9]/20"
             />
