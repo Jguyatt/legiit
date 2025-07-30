@@ -21,7 +21,6 @@ const Packages = () => {
     'Map PowerBoost': '/services/map-powerboost',
     'Local Citations': '/services/local-citations',
     'Cloud Stack Boost': '/services/cloud-stack-boost',
-    'GBP Ranker': '/services/gbp-ranker',
     'Platinum Local SEO': '/services/platinum-local-seo'
   };
 
@@ -57,17 +56,6 @@ const Packages = () => {
       icon: Zap,
       color: 'from-yellow-500 to-yellow-600',
       externalLink: 'https://buy.stripe.com/eVqdR9aNq5PagVU062dAk07',
-    },
-  ];
-
-  const managedMonthlyServices = [
-    {
-      name: 'GBP Ranker',
-      desc: 'Monthly Google Business Profile optimization and ranking maintenance.',
-      price: '$199/mo',
-      icon: Star,
-      color: 'from-orange-500 to-orange-600',
-      route: '/service/gbp-ranker',
     },
   ];
 
@@ -152,46 +140,6 @@ const Packages = () => {
                     Add Service
                   </button>
                 )}
-              </motion.div>
-            );
-          })}
-        </div>
-      </motion.div>
-
-      {/* Managed Monthly Services Section */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-        className="mb-12"
-      >
-        <div className="mb-6 text-center">
-          <h2 className="text-2xl font-bold text-white mb-2">Managed Monthly Services</h2>
-          <p className="text-gray-300">Maintain and grow your online presence with our ongoing support.</p>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {managedMonthlyServices.map((service, index) => {
-            const IconComponent = service.icon;
-            return (
-              <motion.div
-                key={index}
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => handleServiceClick(service.name)}
-                className="bg-[#181c23] rounded-2xl p-6 flex flex-col border border-[#3abef9]/10 shadow-lg cursor-pointer transition-all duration-300 hover:border-[#3abef9]/40 hover:shadow-xl group"
-              >
-                <div className={`w-12 h-12 bg-gradient-to-r ${service.color} rounded-lg flex items-center justify-center mb-4 group-hover:scale-105 transition-transform`}>
-                  <IconComponent className="w-6 h-6 text-white" />
-                </div>
-                <h3 className="text-lg font-semibold text-white mb-1">{service.name}</h3>
-                <p className="text-[#3abef9] font-bold mb-2">{service.price}</p>
-                <p className="text-gray-300 text-xs mb-4 flex-1">{service.desc}</p>
-                <button
-                  className="mt-auto w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg transition-colors text-sm shadow group-hover:shadow-md"
-                  onClick={e => { e.stopPropagation(); handleServiceClick(service.name); }}
-                >
-                  Add Service
-                </button>
               </motion.div>
             );
           })}
