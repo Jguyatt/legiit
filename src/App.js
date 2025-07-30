@@ -47,6 +47,21 @@ function App() {
     // Initialize user and admin sessions from localStorage
     userAuth.initSession();
     adminAuth.initSession();
+
+    // Auto logout when tab is closed
+    const handleBeforeUnload = () => {
+      // Clear user session when tab is closed
+      userAuth.logout();
+      adminAuth.logout();
+    };
+
+    // Add event listener for tab close
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    // Cleanup event listener on component unmount
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
   }, []);
 
   return (
