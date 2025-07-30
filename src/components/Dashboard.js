@@ -1650,13 +1650,13 @@ const Dashboard = () => {
                 chatMessages.map((message, index) => (
                   <div
                     key={message.id || index}
-                    className={`flex ${message.sender === 'admin' ? 'justify-end' : 'justify-start'}`}
+                    className={`flex ${message.sender === 'customer' ? 'justify-end' : 'justify-start'}`}
                   >
                     <div
                       className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
-                        message.sender === 'admin'
+                        message.sender === 'customer'
                           ? 'bg-blue-600 text-white'
-                          : 'bg-slate-700 text-white'
+                          : 'bg-gray-600 text-white'
                       }`}
                     >
                       <p className="text-sm">{message.message}</p>
