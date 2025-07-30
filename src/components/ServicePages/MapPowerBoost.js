@@ -133,7 +133,7 @@ export default function MapPowerBoost() {
           {/* CTA Buttons */}
           <div className="mb-8 sm:mb-12 flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
             <a
-              href="https://buy.stripe.com/5kQdR92gU7XieNM8CydAk06"
+              href="https://buy.stripe.com/6oU3cvcVy5PaeNM7yudAk03"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 sm:px-8 py-3 sm:py-4 rounded-lg transition-colors text-sm sm:text-base"
