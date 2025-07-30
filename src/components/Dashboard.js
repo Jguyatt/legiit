@@ -1143,19 +1143,19 @@ const Dashboard = () => {
                           <div className="grid grid-cols-2 gap-4 mb-4 text-xs">
                             <div>
                               <span className="text-gray-400">Started:</span>
-                              <p className="text-white">{project.startDate}</p>
+                              <p className="text-white">{project.startDate || 'N/A'}</p>
                             </div>
                             <div>
                               <span className="text-gray-400">Duration:</span>
-                              <p className="text-white">{project.estimatedDuration}</p>
+                              <p className="text-white">{project.estimatedDuration || 'N/A'}</p>
                             </div>
                             <div>
                               <span className="text-gray-400">Current Phase:</span>
-                              <p className="text-[#3abef9] font-medium">{project.currentPhase}</p>
+                              <p className="text-[#3abef9] font-medium">{project.currentPhase || 'N/A'}</p>
                             </div>
                             <div>
                               <span className="text-gray-400">Next Milestone:</span>
-                              <p className="text-white">{project.nextMilestone}</p>
+                              <p className="text-white">{project.nextMilestone || 'N/A'}</p>
                             </div>
                           </div>
 
@@ -1179,112 +1179,158 @@ const Dashboard = () => {
                               Order Progress Timeline
                             </h4>
                             <div className="space-y-3">
-                  {[
-                                { key: 'orderPlaced', label: 'Order Placed', description: 'Your order has been received' },
-                                { key: 'onboardingForm', label: 'Onboarding Form', description: 'Complete your business information' },
-                                { key: 'orderInProgress', label: 'Order In Progress', description: "We're working on your campaign" },
-                                { key: 'reviewDelivery', label: 'Review Delivery', description: 'Review and approve deliverables' },
-                                { key: 'orderComplete', label: 'Order Complete', description: 'Your campaign is live!' }
-                  ].map((step, index) => {
-                    const timelineData = customerData?.orderTimeline?.[step.key];
-                                const isCompleted = timelineData?.completed || timelineData?.status === 'completed';
-                                const isPendingApproval = timelineData?.status === 'pending_approval';
-                                const isCurrent = !isCompleted && !isPendingApproval && index === 1; // Onboarding is current if not completed
-                    
-                    return (
-                                  <div key={step.key} className="flex items-start gap-3">
-                                    <div className="flex-shrink-0">
-                                      <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium ${
-                          isCompleted 
-                            ? 'bg-green-500 text-white' 
-                                          : isPendingApproval
-                                            ? 'bg-yellow-500 text-white'
-                            : isCurrent 
-                                              ? 'bg-blue-500 text-white'
-                              : 'bg-gray-600 text-gray-400'
-                        }`}>
-                          {isCompleted ? (
-                                          <CheckCircle className="w-3 h-3" />
-                          ) : (
-                                          index + 1
-                          )}
-                        </div>
+                              {(() => {
+                                try {
+                                  const timelineSteps = [
+                                    { key: 'orderPlaced', label: 'Order Placed', description: 'Your order has been received' },
+                                    { key: 'onboardingForm', label: 'Onboarding Form', description: 'Complete your business information' },
+                                    { key: 'orderInProgress', label: 'Order In Progress', description: "We're working on your campaign" },
+                                    { key: 'reviewDelivery', label: 'Review Delivery', description: 'Review and approve deliverables' },
+                                    { key: 'orderComplete', label: 'Order Complete', description: 'Your campaign is live!' }
+                                  ];
+
+                                  return timelineSteps.map((step, index) => {
+                                    try {
+                                      const timelineData = customerData?.orderTimeline?.[step.key] || {};
+                                      const isCompleted = timelineData?.completed || timelineData?.status === 'completed';
+                                      const isPendingApproval = timelineData?.status === 'pending_approval';
+                                      const isCurrent = !isCompleted && !isPendingApproval && index === 1; // Onboarding is current if not completed
+                                      
+                                      return (
+                                        <div key={step.key} className="flex items-start gap-3">
+                                          <div className="flex-shrink-0">
+                                            <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium ${
+                                              isCompleted 
+                                                ? 'bg-green-500 text-white' 
+                                                : isPendingApproval
+                                                  ? 'bg-yellow-500 text-white'
+                                                  : isCurrent 
+                                                    ? 'bg-blue-500 text-white'
+                                                    : 'bg-gray-600 text-gray-400'
+                                            }`}>
+                                              {isCompleted ? (
+                                                <CheckCircle className="w-3 h-3" />
+                                              ) : (
+                                                index + 1
+                                              )}
+                                            </div>
+                                          </div>
+                                          <div className="flex-1 min-w-0">
+                                            <div className="flex items-center gap-2 mb-1">
+                                              <span className="text-xs font-medium text-white">{step.label}</span>
+                                              {isCompleted && (
+                                                <span className="bg-green-500/20 text-green-400 px-2 py-1 rounded-full text-xs font-medium">
+                                                  Completed
+                                                </span>
+                                              )}
+                                              {isCurrent && (
+                                                <span className="bg-blue-500/20 text-blue-400 px-2 py-1 rounded-full text-xs font-medium">
+                                                  In Progress
+                                                </span>
+                                              )}
+                                              {isPendingApproval && (
+                                                <span className="bg-yellow-500/20 text-yellow-400 px-2 py-1 rounded-full text-xs font-medium">
+                                                  Pending Approval
+                                                </span>
+                                              )}
+                                            </div>
+                                            <p className="text-slate-400 text-xs mb-1">{step.description}</p>
+                                            {timelineData?.date && (
+                                              <p className="text-slate-500 text-xs">
+                                                {isCompleted ? 'Completed: ' : isPendingApproval ? 'Submitted: ' : 'Started: '}{timelineData.date}
+                                              </p>
+                                            )}
+                                            
+                                            {/* Onboarding Form Button */}
+                                            {step.key === 'onboardingForm' && !isCompleted && (
+                                              <button
+                                                onClick={() => {
+                                                  try {
+                                                    const projectName = project.name || 'Service';
+                                                    const serviceName = projectName.replace(' Package', '').replace(' package', '');
+                                                    openOnboardingForm(serviceName);
+                                                  } catch (error) {
+                                                    console.error('Error opening onboarding form:', error);
+                                                  }
+                                                }}
+                                                className={`mt-2 font-medium px-3 py-1.5 rounded-md transition-colors duration-200 text-xs ${
+                                                  isPendingApproval 
+                                                    ? 'bg-yellow-600 hover:bg-yellow-700 text-white' 
+                                                    : 'bg-blue-600 hover:bg-blue-700 text-white'
+                                                }`}
+                                              >
+                                                {isPendingApproval ? 'Resubmit Onboarding Form' : 'Complete Onboarding Form'}
+                                              </button>
+                                            )}
+                                          </div>
+                                        </div>
+                                      );
+                                    } catch (error) {
+                                      console.error(`Error rendering timeline step ${step.key}:`, error);
+                                      return (
+                                        <div key={step.key} className="flex items-start gap-3">
+                                          <div className="w-6 h-6 rounded-full bg-gray-600 flex items-center justify-center text-xs text-gray-400">
+                                            {index + 1}
+                                          </div>
+                                          <div className="flex-1">
+                                            <span className="text-xs font-medium text-white">{step.label}</span>
+                                            <p className="text-slate-400 text-xs">{step.description}</p>
+                                          </div>
+                                        </div>
+                                      );
+                                    }
+                                  });
+                                } catch (error) {
+                                  console.error('Error rendering timeline:', error);
+                                  return (
+                                    <div className="text-gray-400 text-xs">
+                                      Timeline loading...
                                     </div>
-                        <div className="flex-1 min-w-0">
-                                      <div className="flex items-center gap-2 mb-1">
-                                        <span className="text-xs font-medium text-white">{step.label}</span>
-                            {isCompleted && (
-                              <span className="bg-green-500/20 text-green-400 px-2 py-1 rounded-full text-xs font-medium">
-                                Completed
-                              </span>
-                            )}
-                            {isCurrent && (
-                                          <span className="bg-blue-500/20 text-blue-400 px-2 py-1 rounded-full text-xs font-medium">
-                                In Progress
-                              </span>
-                            )}
-                                        {isPendingApproval && (
-                                          <span className="bg-yellow-500/20 text-yellow-400 px-2 py-1 rounded-full text-xs font-medium">
-                                            Pending Approval
-                                          </span>
-                                        )}
+                                  );
+                                }
+                              })()}
+                            </div>
                           </div>
-                                      <p className="text-slate-400 text-xs mb-1">{step.description}</p>
-                          {timelineData?.date && (
-                                        <p className="text-slate-500 text-xs">
-                                          {isCompleted ? 'Completed: ' : isPendingApproval ? 'Submitted: ' : 'Started: '}{timelineData.date}
-                            </p>
-                          )}
-                          
-                          {/* Onboarding Form Button */}
-                          {step.key === 'onboardingForm' && !isCompleted && (
-                            <button
-                              onClick={() => {
-                                const projectName = project.name || 'Service';
-                                const serviceName = projectName.replace(' Package', '').replace(' package', '');
-                                openOnboardingForm(serviceName);
-                              }}
-                              className={`mt-2 font-medium px-3 py-1.5 rounded-md transition-colors duration-200 text-xs ${
-                                isPendingApproval 
-                                  ? 'bg-yellow-600 hover:bg-yellow-700 text-white' 
-                                  : 'bg-blue-600 hover:bg-blue-700 text-white'
-                              }`}
-                            >
-                              {isPendingApproval ? 'Resubmit Onboarding Form' : 'Complete Onboarding Form'}
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
 
                           {/* Requirements & Deliverables */}
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                             <div>
                               <h4 className="text-xs font-medium text-gray-300 mb-2">Requirements</h4>
                               <ul className="space-y-1">
-                                {project.requirements?.map((req, index) => (
-                                  <li key={index} className="text-xs text-gray-400 flex items-center gap-1">
-                                    <div className="w-1 h-1 bg-[#3abef9] rounded-full"></div>
-                                    {req}
-                                  </li>
-                                ))}
+                                {(() => {
+                                  try {
+                                    return project.requirements?.map((req, index) => (
+                                      <li key={index} className="text-xs text-gray-400 flex items-center gap-1">
+                                        <div className="w-1 h-1 bg-[#3abef9] rounded-full"></div>
+                                        {req}
+                                      </li>
+                                    )) || [];
+                                  } catch (error) {
+                                    console.error('Error rendering requirements:', error);
+                                    return [];
+                                  }
+                                })()}
                               </ul>
-                        </div>
+                            </div>
                             <div>
                               <h4 className="text-xs font-medium text-gray-300 mb-2">Deliverables</h4>
                               <ul className="space-y-1">
-                                {project.deliverables?.map((del, index) => (
-                                  <li key={index} className="text-xs text-gray-400 flex items-center gap-1">
-                                    <div className="w-1 h-1 bg-[#3abef9] rounded-full"></div>
-                                    {del}
-                                  </li>
-                                ))}
+                                {(() => {
+                                  try {
+                                    return project.deliverables?.map((del, index) => (
+                                      <li key={index} className="text-xs text-gray-400 flex items-center gap-1">
+                                        <div className="w-1 h-1 bg-[#3abef9] rounded-full"></div>
+                                        {del}
+                                      </li>
+                                    )) || [];
+                                  } catch (error) {
+                                    console.error('Error rendering deliverables:', error);
+                                    return [];
+                                  }
+                                })()}
                               </ul>
-                      </div>
-                        </div>
+                            </div>
+                          </div>
 
                           {/* Action Buttons */}
                           <div className="flex gap-2">
