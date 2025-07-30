@@ -28,6 +28,7 @@ const AdminDashboard = () => {
   const [showChatModal, setShowChatModal] = useState(false);
   const [chatMessages, setChatMessages] = useState({});
   const [newMessage, setNewMessage] = useState('');
+  const [chatLoading, setChatLoading] = useState(false);
 
   // Chat functionality
   const openChat = async (customer) => {
@@ -35,7 +36,9 @@ const AdminDashboard = () => {
     setShowChatModal(true);
     
     // Load existing chat messages for this customer
+    console.log('🔍 Opening chat for customer:', customer.email);
     await loadChatMessages(customer.email);
+    console.log('✅ Chat messages loaded for:', customer.email);
   };
 
   const sendMessage = async (customerEmail, message) => {
@@ -79,6 +82,7 @@ const AdminDashboard = () => {
 
   const loadChatMessages = async (customerEmail) => {
     try {
+      setChatLoading(true);
       console.log('🔍 Loading chat messages for:', customerEmail);
       const response = await fetch(`https://rankly360.up.railway.app/api/chat-messages/${customerEmail}`);
       const data = await response.json();
@@ -96,6 +100,8 @@ const AdminDashboard = () => {
       }
     } catch (error) {
       console.error('❌ Error loading chat messages:', error);
+    } finally {
+      setChatLoading(false);
     }
   };
 
@@ -1527,7 +1533,12 @@ const AdminDashboard = () => {
                 console.log('📊 Message count:', chatMessages[selectedCustomer.email]?.length || 0);
                 return null;
               })()}
-              {chatMessages[selectedCustomer.email]?.length > 0 ? (
+              {chatLoading ? (
+                <div className="text-center text-gray-400 py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-2"></div>
+                  <p>Loading messages...</p>
+                </div>
+              ) : chatMessages[selectedCustomer.email]?.length > 0 ? (
                 chatMessages[selectedCustomer.email].map((message) => (
                   <div
                     key={message.id}
