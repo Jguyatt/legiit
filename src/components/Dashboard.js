@@ -38,6 +38,7 @@ const Dashboard = () => {
   const [showChatModal, setShowChatModal] = useState(false);
   const [chatMessages, setChatMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
+  const [lastMessageCount, setLastMessageCount] = useState(0);
   const chatMessagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -47,6 +48,68 @@ const Dashboard = () => {
   useEffect(() => {
     scrollToBottom();
   }, [chatMessages]);
+
+  // Request notification permissions and set up periodic message checking
+  useEffect(() => {
+    // Request notification permission
+    if (Notification.permission === 'default') {
+      Notification.requestPermission();
+    }
+    
+    // Set up periodic message checking (every 30 seconds)
+    const messageCheckInterval = setInterval(() => {
+      if (customerData?.email) {
+        loadChatMessages();
+      }
+    }, 30000); // Check every 30 seconds
+    
+    return () => clearInterval(messageCheckInterval);
+  }, [customerData?.email]);
+
+  // Check for new admin messages and show notifications
+  const checkForNewAdminMessages = (messages) => {
+    if (messages.length > lastMessageCount) {
+      // Find new admin messages
+      const newMessages = messages.slice(lastMessageCount);
+      const adminMessages = newMessages.filter(msg => msg.sender === 'admin');
+      
+      adminMessages.forEach(message => {
+        // Play notification sound
+        try {
+          const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmGgU7k9n1unEiBC13yO/eizEIHWq+8+OWT');
+          audio.volume = 0.3;
+          audio.play().catch(e => console.log('Audio notification failed:', e));
+        } catch (e) {
+          console.log('Audio notification not supported');
+        }
+        
+        // Show browser notification
+        if (Notification.permission === 'granted') {
+          new Notification('New Message from Jacob Guyatt', {
+            body: message.message,
+            icon: '/images/logo.png',
+            badge: '/images/logo.png',
+            tag: 'admin-message'
+          });
+        }
+        
+        // Add to notifications list
+        setNotifications(prev => [{
+          id: `admin-message-${Date.now()}-${Math.random()}`,
+          type: 'admin-message',
+          message: `New message from Jacob Guyatt: "${message.message.substring(0, 50)}${message.message.length > 50 ? '...' : ''}"`,
+          timestamp: new Date().toISOString(),
+          unread: true
+        }, ...prev]);
+        
+        // Update unread count
+        setUnreadCount(prev => prev + 1);
+      });
+      
+      setLastMessageCount(messages.length);
+    }
+  };
+
   const navigate = useNavigate();
 
   // Generate notifications from timeline updates
@@ -540,6 +603,10 @@ const Dashboard = () => {
   const openChat = () => {
     setShowChatModal(true);
     loadChatMessages();
+    
+    // Mark notifications as read when chat is opened
+    setUnreadCount(0);
+    setNotifications(prev => prev.map(notif => ({ ...notif, unread: false })));
   };
 
   const loadChatMessages = async () => {
@@ -550,6 +617,7 @@ const Dashboard = () => {
         const data = await response.json();
         console.log('Loaded chat messages:', data);
         setChatMessages(data.messages || []);
+        checkForNewAdminMessages(data.messages || []); // Check for new messages on load
       } else {
         console.error('Failed to load chat messages:', response.status);
         setChatMessages([]);
@@ -978,10 +1046,15 @@ const Dashboard = () => {
                 </div>
                 <button
                   onClick={openChat}
-                  className="inline-flex items-center px-3 py-1.5 border border-purple-500/20 rounded-md text-sm font-medium text-purple-400 hover:bg-purple-500/10 transition-colors"
+                  className="inline-flex items-center px-3 py-1.5 border border-purple-500/20 rounded-md text-sm font-medium text-purple-400 hover:bg-purple-500/10 transition-colors relative"
                 >
                   <MessageSquare className="w-4 h-4 mr-1" />
                   Message your account manager
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                      {unreadCount > 9 ? '9+' : unreadCount}
+                    </span>
+                  )}
                 </button>
               </div>
             </div>
