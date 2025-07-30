@@ -42,6 +42,23 @@ const Dashboard = () => {
   const [notifiedMessages, setNotifiedMessages] = useState(new Set());
   const chatMessagesEndRef = useRef(null);
 
+  // Load notification state from localStorage on component mount
+  useEffect(() => {
+    const savedNotifications = localStorage.getItem('rankly360_notifications');
+    const savedUnreadCount = localStorage.getItem('rankly360_unreadCount');
+    const savedNotifiedMessages = localStorage.getItem('rankly360_notifiedMessages');
+    
+    if (savedNotifications) {
+      setNotifications(JSON.parse(savedNotifications));
+    }
+    if (savedUnreadCount) {
+      setUnreadCount(parseInt(savedUnreadCount));
+    }
+    if (savedNotifiedMessages) {
+      setNotifiedMessages(new Set(JSON.parse(savedNotifiedMessages)));
+    }
+  }, []);
+
   const scrollToBottom = () => {
     chatMessagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
@@ -100,19 +117,33 @@ const Dashboard = () => {
         }
         
         // Add to notifications list
-        setNotifications(prev => [{
+        const newNotification = {
           id: `admin-message-${message.id}`,
           type: 'admin-message',
           message: `New message from Jacob Guyatt: "${message.message.substring(0, 50)}${message.message.length > 50 ? '...' : ''}"`,
           timestamp: new Date().toISOString(),
           unread: true
-        }, ...prev]);
+        };
+        
+        setNotifications(prev => {
+          const updatedNotifications = [newNotification, ...prev];
+          localStorage.setItem('rankly360_notifications', JSON.stringify(updatedNotifications));
+          return updatedNotifications;
+        });
         
         // Update unread count
-        setUnreadCount(prev => prev + 1);
+        setUnreadCount(prev => {
+          const newCount = prev + 1;
+          localStorage.setItem('rankly360_unreadCount', newCount.toString());
+          return newCount;
+        });
         
         // Mark this message as notified
-        setNotifiedMessages(prev => new Set([...prev, message.id]));
+        setNotifiedMessages(prev => {
+          const updatedSet = new Set([...prev, message.id]);
+          localStorage.setItem('rankly360_notifiedMessages', JSON.stringify([...updatedSet]));
+          return updatedSet;
+        });
       });
       
       setLastMessageCount(messages.length);
@@ -615,7 +646,12 @@ const Dashboard = () => {
     
     // Mark notifications as read when chat is opened
     setUnreadCount(0);
-    setNotifications(prev => prev.map(notif => ({ ...notif, unread: false })));
+    setNotifications(prev => {
+      const updatedNotifications = prev.map(notif => ({ ...notif, unread: false }));
+      localStorage.setItem('rankly360_notifications', JSON.stringify(updatedNotifications));
+      return updatedNotifications;
+    });
+    localStorage.setItem('rankly360_unreadCount', '0');
   };
 
   // Clear all notifications
@@ -623,6 +659,9 @@ const Dashboard = () => {
     setNotifications([]);
     setUnreadCount(0);
     setNotifiedMessages(new Set());
+    localStorage.setItem('rankly360_notifications', JSON.stringify([]));
+    localStorage.setItem('rankly360_unreadCount', '0');
+    localStorage.setItem('rankly360_notifiedMessages', JSON.stringify([]));
   };
 
   const loadChatMessages = async () => {
@@ -869,6 +908,8 @@ const Dashboard = () => {
       if (newNotifications.length > 0) {
         setNotifications(prev => [...newNotifications, ...prev]);
         setUnreadCount(prev => prev + newNotifications.length);
+        localStorage.setItem('rankly360_notifications', JSON.stringify([...newNotifications, ...prev]));
+        localStorage.setItem('rankly360_unreadCount', (prev + newNotifications.length).toString());
       }
     }
   }, [customerData]);
@@ -972,12 +1013,18 @@ const Dashboard = () => {
                             }`}
                             onClick={() => {
                               // Mark as read
-                              setNotifications(prev => 
-                                prev.map(n => 
+                              setNotifications(prev => {
+                                const updatedNotifications = prev.map(n => 
                                   n.id === notification.id ? { ...n, read: true } : n
-                                )
-                              );
-                              setUnreadCount(prev => Math.max(0, prev - 1));
+                                );
+                                localStorage.setItem('rankly360_notifications', JSON.stringify(updatedNotifications));
+                                return updatedNotifications;
+                              });
+                              setUnreadCount(prev => {
+                                const newCount = Math.max(0, prev - 1);
+                                localStorage.setItem('rankly360_unreadCount', newCount.toString());
+                                return newCount;
+                              });
                             }}
                           >
                             <div className="flex items-start gap-3">
