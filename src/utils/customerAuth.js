@@ -63,6 +63,43 @@ export const customerAuth = {
     return Math.min(completedSteps * 20, 100); // Each step is 20%, max 100%
   },
 
+  // Prevent duplicate customer entries during sync
+  preventDuplicates: (email, customerData) => {
+    try {
+      // Clean up any old format entries in localStorage
+      const oldFormatKey = `customer-${email.toLowerCase().replace('@', '-').replace('.', '-')}`;
+      localStorage.removeItem(oldFormatKey);
+      
+      // Ensure we're using the correct key format
+      const correctKey = email.toLowerCase();
+      
+      // Remove any existing entries with the same email but different keys
+      const allKeys = Object.keys(localStorage);
+      allKeys.forEach(key => {
+        if (key.includes('customer') && key !== correctKey) {
+          try {
+            const entry = JSON.parse(localStorage.getItem(key));
+            if (entry && entry.email && entry.email.toLowerCase() === email.toLowerCase()) {
+              console.log('🔄 Removing duplicate entry:', key);
+              localStorage.removeItem(key);
+            }
+          } catch (e) {
+            // Skip invalid JSON entries
+          }
+        }
+      });
+      
+      // Save with the correct key
+      localStorage.setItem(correctKey, JSON.stringify(customerData));
+      console.log('✅ Customer data saved with duplicate prevention:', email);
+      
+      return true;
+    } catch (error) {
+      console.error('❌ Error preventing duplicates:', error);
+      return false;
+    }
+  },
+
   // Simulate purchase completion
   completePurchase: (packageName) => {
     // Get customer data from localStorage or use defaults
