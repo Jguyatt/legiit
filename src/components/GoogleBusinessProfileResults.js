@@ -1,8 +1,22 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { Search, Star, MapPin, Phone, Globe } from 'lucide-react';
+import { trackButtonClick } from '../utils/metaPixel';
 
 const GoogleBusinessProfileResults = () => {
+  const navigate = useNavigate();
+
+  const handleGetStarted = () => {
+    trackButtonClick('Get Your Business to #1 Too', {
+      button_location: 'google_business_profile_results',
+      content_category: 'cta',
+      value: 0,
+      currency: 'USD'
+    });
+    navigate('/signup');
+  };
+
   return (
     <section className="py-16 px-4 bg-gradient-to-b from-[#0f172a] to-[#10111a]">
       <div className="max-w-7xl mx-auto">
@@ -48,6 +62,7 @@ const GoogleBusinessProfileResults = () => {
             This is our actual Google Business Profile ranking #1 for "local seo near me"
           </p>
           <motion.button
+            onClick={handleGetStarted}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             className="bg-gradient-to-r from-[#3abef9] to-[#1e40af] text-white px-8 py-3 rounded-lg font-semibold hover:from-[#1e40af] hover:to-[#3abef9] transition-all duration-300 shadow-lg"
