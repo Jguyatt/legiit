@@ -556,6 +556,7 @@ const Dashboard = () => {
     };
 
     try {
+      console.log('Sending message:', messageData);
       const response = await fetch('https://rankly360.up.railway.app/api/chat-message', {
         method: 'POST',
         headers: {
@@ -565,11 +566,18 @@ const Dashboard = () => {
       });
 
       if (response.ok) {
+        console.log('Message sent successfully');
         setChatMessages(prev => [...prev, messageData]);
         setNewMessage('');
+      } else {
+        console.error('Failed to send message:', response.status, response.statusText);
+        const errorData = await response.json().catch(() => ({}));
+        console.error('Error details:', errorData);
+        alert('Failed to send message. Please try again.');
       }
     } catch (error) {
       console.error('Failed to send message:', error);
+      alert('Network error. Please check your connection and try again.');
     }
   };
 
@@ -1644,15 +1652,19 @@ const Dashboard = () => {
                   value={newMessage}
                   onChange={(e) => setNewMessage(e.target.value)}
                   onKeyPress={(e) => {
-                    if (e.key === 'Enter') {
-                      sendMessage(newMessage);
+                    if (e.key === 'Enter' && newMessage.trim()) {
+                      sendMessage(newMessage.trim());
                     }
                   }}
                   placeholder="Type your message..."
                   className="flex-1 bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
                 />
                 <button
-                  onClick={() => sendMessage(newMessage)}
+                  onClick={() => {
+                    if (newMessage.trim()) {
+                      sendMessage(newMessage.trim());
+                    }
+                  }}
                   disabled={!newMessage.trim()}
                   className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-600/50 text-white rounded-lg transition-colors flex items-center"
                 >
