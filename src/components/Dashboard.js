@@ -11,7 +11,8 @@ import {
   XCircle,
   AlertTriangle,
   ChevronDown,
-  FolderOpen
+  FolderOpen,
+  User
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { customerAuth } from '../utils/customerAuth';
@@ -1100,6 +1101,19 @@ const Dashboard = () => {
                             </div>
                           </div>
 
+                          {/* Account Manager Information */}
+                          <div className="mb-4 p-3 bg-blue-600/10 rounded-lg border border-blue-600/20">
+                            <h4 className="text-xs font-medium text-blue-400 mb-2 flex items-center gap-2">
+                              <User className="w-4 h-4" />
+                              Your Account Manager
+                            </h4>
+                            <div className="space-y-1">
+                              <p className="text-white text-xs font-medium">Jacob Guyatt</p>
+                              <p className="text-blue-400 text-xs">guyattj39@gmail.com</p>
+                              <p className="text-gray-400 text-xs">Available for questions and support</p>
+                            </div>
+                          </div>
+
                           {/* Order Progress Timeline for this project */}
                           <div className="mb-4">
                             <h4 className="text-xs font-medium text-gray-300 mb-3 flex items-center gap-2">
@@ -1284,8 +1298,21 @@ const Dashboard = () => {
                               <p className="text-white">{project.estimatedDuration}</p>
                             </div>
                             <div>
-                              <span className="text-gray-400">Final Progress:</span>
-                              <p className="text-white">{project.progress || 100}%</p>
+                              <span className="text-gray-400">Progress:</span>
+                              <p className="text-green-400 font-medium">100%</p>
+                            </div>
+                          </div>
+
+                          {/* Account Manager Information */}
+                          <div className="mt-3 p-3 bg-green-600/10 rounded-lg border border-green-600/20">
+                            <h4 className="text-xs font-medium text-green-400 mb-2 flex items-center gap-2">
+                              <User className="w-4 h-4" />
+                              Project Manager
+                            </h4>
+                            <div className="space-y-1">
+                              <p className="text-white text-xs font-medium">Jacob Guyatt</p>
+                              <p className="text-green-400 text-xs">guyattj39@gmail.com</p>
+                              <p className="text-gray-400 text-xs">Managed this project to completion</p>
                             </div>
                           </div>
 

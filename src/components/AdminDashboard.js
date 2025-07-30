@@ -290,45 +290,17 @@ const AdminDashboard = () => {
 
   const updateCustomerTimelineStep = async (customerEmail, stepName, action) => {
     try {
-      let customerData = null;
-      let storageKey = null;
+      // Find the customer in the current clients data
+      const customer = clients.find(client => client.email === customerEmail);
       
-      const possibleKeys = ['customerData', 'billy-customer-data'];
-      for (const key of possibleKeys) {
-        const data = JSON.parse(localStorage.getItem(key) || '{}');
-        if (data && data.email === customerEmail) {
-          customerData = data;
-          storageKey = key;
-          break;
-        }
-      }
-      
-      if (!customerData) {
-        const localStorageKeys = Object.keys(localStorage);
-        for (const key of localStorageKeys) {
-          if (key.includes('customer')) {
-            try {
-              const data = JSON.parse(localStorage.getItem(key));
-              if (data && data.email === customerEmail) {
-                customerData = data;
-                storageKey = key;
-                break;
-              }
-            } catch (e) {
-              // Skip invalid JSON
-            }
-          }
-        }
-      }
-      
-      if (!customerData) {
+      if (!customer) {
         console.error('Customer not found for timeline update:', customerEmail);
-        return;
+        throw new Error('Customer not found');
       }
       
       // Update timeline
       const updatedTimeline = {
-        ...customerData.orderTimeline,
+        ...customer.customerData?.orderTimeline,
         [stepName]: {
           status: action === 'completed' ? 'completed' : action === 'in_progress' ? 'in_progress' : 'pending',
           completed: action === 'completed',
@@ -345,15 +317,15 @@ const AdminDashboard = () => {
       
       // Update customer data
       const updatedCustomerData = {
-        ...customerData,
+        ...customer.customerData,
         orderTimeline: updatedTimeline,
         recentActivity: [
-        {
-          type: 'timeline_update',
+          {
+            type: 'timeline_update',
             message: `${stepName.replace(/([A-Z])/g, ' $1').trim()} ${action === 'completed' ? 'completed' : action === 'in_progress' ? 'started' : 'reset'}`,
-          date: new Date().toISOString().split('T')[0]
-        },
-          ...customerData.recentActivity
+            date: new Date().toISOString().split('T')[0]
+          },
+          ...(customer.customerData?.recentActivity || [])
         ]
       };
       
@@ -365,12 +337,9 @@ const AdminDashboard = () => {
           action === 'in_progress' ? 'In Progress' : 'Pending';
       }
       
-      // Save updated data
-      localStorage.setItem(storageKey, JSON.stringify(updatedCustomerData));
-      
       // SYNC TO BACKEND - CRITICAL FIX
       try {
-        await fetch('https://rankly360.up.railway.app/api/sync-data', {
+        const response = await fetch('https://rankly360.up.railway.app/api/sync-data', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -380,9 +349,25 @@ const AdminDashboard = () => {
             customerData: updatedCustomerData
           })
         });
+        
+        if (!response.ok) {
+          throw new Error(`Backend sync failed: ${response.status}`);
+        }
+        
         console.log('✅ Timeline update synced to backend');
+        
+        // Update local state
+        setClients(prevClients => 
+          prevClients.map(client => 
+            client.email === customerEmail 
+              ? { ...client, customerData: updatedCustomerData }
+              : client
+          )
+        );
+        
       } catch (error) {
         console.error('❌ Failed to sync timeline update to backend:', error);
+        throw error;
       }
       
       // Dispatch event to notify customer dashboard
@@ -394,6 +379,7 @@ const AdminDashboard = () => {
       
     } catch (error) {
       console.error('Error updating timeline:', error);
+      throw error;
     }
   };
 
