@@ -54,18 +54,18 @@ const Hero = () => {
           className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8"
         >
           <button
-            onClick={() => navigate('/signup')}
+            onClick={() => navigate('/services')}
             className="bg-gradient-to-r from-[#3abef9] to-[#1e40af] text-white px-8 py-4 rounded-lg font-semibold hover:from-[#1e40af] hover:to-[#3abef9] transition-all duration-300 shadow-lg flex items-center gap-2"
           >
-            Sign Up Today to Get Started
+            View Services
             <ArrowUpRight className="w-5 h-5" />
           </button>
           
           <button
-            onClick={() => navigate('/services')}
+            onClick={() => navigate('/signup')}
             className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 text-white px-8 py-4 rounded-lg font-semibold hover:bg-slate-700/50 transition-all duration-300 flex items-center gap-2"
           >
-            View Services
+            Get Started
             <ArrowUpRight className="w-5 h-5" />
           </button>
         </motion.div>
