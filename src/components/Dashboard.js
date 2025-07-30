@@ -1733,7 +1733,13 @@ const Dashboard = () => {
         </div>
         
         {/* Completed Projects - Always show this section */}
-        {customerData?.completedProjects && customerData.completedProjects.length > 0 && (
+        {(() => {
+          console.log('🔍 Checking for completed projects...');
+          console.log('📊 customerData:', customerData);
+          console.log('📊 completedProjects:', customerData?.completedProjects);
+          console.log('📊 completedProjects length:', customerData?.completedProjects?.length);
+          return customerData?.completedProjects && customerData.completedProjects.length > 0;
+        })() && (
           <div className="mt-6">
             <div className="bg-[#1a1a1a] rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-green-500/20">
               <h2 className="text-lg sm:text-xl font-bold mb-4 flex items-center gap-2">
