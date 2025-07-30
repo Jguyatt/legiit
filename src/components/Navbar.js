@@ -83,7 +83,7 @@ const Navbar = () => {
 
           {/* Desktop Navigation - Center */}
           <div className="hidden md:flex items-center space-x-8">
-            {navItems.map((item) => (
+            {userAuth.isLoggedIn() && navItems.map((item) => (
               <span
                 key={item.name}
                 onClick={() => handleNavClick(item.to)}
@@ -177,7 +177,7 @@ const Navbar = () => {
             className="md:hidden bg-[#0f0f0f]/95 backdrop-blur-sm shadow-lg border-t border-[#3ABEF9]/20"
           >
             <div className="px-4 py-6 space-y-4">
-              {navItems.map((item) => (
+              {userAuth.isLoggedIn() && navItems.map((item) => (
                 <span
                   key={item.name}
                   onClick={() => handleNavClick(item.to)}
