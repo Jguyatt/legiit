@@ -13,7 +13,9 @@ import {
   ChevronDown,
   FolderOpen,
   User,
-  Bell
+  Bell,
+  MessageSquare,
+  Send
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { customerAuth } from '../utils/customerAuth';
@@ -34,50 +36,64 @@ const Dashboard = () => {
   const [notifications, setNotifications] = useState([]);
   const [showNotifications, setShowNotifications] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [showChatModal, setShowChatModal] = useState(false);
+  const [chatMessages, setChatMessages] = useState([]);
+  const [newMessage, setNewMessage] = useState('');
   const navigate = useNavigate();
 
   // Generate notifications from timeline updates
   const generateNotifications = (customerData) => {
-    const newNotifications = [];
+    const notifications = [];
     
+    // Check for new chat messages
+    if (chatMessages.length > 0) {
+      const latestMessage = chatMessages[chatMessages.length - 1];
+      if (latestMessage.sender === 'admin') {
+        notifications.push({
+          id: `chat-${Date.now()}`,
+          type: 'chat',
+          message: `New message from Jacob Guyatt: "${latestMessage.message.substring(0, 50)}${latestMessage.message.length > 50 ? '...' : ''}"`,
+          timestamp: new Date().toISOString(),
+          unread: true
+        });
+      }
+    }
+
+    // Check for timeline updates
     if (customerData?.activeProjects) {
       customerData.activeProjects.forEach(project => {
-        // Check for timeline updates
-        if (project.milestones) {
-          Object.entries(project.milestones).forEach(([key, milestone]) => {
-            if (milestone.status === 'completed' && !milestone.notified) {
-              newNotifications.push({
-                id: `timeline-${key}-${Date.now()}`,
+        if (project.orderTimeline) {
+          Object.entries(project.orderTimeline).forEach(([step, status]) => {
+            if (status.completed && !status.notified) {
+              notifications.push({
+                id: `timeline-${step}-${Date.now()}`,
                 type: 'timeline',
-                title: 'Timeline Update',
-                message: `${key.replace(/([A-Z])/g, ' $1').trim()} step completed`,
+                message: `${step.replace(/([A-Z])/g, ' $1').trim()} completed for ${project.name}`,
                 timestamp: new Date().toISOString(),
-                read: false,
-                projectName: project.name
+                unread: true
               });
-              // Mark as notified
-              milestone.notified = true;
             }
           });
         }
-        
-        // Check for project status changes
-        if (project.status === 'Completed' && !project.completionNotified) {
-          newNotifications.push({
-            id: `completion-${Date.now()}`,
+      });
+    }
+
+    // Check for project completion
+    if (customerData?.completedProjects && customerData.completedProjects.length > 0) {
+      customerData.completedProjects.forEach(project => {
+        if (!project.completionNotified) {
+          notifications.push({
+            id: `completion-${project.id}-${Date.now()}`,
             type: 'completion',
-            title: 'Project Completed',
-            message: `${project.name} has been completed successfully!`,
+            message: `Project "${project.name}" has been completed!`,
             timestamp: new Date().toISOString(),
-            read: false,
-            projectName: project.name
+            unread: true
           });
-          project.completionNotified = true;
         }
       });
     }
-    
-    return newNotifications;
+
+    return notifications;
   };
 
   // Sync data with backend API
@@ -676,21 +692,54 @@ const Dashboard = () => {
   // };
 
   const clearBillyData = () => {
-    // Clear any existing fake data for Billy
-    localStorage.removeItem('customerData');
-    localStorage.removeItem('customerToken');
-    
-    // Set Billy to have no orders/projects
-    const emptyBillyData = {
-      name: 'Billy Bars',
-      email: 'billy@billybars.com',
-      activeProjects: [],
-      orderTimeline: {},
-      recentActivity: [],
-      subscription: null
+    localStorage.removeItem('billyData');
+    console.log('Billy data cleared');
+  };
+
+  // Chat functions
+  const openChat = () => {
+    setShowChatModal(true);
+    loadChatMessages();
+  };
+
+  const loadChatMessages = async () => {
+    try {
+      const response = await fetch(`https://rankly360.up.railway.app/api/chat-messages/${customerData.email}`);
+      if (response.ok) {
+        const data = await response.json();
+        setChatMessages(data.messages || []);
+      }
+    } catch (error) {
+      console.error('Failed to load chat messages:', error);
+    }
+  };
+
+  const sendMessage = async (message) => {
+    if (!message.trim()) return;
+
+    const messageData = {
+      customerEmail: customerData.email,
+      message: message,
+      sender: 'customer',
+      timestamp: new Date().toISOString()
     };
-    
-    setCustomerData(emptyBillyData);
+
+    try {
+      const response = await fetch('https://rankly360.up.railway.app/api/chat-message', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(messageData),
+      });
+
+      if (response.ok) {
+        setChatMessages(prev => [...prev, messageData]);
+        setNewMessage('');
+      }
+    } catch (error) {
+      console.error('Failed to send message:', error);
+    }
   };
 
   // Helper to move completed projects
@@ -1047,15 +1096,24 @@ const Dashboard = () => {
             
             {/* Account Manager Information */}
             <div className="bg-slate-800 rounded border border-slate-700 p-4 sm:col-span-2">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-purple-500/20 rounded flex items-center justify-center">
-                  <User className="w-4 h-4 text-purple-400" />
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 bg-purple-500/20 rounded flex items-center justify-center">
+                    <User className="w-4 h-4 text-purple-400" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm text-slate-400">Account Manager</p>
+                    <p className="text-lg font-semibold text-white">Jacob Guyatt</p>
+                    <p className="text-sm text-gray-400">guyattj39@gmail.com</p>
+                  </div>
                 </div>
-                <div className="flex-1">
-                  <p className="text-sm text-slate-400">Account Manager</p>
-                  <p className="text-lg font-semibold text-white">Jacob Guyatt</p>
-                  <p className="text-sm text-gray-400">guyattj39@gmail.com</p>
-                </div>
+                <button
+                  onClick={openChat}
+                  className="inline-flex items-center px-3 py-1.5 border border-purple-500/20 rounded-md text-sm font-medium text-purple-400 hover:bg-purple-500/10 transition-colors"
+                >
+                  <MessageSquare className="w-4 h-4 mr-1" />
+                  Message your account manager
+                </button>
               </div>
             </div>
         </div>
@@ -1684,6 +1742,82 @@ const Dashboard = () => {
           onClose={() => setShowOnboardingForm(false)}
           onSubmit={handleOnboardingSubmit}
         />
+      )}
+
+      {/* Chat Modal */}
+      {showChatModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-slate-800 rounded-lg max-w-2xl w-full max-h-[80vh] flex flex-col">
+            {/* Chat Header */}
+            <div className="flex items-center justify-between p-4 border-b border-slate-700">
+              <div>
+                <h3 className="text-lg font-semibold text-white">Chat with Jacob Guyatt</h3>
+                <p className="text-sm text-gray-400">Your Account Manager</p>
+              </div>
+              <button
+                onClick={() => setShowChatModal(false)}
+                className="text-gray-400 hover:text-white"
+              >
+                <XCircle className="w-6 h-6" />
+              </button>
+            </div>
+            
+            {/* Chat Messages */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-4 max-h-96">
+              {chatMessages.length > 0 ? (
+                chatMessages.map((message, index) => (
+                  <div
+                    key={index}
+                    className={`flex ${message.sender === 'admin' ? 'justify-end' : 'justify-start'}`}
+                  >
+                    <div
+                      className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
+                        message.sender === 'admin'
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-slate-700 text-white'
+                      }`}
+                    >
+                      <p className="text-sm">{message.message}</p>
+                      <p className="text-xs opacity-70 mt-1">
+                        {new Date(message.timestamp).toLocaleTimeString()}
+                      </p>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="text-center text-gray-400 py-8">
+                  <MessageSquare className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                  <p>No messages yet. Start the conversation!</p>
+                </div>
+              )}
+            </div>
+            
+            {/* Message Input */}
+            <div className="p-4 border-t border-slate-700">
+              <div className="flex space-x-2">
+                <input
+                  type="text"
+                  value={newMessage}
+                  onChange={(e) => setNewMessage(e.target.value)}
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      sendMessage(newMessage);
+                    }
+                  }}
+                  placeholder="Type your message..."
+                  className="flex-1 bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
+                />
+                <button
+                  onClick={() => sendMessage(newMessage)}
+                  disabled={!newMessage.trim()}
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-600/50 text-white rounded-lg transition-colors flex items-center"
+                >
+                  <Send className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
