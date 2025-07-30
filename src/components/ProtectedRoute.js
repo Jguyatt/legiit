@@ -9,6 +9,9 @@ const ProtectedRoute = ({ children }) => {
 
   useEffect(() => {
     const checkAuth = () => {
+      // Initialize session from localStorage first
+      userAuth.initSession();
+      
       const session = userAuth.getSession();
       if (session) {
         setIsAuthenticated(true);

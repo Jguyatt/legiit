@@ -32,6 +32,8 @@ import Account from './components/Account';
 import Help from './components/Help';
 import WelcomePopup from './components/WelcomePopup';
 import { initMetaPixel, trackPageView } from './utils/metaPixel';
+import { userAuth } from './utils/userAuth';
+import adminAuth from './utils/adminAuth';
 
 function App() {
   useEffect(() => {
@@ -41,6 +43,10 @@ function App() {
       initMetaPixel(pixelId);
       trackPageView('Home');
     }
+
+    // Initialize user and admin sessions from localStorage
+    userAuth.initSession();
+    adminAuth.initSession();
   }, []);
 
   return (
