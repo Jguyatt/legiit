@@ -114,7 +114,7 @@ const Navbar = () => {
                     My Dashboard
                   </motion.button>
                 )}
-                {adminAuth.isLoggedIn() && (
+                {userAuth.isAdmin() && (
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
@@ -201,7 +201,7 @@ const Navbar = () => {
                         My Dashboard
                       </button>
                     )}
-                    {adminAuth.isLoggedIn() && (
+                    {userAuth.isAdmin() && (
                       <button 
                         onClick={() => {
                           navigate('/admin');
