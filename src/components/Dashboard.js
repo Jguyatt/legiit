@@ -39,6 +39,7 @@ const Dashboard = () => {
   const [chatMessages, setChatMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const [lastMessageCount, setLastMessageCount] = useState(0);
+  const [notifiedMessages, setNotifiedMessages] = useState(new Set());
   const chatMessagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -74,6 +75,11 @@ const Dashboard = () => {
       const adminMessages = newMessages.filter(msg => msg.sender === 'admin');
       
       adminMessages.forEach(message => {
+        // Check if this message has already been notified
+        if (notifiedMessages.has(message.id)) {
+          return; // Skip if already notified
+        }
+        
         // Play notification sound
         try {
           const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmGgU7k9n1unEiBC13yO/eizEIHWq+8+OWT');
@@ -95,7 +101,7 @@ const Dashboard = () => {
         
         // Add to notifications list
         setNotifications(prev => [{
-          id: `admin-message-${Date.now()}-${Math.random()}`,
+          id: `admin-message-${message.id}`,
           type: 'admin-message',
           message: `New message from Jacob Guyatt: "${message.message.substring(0, 50)}${message.message.length > 50 ? '...' : ''}"`,
           timestamp: new Date().toISOString(),
@@ -104,6 +110,9 @@ const Dashboard = () => {
         
         // Update unread count
         setUnreadCount(prev => prev + 1);
+        
+        // Mark this message as notified
+        setNotifiedMessages(prev => new Set([...prev, message.id]));
       });
       
       setLastMessageCount(messages.length);
@@ -609,6 +618,13 @@ const Dashboard = () => {
     setNotifications(prev => prev.map(notif => ({ ...notif, unread: false })));
   };
 
+  // Clear all notifications
+  const clearAllNotifications = () => {
+    setNotifications([]);
+    setUnreadCount(0);
+    setNotifiedMessages(new Set());
+  };
+
   const loadChatMessages = async () => {
     try {
       console.log('Loading chat messages for:', customerData.email);
@@ -934,7 +950,17 @@ const Dashboard = () => {
                 {showNotifications && (
                   <div className="absolute right-0 top-full mt-2 w-80 bg-slate-800 border border-slate-700 rounded-lg shadow-xl z-50 notifications-dropdown">
                     <div className="p-4 border-b border-slate-700">
-                      <h3 className="text-white font-semibold">Notifications</h3>
+                      <div className="flex items-center justify-between">
+                        <h3 className="text-white font-semibold">Notifications</h3>
+                        {notifications.length > 0 && (
+                          <button
+                            onClick={clearAllNotifications}
+                            className="text-xs text-slate-400 hover:text-white transition-colors"
+                          >
+                            Clear All
+                          </button>
+                        )}
+                      </div>
                     </div>
                     <div className="max-h-64 overflow-y-auto">
                       {notifications.length > 0 ? (
