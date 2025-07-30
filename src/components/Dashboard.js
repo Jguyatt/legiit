@@ -390,10 +390,21 @@ const Dashboard = () => {
   };
 
   const toggleProjectExpansion = (projectId) => {
-    setExpandedProjects(prev => ({
-      ...prev,
-      [projectId]: !prev[projectId]
-    }));
+    try {
+      setExpandedProjects(prev => {
+        const newSet = new Set(prev);
+        if (newSet.has(projectId)) {
+          newSet.delete(projectId);
+        } else {
+          newSet.add(projectId);
+        }
+        return newSet;
+      });
+    } catch (error) {
+      console.error('Error toggling project expansion:', error);
+      // Fallback to prevent black screen
+      setExpandedProjects(new Set());
+    }
   };
 
   const handleCancelMembership = () => {
@@ -1070,8 +1081,14 @@ const Dashboard = () => {
                       {/* Project Header */}
                       <div 
                         className="p-4 cursor-pointer hover:bg-[#333333] transition-colors"
-                        onClick={() => toggleProjectExpansion(project.id)}
-              >
+                        onClick={() => {
+                          try {
+                            toggleProjectExpansion(project.id);
+                          } catch (error) {
+                            console.error('Error expanding project:', error);
+                          }
+                        }}
+                      >
                 <div className="flex items-center justify-between">
                           <div className="flex-1 min-w-0">
                             <h3 className="font-semibold text-white text-sm truncate">{project.name}</h3>
