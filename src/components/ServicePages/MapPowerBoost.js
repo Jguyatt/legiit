@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, MapPin, CheckCircle, Target, Navigation, Zap, Globe, TrendingUp } from 'lucide-react';
 
 // Map PowerBoost payment link: https://buy.stripe.com/4gM9AT4p2cdycFE2eadAk08
+// Updated payment link - force deployment
 
 const features = [
   {

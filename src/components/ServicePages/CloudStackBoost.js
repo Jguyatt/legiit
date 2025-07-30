@@ -2,6 +2,9 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Cloud, CheckCircle, Target, Shield, TrendingUp, Zap, Layers } from 'lucide-react';
 
+// Cloud Stack Boost payment link: https://buy.stripe.com/cNi6oH6xab9u354062dAk09
+// Updated payment link - force deployment
+
 const features = [
   {
     label: 'Cloud Stack Boost',
