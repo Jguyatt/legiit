@@ -1223,13 +1223,13 @@ const Dashboard = () => {
             </div>
 
             {/* Active Projects and Activity */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
               {/* Active Projects */}
               <motion.div
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.6, delay: 0.5 }}
-                className="bg-[#1a1a1a] rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-[#3abef9]/20"
+                className="lg:col-span-2 bg-[#1a1a1a] rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-[#3abef9]/20"
               >
                 <h2 className="text-lg sm:text-xl font-bold mb-4 flex items-center gap-2">
                   <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5 text-[#3abef9]" />
@@ -1512,7 +1512,7 @@ const Dashboard = () => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 0.7 }}
-                  className="bg-[#1a1a1a] rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-[#3abef9]/20"
+                  className="bg-[#1a1a1a] rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-green-500/20"
                 >
                   <h2 className="text-lg sm:text-xl font-bold mb-4 flex items-center gap-2">
                     <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-green-400" />
