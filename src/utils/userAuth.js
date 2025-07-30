@@ -101,11 +101,13 @@ export const userAuth = {
 
   // Login user (only works for existing accounts)
   login: async (email, password) => {
+    console.log('🔐 Login attempt for:', email);
     const users = getStoredUsers();
     const emailLower = email.toLowerCase();
 
     // Check if it's admin login - only the specific admin email
     if (emailLower === 'guyattj39@gmail.com' && password === ADMIN_CREDENTIALS.password) {
+      console.log('✅ Admin login successful');
       userSession = {
         email: emailLower,
         name: 'Admin User',
@@ -119,10 +121,12 @@ export const userAuth = {
 
     // First check localStorage
     if (users.hasOwnProperty(emailLower)) {
+      console.log('✅ Found user in localStorage');
       const user = users[emailLower];
 
       // Check password
       if (user.password !== password) {
+        console.log('❌ Password mismatch in localStorage');
         return { success: false, error: 'Incorrect password' };
       }
 
@@ -136,7 +140,7 @@ export const userAuth = {
       };
       
       localStorage.setItem('userSession', JSON.stringify(userSession));
-      
+      console.log('✅ Login successful from localStorage');
       return { success: true, data: userSession };
     }
 
@@ -147,7 +151,9 @@ export const userAuth = {
       
       if (response.ok) {
         const data = await response.json();
+        console.log('📊 Backend data received:', data);
         const allUsers = { ...data.users, ...data.customers };
+        console.log('👥 All users from backend:', Object.keys(allUsers));
         
         // Find user in backend data
         const backendUser = allUsers[emailLower];
@@ -157,6 +163,7 @@ export const userAuth = {
           
           // Check password (assuming password is stored in backend)
           if (backendUser.password && backendUser.password === password) {
+            console.log('✅ Password match in backend');
             // Create session
             userSession = {
               email: backendUser.email,
@@ -179,17 +186,23 @@ export const userAuth = {
               createdAt: backendUser.createdAt || new Date().toISOString()
             };
             saveUsers(users);
-            
+            console.log('✅ Login successful from backend');
             return { success: true, data: userSession };
           } else {
+            console.log('❌ Password mismatch in backend');
             return { success: false, error: 'Incorrect password' };
           }
+        } else {
+          console.log('❌ User not found in backend');
         }
+      } else {
+        console.log('❌ Backend response not ok:', response.status);
       }
     } catch (error) {
       console.error('❌ Error checking backend for user:', error);
     }
 
+    console.log('❌ Account not found anywhere');
     return { success: false, error: 'Account not found. Please sign up first.' };
   },
 
