@@ -38,96 +38,14 @@ const GoogleBusinessProfileResults = () => {
             </div>
           </div>
 
-          {/* Mock Google Search Results */}
-          <div className="space-y-4">
-            {/* Rankly360 Result */}
-            <div className="bg-white rounded-lg p-4 border-l-4 border-green-500">
-              <div className="flex items-start justify-between mb-2">
-                <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
-                    1
-                  </div>
-                  <div>
-                    <h3 className="text-blue-600 font-medium text-lg">Rankly360 SEO</h3>
-                    <p className="text-green-600 text-sm">Marketing agency</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-1">
-                  <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                  <span className="text-sm font-medium">5.0</span>
-                  <span className="text-sm text-gray-500">(3 reviews)</span>
-                </div>
-              </div>
-              
-              <div className="flex items-center gap-4 text-sm text-gray-600 mb-2">
-                <div className="flex items-center gap-1">
-                  <MapPin className="w-4 h-4" />
-                  <span>Maple, ON L6A 1S2</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <Phone className="w-4 h-4" />
-                  <span>(647) 323-6969</span>
-                </div>
-              </div>
-
-              <div className="bg-gray-50 p-3 rounded">
-                <p className="text-sm text-gray-700 italic">
-                  "Rankly 360 has been a game changer for my business."
-                </p>
-              </div>
-
-              <div className="flex items-center gap-2 mt-3">
-                <button className="bg-blue-600 text-white px-4 py-1 rounded text-sm hover:bg-blue-700 transition-colors">
-                  Website
-                </button>
-                <button className="border border-gray-300 text-gray-700 px-4 py-1 rounded text-sm hover:bg-gray-50 transition-colors">
-                  Directions
-                </button>
-              </div>
-            </div>
-
-            {/* Other Results (dimmed) */}
-            <div className="opacity-60">
-              <div className="bg-white rounded-lg p-4 border-l-4 border-gray-300">
-                <div className="flex items-start justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 bg-gray-300 rounded-full flex items-center justify-center text-white text-xs font-bold">
-                      2
-                    </div>
-                    <div>
-                      <h3 className="text-blue-600 font-medium text-lg">WebHill - Web Design & Local SEO Co...</h3>
-                      <p className="text-green-600 text-sm">Internet marketing service</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                    <span className="text-sm font-medium">5.0</span>
-                    <span className="text-sm text-gray-500">(23 reviews)</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="opacity-60">
-              <div className="bg-white rounded-lg p-4 border-l-4 border-gray-300">
-                <div className="flex items-start justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 bg-gray-300 rounded-full flex items-center justify-center text-white text-xs font-bold">
-                      3
-                    </div>
-                    <div>
-                      <h3 className="text-blue-600 font-medium text-lg">Booboo Digital</h3>
-                      <p className="text-green-600 text-sm">Marketing agency</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                    <span className="text-sm font-medium">5.0</span>
-                    <span className="text-sm text-gray-500">(3 reviews)</span>
-                  </div>
-                </div>
-              </div>
-            </div>
+          {/* Real Google Search Results Image */}
+          <div className="flex justify-center">
+            <img 
+              src="/images/success.jpg" 
+              alt="Rankly360 SEO ranking #1 for local seo near me" 
+              className="rounded-lg shadow-lg max-w-full h-auto"
+              style={{ maxHeight: '600px' }}
+            />
           </div>
 
           <div className="mt-8 text-center">
