@@ -1083,38 +1083,12 @@ const Dashboard = () => {
               </div>
             </div>
             
-            {/* Account Manager Information */}
-            <div className="bg-slate-800 rounded border border-slate-700 p-4 sm:col-span-2">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-purple-500/20 rounded flex items-center justify-center">
-                    <User className="w-4 h-4 text-purple-400" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-sm text-slate-400">Account Manager</p>
-                    <p className="text-lg font-semibold text-white">Jacob Guyatt</p>
-                    <p className="text-sm text-gray-400">guyattj39@gmail.com</p>
-                  </div>
-                </div>
-                <button
-                  onClick={openChat}
-                  className="inline-flex items-center px-3 py-1.5 border border-purple-500/20 rounded-md text-sm font-medium text-purple-400 hover:bg-purple-500/10 transition-colors relative"
-                >
-                  <MessageSquare className="w-4 h-4 mr-1" />
-                  Message your account manager
-                  {unreadCount > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                      {unreadCount > 9 ? '9+' : unreadCount}
-                    </span>
-                  )}
-                </button>
-              </div>
-            </div>
+
         </div>
       </div>
 
-        {/* Check if customer has any projects */}
-        {(!customerData?.activeProjects || customerData.activeProjects.length === 0) ? (
+        {/* Check if customer has any projects (active OR completed) */}
+        {(!customerData?.activeProjects || customerData.activeProjects.length === 0) && (!customerData?.completedProjects || customerData.completedProjects.length === 0) ? (
           <div className="bg-slate-800 rounded border border-slate-700 p-6">
             <div className="text-center mb-6">
               <div className="mx-auto mb-4">
@@ -1126,7 +1100,7 @@ const Dashboard = () => {
                 Ready to improve your Google Maps rankings?
               </h2>
               <p className="text-slate-400 max-w-lg mx-auto text-base px-2 leading-relaxed">
-                You don't have any active projects yet. Browse our local SEO packages to begin improving your Google Maps rankings and get found by local customers.
+                You don't have any projects yet. Browse our local SEO packages to begin improving your Google Maps rankings and get found by local customers.
               </p>
             </div>
 
@@ -1214,13 +1188,43 @@ const Dashboard = () => {
                   <div>
                     <p className="text-slate-400 text-xs sm:text-sm">Status</p>
                     <p className="text-lg sm:text-xl font-semibold text-white">
-                      {customerData?.activeProjects?.length > 0 ? 'Active' : 'Ready'}
+                      {customerData?.activeProjects?.length > 0 ? 'Active' : 'Completed'}
                     </p>
                   </div>
                   <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6 text-orange-400" />
                 </div>
               </div>
             </div>
+
+            {/* Account Manager Information - Only show if there are active projects */}
+            {customerData?.activeProjects && customerData.activeProjects.length > 0 && (
+              <div className="bg-slate-800 rounded border border-slate-700 p-4 mb-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-purple-500/20 rounded flex items-center justify-center">
+                      <User className="w-4 h-4 text-purple-400" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm text-slate-400">Account Manager</p>
+                      <p className="text-lg font-semibold text-white">Jacob Guyatt</p>
+                      <p className="text-sm text-gray-400">guyattj39@gmail.com</p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={openChat}
+                    className="inline-flex items-center px-3 py-1.5 border border-purple-500/20 rounded-md text-sm font-medium text-purple-400 hover:bg-purple-500/10 transition-colors relative"
+                  >
+                    <MessageSquare className="w-4 h-4 mr-1" />
+                    Message your account manager
+                    {unreadCount > 0 && (
+                      <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                        {unreadCount > 9 ? '9+' : unreadCount}
+                      </span>
+                    )}
+                  </button>
+                </div>
+              </div>
+            )}
 
             {/* Active Projects and Activity */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
