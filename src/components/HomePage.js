@@ -15,7 +15,7 @@ const HomePage = () => {
 
   useEffect(() => {
     const checkAuth = () => {
-      // Initialize sessions
+      // Initialize session from localStorage first
       userAuth.initSession();
       
       const session = userAuth.getSession();
