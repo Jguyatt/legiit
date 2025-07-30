@@ -42,7 +42,8 @@ const OnboardingForm = ({ isOpen, onClose, service, onSubmit }) => {
         { name: 'phoneNumber', label: 'Business phone number (NAP consistency)', required: true, type: 'tel' },
         { name: 'googleBusinessProfile', label: 'GBP link', required: true, type: 'url' },
         { name: 'businessDescription', label: 'Short description of your company (110 characters max)', required: true, type: 'textarea', maxLength: 110 },
-        { name: 'email', label: 'E-mail Address of your business', required: true, type: 'email' }
+        { name: 'email', label: 'E-mail Address of your business', required: true, type: 'email' },
+        { name: 'geotaggedMapLink', label: 'Geo-tagged Map Link (Required - can be purchased from Map PowerBoost)', required: true, type: 'url', note: 'If you don\'t have a geo-tagged map, please purchase the Map PowerBoost service first.' }
       ],
       'Map PowerBoost': [
         { name: 'businessName', label: 'Business name', required: true, type: 'text' },
@@ -226,6 +227,11 @@ const OnboardingForm = ({ isOpen, onClose, service, onSubmit }) => {
                   {field.maxLength && (
                     <p className="text-xs text-gray-500 mt-1">
                       {formData[field.name]?.length || 0}/{field.maxLength} characters
+                    </p>
+                  )}
+                  {field.note && (
+                    <p className="text-xs text-orange-600 mt-1 font-medium">
+                      {field.note}
                     </p>
                   )}
           </div>
