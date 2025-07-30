@@ -15,11 +15,13 @@ const HomePage = () => {
 
   useEffect(() => {
     const checkAuth = () => {
+      // Initialize sessions
+      userAuth.initSession();
+      
       const session = userAuth.getSession();
-      // Allow admin users to view the public site
-      const adminSession = localStorage.getItem('adminSession');
-      if (session && !adminSession) {
-        // Only redirect non-admin authenticated users to dashboard
+      
+      // Only redirect regular users (not admin users) to dashboard
+      if (session && !userAuth.isAdmin()) {
         navigate('/dashboard');
       }
       setIsLoading(false);
@@ -39,7 +41,7 @@ const HomePage = () => {
     );
   }
 
-  // Show public landing page for non-authenticated users
+  // Show public landing page for non-authenticated users and admin users
   return (
     <>
       <Navbar />
