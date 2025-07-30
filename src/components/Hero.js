@@ -291,13 +291,13 @@ const Hero = () => {
           <motion.div {...fadeIn(0.5)} className="flex flex-col sm:flex-row gap-4 items-center justify-center lg:justify-start px-4 w-full mb-12">
             <button
               onClick={() => {
-                trackButtonClick('View Services', {
+                trackButtonClick('Sign Up Today to Get Started', {
                   button_location: 'hero_section',
                   content_category: 'cta',
                   value: 0,
                   currency: 'USD'
                 });
-                navigate('/packages');
+                navigate('/signup');
               }}
               className="group w-full sm:w-auto px-8 py-4 rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 text-white text-lg font-semibold shadow-2xl transition-all duration-300 hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-500/50 active:scale-95 touch-manipulation transform hover:scale-105"
               style={{ 
@@ -310,7 +310,7 @@ const Hero = () => {
                 <svg className="w-5 h-5 group-hover:animate-bounce" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.293l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13a1 1 0 102 0V9.414l1.293 1.293a1 1 0 001.414-1.414z" clipRule="evenodd" />
                 </svg>
-                View Services
+                Sign Up Today to Get Started
               </span>
             </button>
             
@@ -380,75 +380,32 @@ const Hero = () => {
                     </style>
                   </head>
                   <body>
-                    <button class="close-btn" onclick="window.close()">✕ Close</button>
                     <div class="video-container">
                       <video controls autoplay>
                         <source src="${videoUrl}" type="video/mp4">
                         Your browser does not support the video tag.
                       </video>
                     </div>
+                    <button class="close-btn" onclick="window.close()">Close Video</button>
                   </body>
-                </html>
+                  </html>
                 `);
                 newWindow.document.close();
               }}
-              className="group w-full sm:w-auto px-8 py-4 rounded-xl bg-transparent border-2 border-gray-600/50 text-gray-300 text-lg font-semibold shadow-xl transition-all duration-300 hover:bg-gray-800/50 hover:text-white hover:border-gray-500 focus:outline-none focus:ring-4 focus:ring-gray-500/30 flex items-center justify-center gap-2 active:scale-95 touch-manipulation backdrop-blur-sm"
+              className="group w-full sm:w-auto px-8 py-4 rounded-xl bg-slate-800/80 text-white text-lg font-semibold shadow-2xl transition-all duration-300 hover:bg-slate-700/80 focus:outline-none focus:ring-4 focus:ring-slate-500/50 active:scale-95 touch-manipulation transform hover:scale-105 border border-slate-600/50 backdrop-blur-sm"
               style={{ 
                 fontFamily: "'Inter', 'Poppins', system-ui, sans-serif", 
                 minHeight: '56px',
-                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.2)'
+                boxShadow: '0 8px 25px rgba(0, 0, 0, 0.2)'
               }}
             >
-              <svg className="w-5 h-5 group-hover:animate-pulse" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
-              </svg>
-              AI Overview Video
+              <span className="flex items-center justify-center gap-2">
+                <svg className="w-5 h-5 group-hover:animate-pulse" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
+                </svg>
+                AI Overview Video
+              </span>
             </button>
-          </motion.div>
-
-          {/* Big Sign Up Button */}
-          <motion.div 
-            {...fadeIn(0.7)} 
-            className="w-full max-w-4xl mx-auto"
-          >
-            <div className="bg-gradient-to-r from-gray-900/90 to-gray-800/90 border border-gray-600/50 rounded-3xl p-12 backdrop-blur-md shadow-2xl">
-              <div className="text-center">
-                <motion.button
-                  onClick={() => {
-                    trackButtonClick('hero_signup_button');
-                    navigate('/signup');
-                  }}
-                  whileHover={{ 
-                    scale: 1.05,
-                    boxShadow: "0 20px 40px rgba(154, 95, 255, 0.4)"
-                  }}
-                  whileTap={{ scale: 0.95 }}
-                  className="group relative inline-flex items-center justify-center px-12 py-6 text-xl font-bold text-white bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-500 hover:to-purple-600 rounded-2xl shadow-2xl border-2 border-purple-400/50 transition-all duration-300 transform hover:-translate-y-1"
-                >
-                  {/* Glow effect */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-purple-700 rounded-2xl blur-xl opacity-50 group-hover:opacity-75 transition-opacity duration-300"></div>
-                  
-                  {/* Button content */}
-                  <div className="relative flex items-center gap-3">
-                    <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.293l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13a1 1 0 102 0V9.414l1.293 1.293a1 1 0 001.414-1.414z" clipRule="evenodd" />
-                    </svg>
-                    <span>Sign Up Today to Get Started!</span>
-                    <svg className="w-5 h-5 transform group-hover:translate-x-1 transition-transform duration-300" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
-                    </svg>
-                  </div>
-                  
-                  {/* Sparkle effects */}
-                  <div className="absolute -top-2 -left-2 w-4 h-4 bg-yellow-400 rounded-full opacity-0 group-hover:opacity-100 group-hover:animate-ping transition-opacity duration-300"></div>
-                  <div className="absolute -bottom-2 -right-2 w-3 h-3 bg-blue-400 rounded-full opacity-0 group-hover:opacity-100 group-hover:animate-ping transition-opacity duration-300 delay-100"></div>
-                </motion.button>
-                
-                <p className="text-gray-300 text-lg mt-6 font-medium">
-                  Join 500+ businesses already dominating Google Maps
-                </p>
-              </div>
-            </div>
           </motion.div>
         </div>
 
