@@ -4,6 +4,7 @@ import Navbar from './Navbar';
 import Hero from './Hero';
 import WhyRankly360 from './WhyRankly360';
 import BeforeAfterResults from './BeforeAfterResults';
+import GoogleBusinessProfileResults from './GoogleBusinessProfileResults';
 import FAQ from './FAQ';
 import Footer from './Footer';
 import { userAuth } from '../utils/userAuth';
@@ -45,6 +46,7 @@ const HomePage = () => {
       <Hero />
       <WhyRankly360 />
       <BeforeAfterResults />
+      <GoogleBusinessProfileResults />
       <FAQ />
       <Footer />
     </>
