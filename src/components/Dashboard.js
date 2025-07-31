@@ -213,24 +213,32 @@ const Dashboard = () => {
   // Sync data with backend API
   const syncWithBackend = async (email) => {
     try {
+      console.log('🔄 Syncing with backend for email:', email);
       const response = await fetch('https://rankly360.up.railway.app/api/all-customers');
       const result = await response.json();
       
       if (result.success && result.customers) {
+        console.log('📊 All customers from backend:', Object.keys(result.customers));
+        console.log('📊 Customer emails:', Object.values(result.customers).map(c => c.email));
+        
         // Find the customer data for this email
         let customerData = null;
         let bestMatch = null;
         
         // Try to find by email in different key formats
         for (const [key, customer] of Object.entries(result.customers)) {
+          console.log('🔍 Checking customer:', key, 'with email:', customer.email);
           if (customer.email && customer.email.toLowerCase() === email.toLowerCase()) {
+            console.log('✅ Found matching customer:', customer.email);
             // Prioritize entries with active projects OR completed projects
             if ((customer.activeProjects && customer.activeProjects.length > 0) || 
                 (customer.completedProjects && customer.completedProjects.length > 0)) {
               bestMatch = customer;
+              console.log('🎯 Best match found with projects:', customer.activeProjects?.length, 'active,', customer.completedProjects?.length, 'completed');
               break; // Found one with projects, use this one
             } else if (!customerData) {
               customerData = customer; // Keep this as fallback
+              console.log('📝 Fallback customer found:', customer.email);
             }
           }
         }
@@ -239,6 +247,10 @@ const Dashboard = () => {
         const finalCustomerData = bestMatch || customerData;
         
         if (finalCustomerData) {
+          console.log('📊 Final customer data found:', finalCustomerData.email);
+          console.log('📊 Active projects:', finalCustomerData.activeProjects?.length);
+          console.log('📊 Completed projects:', finalCustomerData.completedProjects?.length);
+          
           // Apply completion logic to ensure projects are in the right state
           const processedData = moveCompletedProjects(finalCustomerData);
           
@@ -266,7 +278,8 @@ const Dashboard = () => {
           
           return processedData;
         } else {
-          console.log('❌ Customer not found in backend data');
+          console.log('❌ Customer not found in backend data for email:', email);
+          console.log('📊 Available customers:', Object.keys(result.customers));
         }
       }
     } catch (error) {
@@ -1329,6 +1342,31 @@ const Dashboard = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                 </svg>
                 {loading ? 'Refreshing...' : 'Refresh Data'}
+              </button>
+              
+              {/* Debug button to check backend data */}
+              <button
+                onClick={async () => {
+                  const userSession = userAuth.getSession();
+                  if (userSession?.email) {
+                    console.log('🔍 Debug: Checking backend data for:', userSession.email);
+                    try {
+                      const response = await fetch('https://rankly360.up.railway.app/api/all-customers');
+                      const result = await response.json();
+                      console.log('🔍 Debug: All backend customers:', result);
+                      console.log('🔍 Debug: Customer keys:', Object.keys(result.customers || {}));
+                      console.log('🔍 Debug: Customer emails:', Object.values(result.customers || {}).map(c => c.email));
+                    } catch (error) {
+                      console.error('🔍 Debug: Error fetching backend data:', error);
+                    }
+                  }
+                }}
+                className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors duration-200 text-sm font-medium"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Debug Data
               </button>
 
 
