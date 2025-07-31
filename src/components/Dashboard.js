@@ -244,6 +244,9 @@ const Dashboard = () => {
           const processedData = moveCompletedProjects(finalCustomerData);
           
           console.log('🔄 Synced with backend:', processedData);
+          console.log('📊 Active projects count:', processedData?.activeProjects?.length);
+          console.log('📊 Active projects:', processedData?.activeProjects);
+          console.log('📊 Completed projects count:', processedData?.completedProjects?.length);
           setCustomerData(processedData);
           localStorage.setItem('customerData', JSON.stringify(processedData));
           
@@ -1189,6 +1192,29 @@ const Dashboard = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                 </svg>
                 {loading ? 'Refreshing...' : 'Refresh Data'}
+              </button>
+              <button
+                onClick={async () => {
+                  console.log('🔍 Manual debug: Checking customer data...');
+                  const userSession = userAuth.getSession();
+                  console.log('👤 User session:', userSession);
+                  
+                  if (userSession?.email) {
+                    console.log('🔄 Manual debug: Syncing with backend...');
+                    const backendData = await syncWithBackend(userSession.email);
+                    console.log('📊 Backend data:', backendData);
+                    console.log('📊 Active projects count:', backendData?.activeProjects?.length);
+                    
+                    if (backendData) {
+                      setCustomerData(backendData);
+                      fixProjectDurations(backendData);
+                      console.log('✅ Manual debug: Updated customer data');
+                    }
+                  }
+                }}
+                className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors duration-200 text-sm font-medium ml-2"
+              >
+                Debug Purchase
               </button>
             </div>
           </div>
