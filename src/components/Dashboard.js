@@ -451,6 +451,7 @@ const Dashboard = () => {
       console.log('📊 Active projects count:', newCustomerData?.activeProjects?.length);
       console.log('📊 Active projects:', newCustomerData?.activeProjects);
       console.log('📊 Full customer data structure:', JSON.stringify(newCustomerData, null, 2));
+      
       if (newCustomerData) {
         console.log('✅ Setting new customer data with', newCustomerData.activeProjects?.length, 'active projects');
         setCustomerData(newCustomerData);
@@ -477,6 +478,18 @@ const Dashboard = () => {
         }
       } else {
         console.log('❌ No customer data received in event');
+        
+        // Fallback: Force refresh from backend
+        const userSession = userAuth.getSession();
+        if (userSession?.email) {
+          console.log('🔄 Fallback: Force refreshing from backend...');
+          const backendData = await syncWithBackend(userSession.email);
+          if (backendData) {
+            console.log('✅ Fallback: Found updated data from backend');
+            setCustomerData(backendData);
+            fixProjectDurations(backendData);
+          }
+        }
       }
     };
 
@@ -610,12 +623,42 @@ const Dashboard = () => {
       }
     }, []);
 
-  // Auto-refresh customer data every 30 seconds to catch new purchases
+  // Auto-refresh customer data every 10 seconds to catch new purchases immediately
   useEffect(() => {
     const interval = setInterval(async () => {
       const userSession = userAuth.getSession();
       if (userSession?.email) {
         console.log('🔄 Auto-refreshing customer data...');
+        
+        // First check for unprocessed purchases
+        const unprocessedPurchases = JSON.parse(localStorage.getItem('unprocessedPurchases') || '[]');
+        if (unprocessedPurchases.length > 0) {
+          console.log('🔄 Found unprocessed purchases during auto-refresh...');
+          for (const purchase of unprocessedPurchases) {
+            try {
+              const response = await fetch('https://rankly360.up.railway.app/api/manual-purchase', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  email: userSession.email,
+                  packageName: purchase.packageName,
+                  amount: purchase.amount,
+                  sessionId: purchase.sessionId
+                })
+              });
+              
+              if (response.ok) {
+                console.log('✅ Auto-refresh: Processed unprocessed purchase:', purchase.packageName);
+                const updatedPurchases = unprocessedPurchases.filter(p => p.sessionId !== purchase.sessionId);
+                localStorage.setItem('unprocessedPurchases', JSON.stringify(updatedPurchases));
+              }
+            } catch (error) {
+              console.error('❌ Auto-refresh: Failed to process unprocessed purchase:', error);
+            }
+          }
+        }
+        
+        // Then sync with backend
         const backendData = await syncWithBackend(userSession.email);
         if (backendData) {
           console.log('✅ Auto-refresh: Found updated data from backend');
@@ -624,7 +667,7 @@ const Dashboard = () => {
           fixProjectDurations(backendData);
         }
       }
-    }, 30000); // Check every 30 seconds
+    }, 10000); // Check every 10 seconds for faster response
 
     return () => clearInterval(interval);
   }, []);
@@ -1237,8 +1280,42 @@ const Dashboard = () => {
                   setLoading(true);
                   const userSession = userAuth.getSession();
                   if (userSession?.email) {
+                    console.log('🔄 Manual refresh triggered for user:', userSession.email);
+                    
+                    // First try to process any unprocessed purchases
+                    const unprocessedPurchases = JSON.parse(localStorage.getItem('unprocessedPurchases') || '[]');
+                    if (unprocessedPurchases.length > 0) {
+                      console.log('🔄 Processing unprocessed purchases...');
+                      for (const purchase of unprocessedPurchases) {
+                        try {
+                          const response = await fetch('https://rankly360.up.railway.app/api/manual-purchase', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                              email: userSession.email,
+                              packageName: purchase.packageName,
+                              amount: purchase.amount,
+                              sessionId: purchase.sessionId
+                            })
+                          });
+                          
+                          if (response.ok) {
+                            console.log('✅ Unprocessed purchase processed:', purchase.packageName);
+                            // Remove from unprocessed list
+                            const updatedPurchases = unprocessedPurchases.filter(p => p.sessionId !== purchase.sessionId);
+                            localStorage.setItem('unprocessedPurchases', JSON.stringify(updatedPurchases));
+                          }
+                        } catch (error) {
+                          console.error('❌ Failed to process unprocessed purchase:', error);
+                        }
+                      }
+                    }
+                    
+                    // Then sync with backend
                     const backendData = await syncWithBackend(userSession.email);
                     if (backendData) {
+                      console.log('✅ Manual refresh successful:', backendData);
+                      console.log('📊 Active projects count:', backendData?.activeProjects?.length);
                       setCustomerData(backendData);
                       fixProjectDurations(backendData);
                     }
