@@ -453,6 +453,26 @@ const Dashboard = () => {
         console.log('✅ Setting new customer data with', newCustomerData.activeProjects?.length, 'active projects');
         setCustomerData(newCustomerData);
         fixProjectDurations(newCustomerData);
+        
+        // Also sync to backend to ensure consistency
+        const userSession = userAuth.getSession();
+        if (userSession?.email) {
+          try {
+            await fetch('https://rankly360.up.railway.app/api/sync-data', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                email: userSession.email,
+                customerData: newCustomerData
+              })
+            });
+            console.log('✅ Purchase data synced to backend');
+          } catch (error) {
+            console.error('❌ Failed to sync purchase data:', error);
+          }
+        }
       } else {
         console.log('❌ No customer data received in event');
       }
@@ -533,6 +553,25 @@ const Dashboard = () => {
     } else {
       console.log('📊 No pending purchases found');
     }
+  }, []);
+
+  // Auto-refresh customer data every 30 seconds to catch new purchases
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      const userSession = userAuth.getSession();
+      if (userSession?.email) {
+        console.log('🔄 Auto-refreshing customer data...');
+        const backendData = await syncWithBackend(userSession.email);
+        if (backendData) {
+          console.log('✅ Auto-refresh: Found updated data from backend');
+          console.log('📊 Active projects count:', backendData?.activeProjects?.length);
+          setCustomerData(backendData);
+          fixProjectDurations(backendData);
+        }
+      }
+    }, 30000); // Check every 30 seconds
+
+    return () => clearInterval(interval);
   }, []);
 
   const handleGetStarted = () => {
