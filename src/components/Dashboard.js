@@ -1248,23 +1248,7 @@ const Dashboard = () => {
                 </svg>
                 {loading ? 'Refreshing...' : 'Refresh Data'}
               </button>
-              <button
-                onClick={async () => {
-                  const userSession = userAuth.getSession();
-                  if (userSession?.email) {
-                    console.log('🔄 Manual force sync for user:', userSession.email);
-                    const backendData = await syncWithBackend(userSession.email);
-                    if (backendData) {
-                      console.log('✅ Manual sync successful:', backendData);
-                      setCustomerData(backendData);
-                      fixProjectDurations(backendData);
-                    }
-                  }
-                }}
-                className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors text-sm font-medium ml-2"
-              >
-                Force Sync
-              </button>
+
 
 
             </div>
