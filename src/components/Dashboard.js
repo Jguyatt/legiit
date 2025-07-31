@@ -71,9 +71,14 @@ const Dashboard = () => {
       const savedLastNotificationCheck = localStorage.getItem(lastNotificationCheckKey);
       
       if (savedNotifications) {
-        setNotifications(JSON.parse(savedNotifications));
+        const notifications = JSON.parse(savedNotifications);
+        setNotifications(notifications);
+        // Sync unread count with actual notifications
+        const actualUnreadCount = notifications.filter(n => n.unread).length;
+        setUnreadCount(actualUnreadCount);
+        localStorage.setItem(unreadCountKey, actualUnreadCount.toString());
       }
-      if (savedUnreadCount) {
+      if (savedUnreadCount && !savedNotifications) {
         setUnreadCount(parseInt(savedUnreadCount));
       }
       if (savedNotifiedMessages) {
@@ -93,6 +98,9 @@ const Dashboard = () => {
       localStorage.setItem(unreadCountKey, '0');
       localStorage.setItem(notifiedMessagesKey, JSON.stringify([]));
       localStorage.setItem(lastNotificationCheckKey, null);
+      
+      // Ensure unread count is always 0 for new users
+      console.log('✅ Reset notification count to 0 for user:', userEmail);
     }
   }, []);
 
@@ -173,18 +181,13 @@ const Dashboard = () => {
           const userSession = userAuth.getSession();
           if (userSession?.email) {
             localStorage.setItem(`rankly360_notifications_${userSession.email}`, JSON.stringify(updatedNotifications));
+            
+            // Update unread count to match actual notifications
+            const unreadCount = updatedNotifications.filter(n => n.unread).length;
+            setUnreadCount(unreadCount);
+            localStorage.setItem(`rankly360_unread_count_${userSession.email}`, unreadCount.toString());
           }
           return updatedNotifications;
-        });
-        
-        // Update unread count
-        setUnreadCount(prev => {
-          const newCount = prev + 1;
-          const userSession = userAuth.getSession();
-          if (userSession?.email) {
-            localStorage.setItem(`rankly360_unread_count_${userSession.email}`, newCount.toString());
-          }
-          return newCount;
         });
         
         // Mark this message as notified
