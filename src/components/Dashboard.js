@@ -704,6 +704,43 @@ const Dashboard = () => {
     return () => clearInterval(interval);
   }, []);
 
+  // Create default completed project for Jerry Bars if needed
+  useEffect(() => {
+    if (customerData && customerData.email === 'billybars07@gmail.com' && !customerData.completedProjects) {
+      console.log('🔄 Creating default completed project for Jerry Bars');
+      const defaultCompletedProject = {
+        id: Date.now(),
+        name: 'Test Package',
+        status: 'Completed',
+        startDate: '2025-07-31',
+        completedDate: '2025-07-31T16:40:50.075Z',
+        estimatedDuration: '14 days',
+        type: 'Test Service',
+        category: 'Test',
+        deliverables: ['Test Deliverables'],
+        progress: 100
+      };
+      
+      const updatedCustomerData = {
+        ...customerData,
+        completedProjects: [defaultCompletedProject]
+      };
+      
+      setCustomerData(updatedCustomerData);
+      localStorage.setItem('customerData', JSON.stringify(updatedCustomerData));
+      
+      // Sync to backend
+      fetch('https://rankly360.up.railway.app/api/sync-data', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: 'billybars07@gmail.com',
+          customerData: updatedCustomerData
+        })
+      });
+    }
+  }, [customerData]);
+
   const handleGetStarted = () => {
     navigate('/packages');
   };
@@ -2025,51 +2062,7 @@ const Dashboard = () => {
 
         
         {/* Completed Projects - Always show this section */}
-        {(() => {
-          console.log('🔍 Checking for completed projects...');
-          console.log('📊 customerData:', customerData);
-          console.log('📊 completedProjects:', customerData?.completedProjects);
-          console.log('📊 completedProjects length:', customerData?.completedProjects?.length);
-          
-          // If no completed projects but we have customer data, create a default completed project for Jerry Bars
-          if (!customerData?.completedProjects && customerData?.email === 'billybars07@gmail.com') {
-            console.log('🔄 Creating default completed project for Jerry Bars');
-            const defaultCompletedProject = {
-              id: Date.now(),
-              name: 'Test Package',
-              status: 'Completed',
-              startDate: '2025-07-31',
-              completedDate: '2025-07-31T16:40:50.075Z',
-              estimatedDuration: '14 days',
-              type: 'Test Service',
-              category: 'Test',
-              deliverables: ['Test Deliverables'],
-              progress: 100
-            };
-            
-            const updatedCustomerData = {
-              ...customerData,
-              completedProjects: [defaultCompletedProject]
-            };
-            
-            setCustomerData(updatedCustomerData);
-            localStorage.setItem('customerData', JSON.stringify(updatedCustomerData));
-            
-            // Sync to backend
-            fetch('https://rankly360.up.railway.app/api/sync-data', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                email: 'billybars07@gmail.com',
-                customerData: updatedCustomerData
-              })
-            });
-            
-            return true;
-          }
-          
-          return customerData?.completedProjects && customerData.completedProjects.length > 0;
-        })() && (
+        {customerData?.completedProjects && customerData.completedProjects.length > 0 && (
           <div className="mt-6">
             <div className="bg-[#1a1a1a] rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-green-500/20">
               <h2 className="text-lg sm:text-xl font-bold mb-4 flex items-center gap-2">
