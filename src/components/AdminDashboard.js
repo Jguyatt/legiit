@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { 
   Users, DollarSign, AlertCircle, RefreshCw, LogOut, 
   Eye, XCircle, CheckCircle, Clock, BarChart3, Settings,
-  TrendingUp, AlertTriangle, MessageSquare, Send
+  TrendingUp, MessageSquare, Send
 } from 'lucide-react';
 import adminAuth from '../utils/adminAuth';
 
@@ -12,8 +12,7 @@ const AdminDashboard = () => {
   const [clients, setClients] = useState([]);
   const [users, setUsers] = useState([]);
   const [onboardingSubmissions, setOnboardingSubmissions] = useState([]);
-  const [cancellationRequests, setCancellationRequests] = useState([]);
-  const [deletedUsers, setDeletedUsers] = useState([]);
+
   const [selectedSubmission, setSelectedSubmission] = useState(null);
   const [showSubmissionModal, setShowSubmissionModal] = useState(false);
   const [selectedOnboardingReview, setSelectedOnboardingReview] = useState(null);
@@ -238,18 +237,13 @@ const AdminDashboard = () => {
         setOnboardingSubmissions(allSubmissions);
         
         // Load cancellation requests
-        const cancellationResponse = await fetch('https://rankly360.up.railway.app/api/cancellation-requests');
-        const cancellationData = await cancellationResponse.json();
-        
-        if (cancellationData.success) {
-          setCancellationRequests(cancellationData.requests || []);
-        }
+
         
         console.log('✅ Admin dashboard data loaded successfully');
         console.log('📊 Active clients:', backendCustomers.length);
         console.log('📊 Total users:', allUsers.length);
         console.log('📊 Onboarding submissions:', allSubmissions.length);
-        console.log('📊 Cancellation requests:', cancellationData.requests?.length || 0);
+
         
       } else {
         console.error('❌ Failed to load admin dashboard data:', data.error);
@@ -560,80 +554,7 @@ const AdminDashboard = () => {
     }
   };
 
-  const handleCancellationRequest = async (requestId, action) => {
-    if (!window.confirm(`Are you sure you want to ${action} this cancellation request?`)) {
-      return;
-    }
-    
-    try {
-      console.log(`🔄 Processing cancellation request: ${requestId} -> ${action}`);
-      
-      const response = await fetch('https://rankly360.up.railway.app/api/process-cancellation', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          requestId,
-          action, // 'approve' or 'deny'
-          adminName: 'Admin'
-        })
-      });
-      
-      const result = await response.json();
-      
-      if (response.ok && result.success) {
-        console.log('✅ Cancellation request processed successfully:', result);
-        
-        // Update local state
-        setCancellationRequests(prevRequests => {
-          return prevRequests.map(request => {
-            if (request.id === requestId) {
-              return {
-                ...request,
-                status: action === 'approve' ? 'approved' : 'denied',
-                reviewedBy: 'Admin',
-                reviewedDate: new Date().toISOString()
-              };
-            }
-            return request;
-          });
-        });
-        
-        // If approved, dispatch event to notify customer dashboard
-        if (action === 'approve') {
-          const request = cancellationRequests.find(req => req.id === requestId);
-          if (request) {
-            window.dispatchEvent(new CustomEvent('projectCancelled', { 
-              detail: { customerEmail: request.customerEmail, projectId: request.projectId } 
-            }));
-          }
-        }
-        
-        // Show success notification
-        const notification = document.createElement('div');
-        notification.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 animate-pulse';
-        notification.textContent = `✅ Cancellation request ${action}d successfully`;
-        document.body.appendChild(notification);
-        
-        setTimeout(() => {
-          if (notification.parentNode) {
-            notification.parentNode.removeChild(notification);
-          }
-        }, 3000);
-        
-        alert(`✅ Cancellation request ${action}d successfully`);
-        
-      } else {
-        console.error('❌ Failed to process cancellation request:', response.status, result);
-        alert(`Error processing cancellation request: ${result.error || 'Unknown error'}`);
-      }
-      
-    } catch (error) {
-      console.error('❌ Network error processing cancellation request:', error);
-      alert('Network error processing cancellation request. Please try again.');
-    }
-  };
+
 
   if (loading) {
     return (
@@ -706,9 +627,7 @@ const AdminDashboard = () => {
             { id: 'overview', label: 'Overview', icon: BarChart3 },
             { id: 'users', label: 'Users', icon: Users },
             { id: 'current-projects', label: 'Current Projects', icon: TrendingUp },
-            { id: 'completed-projects', label: 'Completed Projects', icon: CheckCircle },
-            { id: 'cancellation-requests', label: 'Cancellation Requests', icon: AlertTriangle },
-            { id: 'deleted-users', label: 'Deleted Users', icon: XCircle }
+            { id: 'completed-projects', label: 'Completed Projects', icon: CheckCircle }
           ].map((tab) => (
             <button
               key={tab.id}
@@ -787,20 +706,7 @@ const AdminDashboard = () => {
                 </div>
               </div>
 
-              <div 
-                onClick={() => setActiveTab('deleted-users')}
-                className="bg-white/5 backdrop-blur-sm rounded-xl p-4 sm:p-6 border border-white/10 cursor-pointer hover:bg-white/10 transition-all duration-200 hover:scale-105"
-              >
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    <XCircle className="h-6 w-6 sm:h-8 sm:w-8 text-red-400" />
-                  </div>
-                  <div className="ml-3 sm:ml-4">
-                    <p className="text-xs sm:text-sm font-medium text-gray-400">Deleted Users</p>
-                    <p className="text-lg sm:text-2xl font-bold text-white">{deletedUsers.length}</p>
-                  </div>
-                </div>
-              </div>
+
             </div>
 
             {/* Onboarding Approval Section */}
@@ -1102,129 +1008,9 @@ const AdminDashboard = () => {
           </motion.div>
         )}
 
-        {activeTab === 'cancellation-requests' && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="bg-white/5 backdrop-blur-sm rounded-xl border border-white/10"
-          >
-            <div className="px-6 py-4 border-b border-white/10">
-              <h3 className="text-lg font-medium text-white">Cancellation Requests ({cancellationRequests.length})</h3>
-              <p className="text-sm text-gray-400 mt-1">Requests for project cancellation</p>
-                        </div>
-            <div className="p-6">
-              <div className="space-y-4">
-                {cancellationRequests.map((request) => (
-                  <div key={request.id} className="bg-white/5 rounded-lg p-4 border border-white/10">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h4 className="font-medium text-white">{request.customerName}</h4>
-                        <p className="text-sm text-gray-400">{request.customerEmail}</p>
-                        <p className="text-sm text-gray-400">Project: {request.projectName || 'N/A'}</p>
-                        <p className="text-xs text-gray-500">Requested: {new Date(request.submittedAt || request.submittedDate).toLocaleDateString()}</p>
-                      </div>
-                      <div className="text-right">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          request.status === 'pending'
-                            ? 'bg-yellow-100 text-yellow-800'
-                            : request.status === 'approved'
-                              ? 'bg-green-100 text-green-800'
-                              : 'bg-red-100 text-red-800'
-                        }`}>
-                          {request.status.replace('_', ' ').toUpperCase()}
-                          </span>
-                        </div>
-                      </div>
-                    <div className="mt-4 flex justify-end space-x-3">
-                      {request.status === 'pending' && (
-                        <>
-                          <button
-                            onClick={() => handleCancellationRequest(request.id, 'approve')}
-                            className="inline-flex items-center px-3 py-1.5 border border-green-500/20 rounded-md text-sm font-medium text-green-400 hover:bg-green-500/10 transition-colors"
-                          >
-                            <CheckCircle className="w-4 h-4 mr-1" />
-                            Approve
-                          </button>
-                            <button
-                            onClick={() => handleCancellationRequest(request.id, 'deny')}
-                            className="inline-flex items-center px-3 py-1.5 border border-red-500/20 rounded-md text-sm font-medium text-red-400 hover:bg-red-500/10 transition-colors"
-                            >
-                            <XCircle className="w-4 h-4 mr-1" />
-                            Deny
-                            </button>
-                        </>
-                      )}
-                      {request.status === 'approved' && (
-                        <button
-                          onClick={() => handleProjectCancellation(request.customerEmail, request.projectId)}
-                          className="inline-flex items-center px-3 py-1.5 border border-transparent rounded-md text-sm font-medium text-white bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 transition-colors"
-                        >
-                          <CheckCircle className="w-4 h-4 mr-1" />
-                          Project Cancelled
-                        </button>
-                      )}
-                      {request.status === 'denied' && (
-                        <span className="inline-flex items-center px-3 py-1.5 border border-red-500/20 rounded-md text-sm font-medium text-red-400">
-                          <XCircle className="w-4 h-4 mr-1" />
-                          Denied
-                                </span>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-          </div>
-          </motion.div>
-        )}
 
-        {activeTab === 'deleted-users' && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="bg-white/5 backdrop-blur-sm rounded-xl border border-white/10"
-          >
-            <div className="px-6 py-4 border-b border-white/10">
-              <h3 className="text-lg font-medium text-white">Deleted Users ({deletedUsers.length})</h3>
-              <p className="text-sm text-gray-400 mt-1">Users who have deleted their accounts</p>
-          </div>
-        <div className="p-6">
-              {deletedUsers.length === 0 ? (
-            <div className="text-center py-8">
-                  <XCircle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-400">No deleted users yet</p>
-            </div>
-          ) : (
-                <div className="space-y-4">
-                  {deletedUsers.map((deletedUser, index) => (
-                    <div key={index} className="bg-white/5 rounded-lg p-4 border border-white/10">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <h4 className="font-medium text-white">{deletedUser.email}</h4>
-                          <p className="text-sm text-gray-400">
-                            Deleted: {new Date(deletedUser.timestamp).toLocaleDateString('en-US', {
-                              year: 'numeric',
-                              month: 'long',
-                              day: 'numeric',
-                              hour: '2-digit',
-                              minute: '2-digit'
-                            })}
-                          </p>
-                    </div>
-                                          <div className="text-right">
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                            Deleted
-                          </span>
-                      </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-          </motion.div>
-        )}
+
+
       </div>
 
       {/* Customer Dashboard Modal */}
