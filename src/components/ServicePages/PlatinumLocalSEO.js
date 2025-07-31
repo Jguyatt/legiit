@@ -11,7 +11,8 @@ const features = [
   '+5 driving point directions',
   '+200 Bonus backlinks with Google Map CID hyperlinked anchor text',
   '+Safe Dripfed Links Indexing',
-  '+SEO Recommendations'
+  '+SEO Recommendations',
+  '+Secret Recipe'
 ];
 
 const benefits = [
