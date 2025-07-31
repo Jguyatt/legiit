@@ -543,20 +543,61 @@ const Dashboard = () => {
     return () => clearInterval(interval);
   }, [customerData]);
 
-  // Check for pending purchases on page load
-  useEffect(() => {
-    console.log('🔄 Checking for pending purchases on page load...');
-    const pendingPurchase = purchaseHandler.checkForPendingPurchases();
-    if (pendingPurchase) {
-      console.log('💰 Found pending purchase, updating dashboard...');
-      console.log('💰 Pending purchase data:', pendingPurchase);
-      console.log('💰 Active projects count:', pendingPurchase?.activeProjects?.length);
-      setCustomerData(pendingPurchase);
-      fixProjectDurations(pendingPurchase);
-    } else {
-      console.log('📊 No pending purchases found');
-    }
-  }, []);
+      // Check for pending purchases on page load
+    useEffect(() => {
+      console.log('🔄 Checking for pending purchases on page load...');
+      const pendingPurchase = purchaseHandler.checkForPendingPurchases();
+      if (pendingPurchase) {
+        console.log('💰 Found pending purchase, updating dashboard...');
+        console.log('💰 Pending purchase data:', pendingPurchase);
+        console.log('💰 Active projects count:', pendingPurchase?.activeProjects?.length);
+        setCustomerData(pendingPurchase);
+        fixProjectDurations(pendingPurchase);
+      } else {
+        console.log('📊 No pending purchases found');
+      }
+      
+      // Also try to process any unprocessed purchases from localStorage
+      const userSession = userAuth.getSession();
+      if (userSession?.email) {
+        const unprocessedPurchases = JSON.parse(localStorage.getItem('unprocessedPurchases') || '[]');
+        if (unprocessedPurchases.length > 0) {
+          console.log('🔄 Found unprocessed purchases, attempting to process...');
+          unprocessedPurchases.forEach(async (purchase) => {
+            try {
+              const response = await fetch('https://rankly360.up.railway.app/api/manual-purchase', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  email: userSession.email,
+                  packageName: purchase.packageName,
+                  amount: purchase.amount,
+                  sessionId: purchase.sessionId
+                })
+              });
+              
+              if (response.ok) {
+                console.log('✅ Unprocessed purchase processed successfully');
+                // Remove from unprocessed list
+                const updatedPurchases = unprocessedPurchases.filter(p => p.sessionId !== purchase.sessionId);
+                localStorage.setItem('unprocessedPurchases', JSON.stringify(updatedPurchases));
+                
+                // Refresh customer data
+                const backendData = await syncWithBackend(userSession.email);
+                if (backendData) {
+                  setCustomerData(backendData);
+                  fixProjectDurations(backendData);
+                }
+              }
+            } catch (error) {
+              console.error('❌ Failed to process unprocessed purchase:', error);
+            }
+          });
+        }
+      }
+    }, []);
 
   // Auto-refresh customer data every 30 seconds to catch new purchases
   useEffect(() => {
@@ -1193,29 +1234,7 @@ const Dashboard = () => {
                 </svg>
                 {loading ? 'Refreshing...' : 'Refresh Data'}
               </button>
-              <button
-                onClick={async () => {
-                  console.log('🔍 Manual debug: Checking customer data...');
-                  const userSession = userAuth.getSession();
-                  console.log('👤 User session:', userSession);
-                  
-                  if (userSession?.email) {
-                    console.log('🔄 Manual debug: Syncing with backend...');
-                    const backendData = await syncWithBackend(userSession.email);
-                    console.log('📊 Backend data:', backendData);
-                    console.log('📊 Active projects count:', backendData?.activeProjects?.length);
-                    
-                    if (backendData) {
-                      setCustomerData(backendData);
-                      fixProjectDurations(backendData);
-                      console.log('✅ Manual debug: Updated customer data');
-                    }
-                  }
-                }}
-                className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors duration-200 text-sm font-medium ml-2"
-              >
-                Debug Purchase
-              </button>
+
             </div>
           </div>
             

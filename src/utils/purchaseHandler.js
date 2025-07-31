@@ -174,6 +174,19 @@ export const purchaseHandler = {
     }));
 
     console.log('✅ Purchase successfully processed for:', customerEmail);
+    
+    // Also store as unprocessed purchase as fallback for webhook failures
+    const unprocessedPurchases = JSON.parse(localStorage.getItem('unprocessedPurchases') || '[]');
+    unprocessedPurchases.push({
+      email: customerEmail,
+      packageName: packageName,
+      amount: purchaseData.amount,
+      sessionId: purchaseData.stripeSessionId,
+      timestamp: Date.now()
+    });
+    localStorage.setItem('unprocessedPurchases', JSON.stringify(unprocessedPurchases));
+    console.log('💾 Stored as unprocessed purchase for fallback');
+    
     return customerData;
   },
 
