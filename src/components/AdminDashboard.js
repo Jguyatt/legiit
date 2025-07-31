@@ -335,9 +335,14 @@ const AdminDashboard = () => {
       await updateCustomerTimelineStep(email, stepKey, action);
       
       // Show success message
+      const stepDisplayName = stepKey
+        .replace(/([A-Z])/g, ' $1')
+        .replace(/^./, str => str.toUpperCase())
+        .trim();
+      
       setSuccessMessages(prev => ({ 
         ...prev, 
-        [actionKey]: `${stepKey.replace(/([A-Z])/g, ' $1').trim()} ${action === 'completed' ? 'completed' : action === 'in_progress' ? 'started' : 'reset'} successfully!` 
+        [actionKey]: `${stepDisplayName} ${action === 'completed' ? 'completed' : action === 'in_progress' ? 'started' : 'reset'} successfully!` 
       }));
       
       // Clear success message after 3 seconds
@@ -1034,12 +1039,12 @@ const AdminDashboard = () => {
                           <div className="flex gap-2">
                             {/* Success/Error Messages */}
                             {successMessages[`${selectedSubmission.formData.email}-${step.key}-completed`] && (
-                              <div className="absolute -top-2 left-0 right-0 bg-green-500/20 text-green-400 text-xs p-2 rounded-md border border-green-500/30">
+                              <div className="absolute -top-8 left-0 right-0 bg-green-500/20 text-green-400 text-xs p-2 rounded-md border border-green-500/30 animate-in slide-in-from-top-2 duration-300 z-10">
                                 {successMessages[`${selectedSubmission.formData.email}-${step.key}-completed`]}
                               </div>
                             )}
                             {errorMessages[`${selectedSubmission.formData.email}-${step.key}-completed`] && (
-                              <div className="absolute -top-2 left-0 right-0 bg-red-500/20 text-red-400 text-xs p-2 rounded-md border border-red-500/30">
+                              <div className="absolute -top-8 left-0 right-0 bg-red-500/20 text-red-400 text-xs p-2 rounded-md border border-red-500/30 animate-in slide-in-from-top-2 duration-300 z-10">
                                 {errorMessages[`${selectedSubmission.formData.email}-${step.key}-completed`]}
                               </div>
                             )}
@@ -1069,12 +1074,12 @@ const AdminDashboard = () => {
                             {!isCompleted && (
                               <>
                                 {successMessages[`${selectedSubmission.formData.email}-${step.key}-in_progress`] && (
-                                  <div className="absolute -top-2 left-0 right-0 bg-green-500/20 text-green-400 text-xs p-2 rounded-md border border-green-500/30">
+                                  <div className="absolute -top-8 left-0 right-0 bg-green-500/20 text-green-400 text-xs p-2 rounded-md border border-green-500/30 animate-in slide-in-from-top-2 duration-300 z-10">
                                     {successMessages[`${selectedSubmission.formData.email}-${step.key}-in_progress`]}
                                   </div>
                                 )}
                                 {errorMessages[`${selectedSubmission.formData.email}-${step.key}-in_progress`] && (
-                                  <div className="absolute -top-2 left-0 right-0 bg-red-500/20 text-red-400 text-xs p-2 rounded-md border border-red-500/30">
+                                  <div className="absolute -top-8 left-0 right-0 bg-red-500/20 text-red-400 text-xs p-2 rounded-md border border-red-500/30 animate-in slide-in-from-top-2 duration-300 z-10">
                                     {errorMessages[`${selectedSubmission.formData.email}-${step.key}-in_progress`]}
                                   </div>
                                 )}
@@ -1106,12 +1111,12 @@ const AdminDashboard = () => {
                             {(isCompleted || isInProgress) && (
                               <>
                                 {successMessages[`${selectedSubmission.formData.email}-${step.key}-pending`] && (
-                                  <div className="absolute -top-2 left-0 right-0 bg-green-500/20 text-green-400 text-xs p-2 rounded-md border border-green-500/30">
+                                  <div className="absolute -top-8 left-0 right-0 bg-green-500/20 text-green-400 text-xs p-2 rounded-md border border-green-500/30 animate-in slide-in-from-top-2 duration-300 z-10">
                                     {successMessages[`${selectedSubmission.formData.email}-${step.key}-pending`]}
                                   </div>
                                 )}
                                 {errorMessages[`${selectedSubmission.formData.email}-${step.key}-pending`] && (
-                                  <div className="absolute -top-2 left-0 right-0 bg-red-500/20 text-red-400 text-xs p-2 rounded-md border border-red-500/30">
+                                  <div className="absolute -top-8 left-0 right-0 bg-red-500/20 text-red-400 text-xs p-2 rounded-md border border-red-500/30 animate-in slide-in-from-top-2 duration-300 z-10">
                                     {errorMessages[`${selectedSubmission.formData.email}-${step.key}-pending`]}
                                   </div>
                                 )}
