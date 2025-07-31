@@ -16,20 +16,12 @@ const features = [
     desc: 'We guarantee that your business Name, Address, and Phone number are consistent across all listings, which is critical for local SEO and trust.'
   },
   {
-    label: 'Logo included for brand authority',
-    desc: 'Your business logo is included in each listing, boosting your brand authority and recognition across the web.'
-  },
-  {
     label: 'Search engine-friendly placements',
     desc: 'We only use trusted, search engine-friendly directories known to positively impact local rankings.'
   },
   {
     label: 'Proven ranking improvements',
     desc: 'Our citation strategy is tested and proven to deliver measurable improvements in Google Maps and organic search rankings.'
-  },
-  {
-    label: 'Full report with login access (Google Sheet)',
-    desc: 'You receive a complete Google Sheet report with all your listings, login details, and status for full transparency.'
   }
 ];
 
