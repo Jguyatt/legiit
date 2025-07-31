@@ -285,7 +285,7 @@ const Dashboard = () => {
       let updated = false;
       data.activeProjects.forEach(project => {
         if (project.estimatedDuration === '30-45 days') {
-          project.estimatedDuration = '30 days';
+          project.estimatedDuration = '14 days';
           updated = true;
         }
       });
