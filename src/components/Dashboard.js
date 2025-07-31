@@ -1234,39 +1234,7 @@ const Dashboard = () => {
                 </svg>
                 {loading ? 'Refreshing...' : 'Refresh Data'}
               </button>
-              <button
-                onClick={async () => {
-                  const userSession = userAuth.getSession();
-                  if (userSession?.email) {
-                    try {
-                      const response = await fetch('https://rankly360.up.railway.app/api/manual-purchase', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                          email: userSession.email,
-                          packageName: 'Test Package',
-                          amount: 1,
-                          sessionId: 'test_' + Date.now()
-                        })
-                      });
-                      if (response.ok) {
-                        console.log('✅ Test purchase processed');
-                        // Refresh data
-                        const backendData = await syncWithBackend(userSession.email);
-                        if (backendData) {
-                          setCustomerData(backendData);
-                          fixProjectDurations(backendData);
-                        }
-                      }
-                    } catch (error) {
-                      console.error('❌ Test failed:', error);
-                    }
-                  }
-                }}
-                className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors text-sm font-medium ml-2"
-              >
-                Test Purchase
-              </button>
+
 
             </div>
           </div>
