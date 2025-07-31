@@ -1,111 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React from 'react';
+import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { trackVideoView, trackButtonClick } from '../utils/metaPixel';
 
-const HERO_BG_GRADIENT = 'bg-gradient-to-b from-[#0f0f1a] to-[#09090f]';
+const HERO_BG_GRADIENT = 'bg-gradient-to-b from-[#0a0a0f] to-[#1a1a2e]';
 const HEADLINE = 'Get Found on Google Maps';
 const SUBHEAD = 'Local SEO services that help small businesses rank higher and get more customers.';
 
 const fadeIn = (delay = 0) => ({
-  initial: { opacity: 0, y: 24 },
+  initial: { opacity: 0, y: 30 },
   animate: { opacity: 1, y: 0 },
   transition: { duration: 0.8, delay },
 });
 
-const twinkleAnimation = {
-  animate: {
-    opacity: [0.3, 1, 0.3],
-    scale: [0.8, 1.2, 0.8],
-  },
-  transition: {
-    duration: 2,
-    repeat: Infinity,
-    ease: "easeInOut"
-  }
-};
-
-const BADGE_MESSAGES = [
-  '✓ 200+ Local Businesses',
-  '✓ 30-60 Day Results',
-  '✓ Google Maps Optimization',
-  '✓ Local SEO Experts',
-  '✓ One-Time Pricing',
-  '✓ Small Business Focused',
-];
-
 const Hero = () => {
   const navigate = useNavigate();
-  const [badgeIndex, setBadgeIndex] = useState(0);
-  const [typedText, setTypedText] = useState('');
-  const [showCursor, setShowCursor] = useState(true);
-  const [showResults, setShowResults] = useState(false);
-
-  // Badge rotation effect
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setBadgeIndex((prev) => (prev + 1) % BADGE_MESSAGES.length);
-    }, 3000);
-    return () => clearInterval(interval);
-  }, []);
-
-  // Typing animation for search term
-  useEffect(() => {
-    const searchTerm = 'dentist near me';
-    let currentIndex = 0;
-    
-    const typeInterval = setInterval(() => {
-      if (currentIndex <= searchTerm.length) {
-        setTypedText(searchTerm.slice(0, currentIndex));
-        currentIndex++;
-      } else {
-        clearInterval(typeInterval);
-        // Start cursor blink after typing is done
-        setTimeout(() => {
-          setShowCursor(false);
-          // Show results after typing
-          setTimeout(() => setShowResults(true), 500);
-        }, 1000);
-      }
-    }, 100); // Speed of typing
-
-    return () => clearInterval(typeInterval);
-  }, []);
-
-  // Cursor blink effect
-  useEffect(() => {
-    if (typedText === 'dentist near me') {
-      const cursorInterval = setInterval(() => {
-        setShowCursor(prev => !prev);
-      }, 500);
-      return () => clearInterval(cursorInterval);
-    }
-  }, [typedText]);
-
-  const searchResults = [
-    {
-      title: 'Your Business',
-      url: 'yourbusiness.com',
-      rating: 4.9,
-      reviews: 234,
-      snippet: 'Your dental practice. Professional care, modern facilities, accepting new patients. Call today for appointments.',
-      isHighlighted: true
-    },
-    {
-      title: 'City Center Dental Group',
-      url: 'citycenterdental.com',
-      rating: 4.8,
-      reviews: 127,
-      snippet: 'Comprehensive dental care in downtown. Cosmetic dentistry, emergency care, family-friendly environment.'
-    },
-    {
-      title: 'Modern Downtown Dentistry',
-      url: 'moderndowntowndental.com',
-      rating: 4.6,
-      reviews: 89,
-      snippet: 'Advanced dental technology and gentle care. Accepting new patients, flexible payment plans available.'
-    }
-  ];
 
   return (
     <section
@@ -113,23 +22,37 @@ const Hero = () => {
       className={`relative min-h-screen flex items-center justify-center ${HERO_BG_GRADIENT} overflow-hidden px-4`}
       style={{ fontFamily: "'Inter', 'Poppins', system-ui, sans-serif" }}
     >
-      {/* Enhanced Background with Professional Effects */}
+      {/* Abstract Cave-like Background */}
       <div className="absolute inset-0 pointer-events-none select-none z-0">
-        {/* Enhanced gradient background */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#0f0f1a] via-[#0a0a1a] to-[#0f0f1a]" />
+        {/* Base gradient */}
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0a0a0f] via-[#1a1a2e] to-[#0f0f1a]" />
         
-        {/* Professional glow effects */}
-        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[800px] h-[200px] md:w-[1000px] md:h-[250px] rounded-full bg-gradient-to-t from-[#3abef9]/20 via-[#00ffff]/15 to-transparent blur-[80px]" />
-        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[150px] md:w-[800px] md:h-[200px] rounded-full bg-gradient-to-t from-[#3abef9]/25 via-[#00ffff]/20 to-transparent blur-[50px]" />
-        
-        {/* Subtle professional particles */}
+        {/* Cave-like depth layers */}
         <div className="absolute inset-0">
-          {[...Array(30)].map((_, i) => (
+          {/* Deep cave effect */}
+          <div className="absolute inset-0 bg-gradient-radial from-transparent via-[#0a0a0f]/50 to-[#0a0a0f] opacity-60" />
+          
+          {/* Cave entrance glow */}
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-gradient-to-b from-[#3abef9]/10 via-[#1e40af]/5 to-transparent blur-[100px]" />
+          
+          {/* Cave walls - subtle geometric patterns */}
+          <div className="absolute inset-0 opacity-20">
+            <div className="absolute left-0 top-0 w-1/3 h-full bg-gradient-to-r from-[#3abef9]/5 to-transparent" />
+            <div className="absolute right-0 top-0 w-1/3 h-full bg-gradient-to-l from-[#1e40af]/5 to-transparent" />
+          </div>
+          
+          {/* Cave floor reflection */}
+          <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-[#0a0a0f] via-[#1a1a2e]/50 to-transparent" />
+        </div>
+        
+        {/* Subtle floating particles - cave atmosphere */}
+        <div className="absolute inset-0">
+          {[...Array(15)].map((_, i) => (
             <motion.div
               key={i}
               animate={{ 
-                opacity: [0.03, 0.15, 0.03],
-                scale: [0.8, 1, 0.8]
+                opacity: [0.1, 0.3, 0.1],
+                y: [0, -20, 0]
               }}
               transition={{ 
                 duration: 8 + Math.random() * 4, 
@@ -137,133 +60,46 @@ const Hero = () => {
                 ease: "easeInOut",
                 delay: Math.random() * 8
               }}
-              className="absolute w-0.5 h-0.5 bg-white/15 rounded-full"
+              className="absolute w-1 h-1 bg-white/10 rounded-full"
               style={{
                 left: `${Math.random() * 100}%`,
                 top: `${Math.random() * 100}%`,
-                filter: 'blur(0.3px)'
+                filter: 'blur(0.5px)'
               }}
             />
           ))}
         </div>
         
-        {/* Professional floating elements */}
-        <div className="absolute inset-0">
-          {[...Array(20)].map((_, i) => (
-            <motion.div
-              key={i}
-              animate={{ 
-                opacity: [0.02, 0.08, 0.02],
-                y: [0, -8, 0]
-              }}
-              transition={{ 
-                duration: 10 + Math.random() * 8, 
-                repeat: Infinity, 
-                ease: "easeInOut",
-                delay: Math.random() * 10
-              }}
-              className="absolute w-0.3 h-0.3 bg-white/10 rounded-full"
-              style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                filter: 'blur(0.2px)'
-              }}
-            />
-          ))}
-        </div>
-
-        {/* Professional star field */}
-        <div className="absolute inset-0">
-          <motion.div 
-            {...twinkleAnimation}
-            transition={{ ...twinkleAnimation.transition, delay: 0 }}
-            className="absolute left-[15%] top-[20%] w-1 h-1 bg-white/60 rounded-full blur-[1px]" 
-          />
-          <motion.div 
-            {...twinkleAnimation}
-            transition={{ ...twinkleAnimation.transition, delay: 0.5 }}
-            className="absolute left-[25%] top-[15%] w-1.5 h-1.5 bg-[#3abef9]/80 rounded-full blur-[1.5px]" 
-          />
-          <motion.div 
-            {...twinkleAnimation}
-            transition={{ ...twinkleAnimation.transition, delay: 1 }}
-            className="absolute left-[35%] top-[25%] w-0.5 h-0.5 bg-white/40 rounded-full blur-[0.8px]" 
-          />
-          <motion.div 
-            {...twinkleAnimation}
-            transition={{ ...twinkleAnimation.transition, delay: 1.5 }}
-            className="absolute left-[45%] top-[10%] w-1 h-1 bg-white/30 rounded-full blur-[1px]" 
-          />
-          <motion.div 
-            {...twinkleAnimation}
-            transition={{ ...twinkleAnimation.transition, delay: 0.3 }}
-            className="absolute left-[65%] top-[18%] w-1.2 h-1.2 bg-[#00ffff]/70 rounded-full blur-[1.2px]" 
-          />
-          <motion.div 
-            {...twinkleAnimation}
-            transition={{ ...twinkleAnimation.transition, delay: 0.8 }}
-            className="absolute left-[75%] top-[22%] w-0.8 h-0.8 bg-white/50 rounded-full blur-[1px]" 
-          />
-          <motion.div 
-            {...twinkleAnimation}
-            transition={{ ...twinkleAnimation.transition, delay: 1.2 }}
-            className="absolute left-[85%] top-[12%] w-1.3 h-1.3 bg-[#3abef9]/60 rounded-full blur-[1.3px]" 
-          />
-        </div>
+        {/* Cave stalactites effect - top shadows */}
+        <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-[#0a0a0f] via-[#0a0a0f]/80 to-transparent" />
         
-        {/* Professional floating particles */}
-        <div className="absolute inset-0">
-          <motion.div 
-            animate={{ y: [-10, 10, -10], opacity: [0.2, 0.6, 0.2] }}
-            transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute left-[12%] top-[30%] w-0.5 h-0.5 bg-[#3abef9]/20 rounded-full"
-          />
-          <motion.div 
-            animate={{ y: [10, -10, 10], opacity: [0.3, 0.7, 0.3] }}
-            transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-            className="absolute left-[70%] top-[25%] w-0.3 h-0.3 bg-white/20 rounded-full"
-          />
-          <motion.div 
-            animate={{ y: [-5, 15, -5], opacity: [0.1, 0.5, 0.1] }}
-            transition={{ duration: 8, repeat: Infinity, ease: "easeInOut", delay: 2 }}
-            className="absolute left-[90%] top-[40%] w-0.4 h-0.4 bg-[#00ffff]/15 rounded-full"
-          />
-        </div>
+        {/* Professional glow accents */}
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[200px] bg-gradient-to-t from-[#3abef9]/15 via-[#1e40af]/10 to-transparent blur-[80px]" />
       </div>
 
-      {/* Enhanced Content - Moved to Left Side */}
+      {/* Main Content */}
       <div className="relative z-10 w-full max-w-6xl mx-auto flex flex-col lg:flex-row items-center justify-between px-4">
         
         {/* Left Side Content */}
         <div className="w-full lg:w-1/2 flex flex-col items-center lg:items-start text-center lg:text-left mb-8 lg:mb-0">
           
-          {/* Professional Badge with Enhanced Styling */}
+          {/* Professional Badge - Static */}
           <motion.div
             {...fadeIn(0.1)}
             className="mb-8"
           >
-            <div className="relative flex items-center justify-center">
-              <AnimatePresence mode="wait">
-                <motion.span
-                  key={badgeIndex}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.8, ease: "easeInOut" }}
-                  className="inline-block px-6 py-3 rounded-full bg-gradient-to-r from-gray-800/90 to-gray-700/90 text-gray-200 text-sm font-semibold tracking-wide border border-gray-600/50 backdrop-blur-md relative z-10 max-w-[90vw] sm:max-w-none shadow-lg"
-                  style={{
-                    letterSpacing: '0.05em',
-                    fontFamily: 'Poppins, Inter, system-ui, sans-serif',
-                    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)'
-                  }}
-                >
-                  {BADGE_MESSAGES[badgeIndex]}
-                </motion.span>
-              </AnimatePresence>
+            <div className="inline-block px-6 py-3 rounded-full bg-gradient-to-r from-gray-800/90 to-gray-700/90 text-gray-200 text-sm font-semibold tracking-wide border border-gray-600/50 backdrop-blur-md shadow-lg"
+              style={{
+                letterSpacing: '0.05em',
+                fontFamily: 'Poppins, Inter, system-ui, sans-serif',
+                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)'
+              }}
+            >
+              ✓ 200+ Local Businesses Helped
             </div>
           </motion.div>
 
-          {/* Enhanced Headline with Thin Text */}
+          {/* Clean Headline */}
           <motion.h1
             {...fadeIn(0.2)}
             className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-light text-white mb-6 leading-tight tracking-tight px-4"
@@ -275,7 +111,7 @@ const Hero = () => {
             {HEADLINE}
           </motion.h1>
 
-          {/* Enhanced Subheadline with Thin Text */}
+          {/* Clean Subheadline */}
           <motion.p
             {...fadeIn(0.35)}
             className="text-lg sm:text-xl md:text-2xl text-gray-300 mb-10 max-w-3xl mx-auto font-light px-4 leading-relaxed"
@@ -287,7 +123,7 @@ const Hero = () => {
             {SUBHEAD}
           </motion.p>
 
-          {/* Enhanced CTA Buttons with Professional Styling */}
+          {/* Clean CTA Buttons */}
           <motion.div {...fadeIn(0.5)} className="flex flex-col sm:flex-row gap-4 items-center justify-center lg:justify-start px-4 w-full mb-8 sm:mb-12">
             <button
               onClick={() => {
@@ -319,10 +155,6 @@ const Hero = () => {
                   <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
                 </svg>
               </div>
-              
-              {/* Sparkle effects */}
-              <div className="absolute -top-2 -left-2 w-3 h-3 sm:w-4 sm:h-4 bg-yellow-400 rounded-full opacity-0 group-hover:opacity-100 group-hover:animate-ping transition-opacity duration-300"></div>
-              <div className="absolute -bottom-2 -right-2 w-2 h-2 sm:w-3 sm:h-3 bg-blue-400 rounded-full opacity-0 group-hover:opacity-100 group-hover:animate-ping transition-opacity duration-300 delay-100"></div>
             </button>
             
             <button
@@ -420,16 +252,16 @@ const Hero = () => {
           </motion.div>
         </div>
 
-        {/* Right Side - SEO Animation Widget */}
+        {/* Right Side - Clean SEO Widget */}
         <div className="w-full lg:w-1/2 flex justify-center lg:justify-end">
           <div className="w-80 md:w-96">
             <motion.div
               initial={{ opacity: 0, x: 100 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8, delay: 1 }}
+              transition={{ duration: 0.8, delay: 0.5 }}
               className="bg-white rounded-lg shadow-2xl border border-gray-200 overflow-hidden"
             >
-              {/* Google Header with Typing Animation */}
+              {/* Google Header */}
               <div className="flex items-center gap-3 p-3 border-b border-gray-200">
                 <div className="flex gap-1">
                   <div className="w-3 h-3 bg-red-500 rounded-full"></div>
@@ -440,26 +272,43 @@ const Hero = () => {
                   <svg className="w-4 h-4 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
                   </svg>
-                  <motion.span 
-                    className="text-sm text-gray-700 font-medium"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 0.5, delay: 0.5 }}
-                  >
-                    {typedText}
-                    {showCursor && <span className="inline-block w-0.5 h-4 bg-gray-700 ml-0.5 animate-pulse"></span>}
-                  </motion.span>
+                  <span className="text-sm text-gray-700 font-medium">
+                    dentist near me
+                  </span>
                 </div>
               </div>
 
-              {/* Search Results - All 3 Results */}
-              <div className="p-4 space-y-3 relative">
-                {searchResults.map((result, index) => (
+              {/* Search Results */}
+              <div className="p-4 space-y-3">
+                {[
+                  {
+                    title: 'Your Business',
+                    url: 'yourbusiness.com',
+                    rating: 4.9,
+                    reviews: 234,
+                    snippet: 'Your dental practice. Professional care, modern facilities, accepting new patients. Call today for appointments.',
+                    isHighlighted: true
+                  },
+                  {
+                    title: 'City Center Dental Group',
+                    url: 'citycenterdental.com',
+                    rating: 4.8,
+                    reviews: 127,
+                    snippet: 'Comprehensive dental care in downtown. Cosmetic dentistry, emergency care, family-friendly environment.'
+                  },
+                  {
+                    title: 'Modern Downtown Dentistry',
+                    url: 'moderndowntowndental.com',
+                    rating: 4.6,
+                    reviews: 89,
+                    snippet: 'Advanced dental technology and gentle care. Accepting new patients, flexible payment plans available.'
+                  }
+                ].map((result, index) => (
                   <motion.div
                     key={index}
                     initial={{ opacity: 0, y: 20 }}
-                    animate={showResults ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-                    transition={{ duration: 0.6, delay: index * 0.2 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: 0.8 + index * 0.2 }}
                     className={`p-4 rounded-lg border relative ${
                       result.isHighlighted ? 'bg-purple-50 border-purple-200 shadow-lg' : 'bg-white border-gray-100'
                     }`}
@@ -504,7 +353,7 @@ const Hero = () => {
                       </div>
                       
                       {/* Stats for Your Business */}
-                      {result.isHighlighted && showResults && (
+                      {result.isHighlighted && (
                         <div className="flex flex-col gap-2 ml-4">
                           <motion.div
                             initial={{ opacity: 0, scale: 0.8, x: 20 }}
@@ -552,23 +401,16 @@ const Hero = () => {
                     </div>
                   </motion.div>
                 ))}
-
-                {/* Removed Magic Wand Effect */}
-                {/* Removed Flying Result with Sparkle Trail */}
               </div>
 
-              {/* SEO Metrics Bar - More Realistic */}
+              {/* SEO Metrics Bar */}
               <div className="bg-gray-50 p-3 border-t border-gray-200">
                 <div className="flex justify-between items-center text-xs">
                   <span className="text-gray-600 font-medium">Google Search Console</span>
-                  <motion.div
-                    animate={{ scale: [1, 1.1, 1] }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                    className="flex items-center gap-1"
-                  >
-                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                  <div className="flex items-center gap-1">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                     <span className="text-green-600 font-medium">Live Data</span>
-                  </motion.div>
+                  </div>
                 </div>
               </div>
             </motion.div>
@@ -576,8 +418,8 @@ const Hero = () => {
         </div>
       </div>
       
-      {/* Enhanced bottom gradient fade */}
-      <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-b from-transparent to-[#0f0f1a] pointer-events-none z-20" />
+      {/* Bottom gradient fade */}
+      <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-b from-transparent to-[#0a0a0f] pointer-events-none z-20" />
     </section>
   );
 };
