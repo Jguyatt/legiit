@@ -280,6 +280,25 @@ const Dashboard = () => {
         } else {
           console.log('❌ Customer not found in backend data for email:', email);
           console.log('📊 Available customers:', Object.keys(result.customers));
+          
+          // Check if we have local data that needs to be synced
+          const localData = JSON.parse(localStorage.getItem('customerData') || 'null');
+          if (localData && localData.email === email) {
+            console.log('🔄 Found local data, syncing to backend...');
+            await fetch('https://rankly360.up.railway.app/api/sync-data', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                email: email,
+                customerData: localData
+              })
+            });
+            console.log('✅ Local data synced to backend');
+            setCustomerData(localData);
+            return localData;
+          }
         }
       }
     } catch (error) {
@@ -1344,30 +1363,7 @@ const Dashboard = () => {
                 {loading ? 'Refreshing...' : 'Refresh Data'}
               </button>
               
-              {/* Debug button to check backend data */}
-              <button
-                onClick={async () => {
-                  const userSession = userAuth.getSession();
-                  if (userSession?.email) {
-                    console.log('🔍 Debug: Checking backend data for:', userSession.email);
-                    try {
-                      const response = await fetch('https://rankly360.up.railway.app/api/all-customers');
-                      const result = await response.json();
-                      console.log('🔍 Debug: All backend customers:', result);
-                      console.log('🔍 Debug: Customer keys:', Object.keys(result.customers || {}));
-                      console.log('🔍 Debug: Customer emails:', Object.values(result.customers || {}).map(c => c.email));
-                    } catch (error) {
-                      console.error('🔍 Debug: Error fetching backend data:', error);
-                    }
-                  }
-                }}
-                className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors duration-200 text-sm font-medium"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                Debug Data
-              </button>
+
 
 
 
