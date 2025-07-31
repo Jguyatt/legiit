@@ -45,22 +45,43 @@ const Dashboard = () => {
 
   // Load notification state from localStorage on component mount
   useEffect(() => {
-    const savedNotifications = localStorage.getItem('rankly360_notifications');
-    const savedUnreadCount = localStorage.getItem('rankly360_unreadCount');
-    const savedNotifiedMessages = localStorage.getItem('rankly360_notifiedMessages');
-    const savedLastNotificationCheck = localStorage.getItem('rankly360_lastNotificationCheck');
-    
-    if (savedNotifications) {
-      setNotifications(JSON.parse(savedNotifications));
-    }
-    if (savedUnreadCount) {
-      setUnreadCount(parseInt(savedUnreadCount));
-    }
-    if (savedNotifiedMessages) {
-      setNotifiedMessages(new Set(JSON.parse(savedNotifiedMessages)));
-    }
-    if (savedLastNotificationCheck) {
-      setLastNotificationCheck(parseInt(savedLastNotificationCheck));
+    const userSession = userAuth.getSession();
+    if (userSession?.email) {
+      const userEmail = userSession.email;
+      const notificationsKey = `rankly360_notifications_${userEmail}`;
+      const unreadCountKey = `rankly360_unread_count_${userEmail}`;
+      const notifiedMessagesKey = `rankly360_notified_messages_${userEmail}`;
+      const lastNotificationCheckKey = `rankly360_last_notification_check_${userEmail}`;
+      
+      // For new users, clear any old global notification data
+      if (!localStorage.getItem(notificationsKey)) {
+        console.log('🧹 Clearing old global notification data for new user:', userEmail);
+        localStorage.removeItem('rankly360_notifications');
+        localStorage.removeItem('rankly360_unreadCount');
+        localStorage.removeItem('rankly360_notifiedMessages');
+        localStorage.removeItem('rankly360_lastNotificationCheck');
+        localStorage.removeItem('rankly360_chat_messages');
+        localStorage.removeItem('rankly360_chat_messages_tryranklyai@gmail.com');
+        localStorage.removeItem('rankly360_chat_messages_billybars07@gmail.com');
+      }
+      
+      const savedNotifications = localStorage.getItem(notificationsKey);
+      const savedUnreadCount = localStorage.getItem(unreadCountKey);
+      const savedNotifiedMessages = localStorage.getItem(notifiedMessagesKey);
+      const savedLastNotificationCheck = localStorage.getItem(lastNotificationCheckKey);
+      
+      if (savedNotifications) {
+        setNotifications(JSON.parse(savedNotifications));
+      }
+      if (savedUnreadCount) {
+        setUnreadCount(parseInt(savedUnreadCount));
+      }
+      if (savedNotifiedMessages) {
+        setNotifiedMessages(new Set(JSON.parse(savedNotifiedMessages)));
+      }
+      if (savedLastNotificationCheck) {
+        setLastNotificationCheck(parseInt(savedLastNotificationCheck));
+      }
     }
   }, []);
 
@@ -132,14 +153,20 @@ const Dashboard = () => {
         
         setNotifications(prev => {
           const updatedNotifications = [newNotification, ...prev];
-          localStorage.setItem('rankly360_notifications', JSON.stringify(updatedNotifications));
+          const userSession = userAuth.getSession();
+          if (userSession?.email) {
+            localStorage.setItem(`rankly360_notifications_${userSession.email}`, JSON.stringify(updatedNotifications));
+          }
           return updatedNotifications;
         });
         
         // Update unread count
         setUnreadCount(prev => {
           const newCount = prev + 1;
-          localStorage.setItem('rankly360_unreadCount', newCount.toString());
+          const userSession = userAuth.getSession();
+          if (userSession?.email) {
+            localStorage.setItem(`rankly360_unread_count_${userSession.email}`, newCount.toString());
+          }
           return newCount;
         });
         
@@ -654,10 +681,13 @@ const Dashboard = () => {
     setUnreadCount(0);
     setNotifiedMessages(new Set());
     setLastNotificationCheck(null);
-    localStorage.setItem('rankly360_notifications', JSON.stringify([]));
-    localStorage.setItem('rankly360_unreadCount', '0');
-    localStorage.setItem('rankly360_notifiedMessages', JSON.stringify([]));
-    localStorage.setItem('rankly360_lastNotificationCheck', null);
+    const userSession = userAuth.getSession();
+    if (userSession?.email) {
+      localStorage.setItem(`rankly360_notifications_${userSession.email}`, JSON.stringify([]));
+      localStorage.setItem(`rankly360_unread_count_${userSession.email}`, '0');
+      localStorage.setItem(`rankly360_notified_messages_${userSession.email}`, JSON.stringify([]));
+      localStorage.setItem(`rankly360_last_notification_check_${userSession.email}`, null);
+    }
   };
 
   const loadChatMessages = async () => {
@@ -1196,26 +1226,7 @@ const Dashboard = () => {
                 <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
               
-              {/* Test button for debugging */}
-              <button
-                onClick={() => {
-                  console.log('🧪 Testing purchase flow...');
-                  const testPurchaseData = {
-                    customerEmail: 'tryranklyai@gmail.com',
-                    customerName: 'Jerry',
-                    packageName: 'Test Service',
-                    amount: 99,
-                    stripeSessionId: 'test_session_' + Date.now(),
-                    stripeCustomerId: 'cus_test_' + Date.now()
-                  };
-                  console.log('🧪 Test purchase data:', testPurchaseData);
-                  const result = purchaseHandler.handleSuccessfulPurchase(testPurchaseData);
-                  console.log('🧪 Test purchase result:', result);
-                }}
-                className="mt-4 bg-red-500 hover:bg-red-600 text-white font-semibold px-4 py-2 rounded-lg transition-all duration-300"
-              >
-                🧪 Test Purchase Flow
-              </button>
+
 
             </div>
           </div>
