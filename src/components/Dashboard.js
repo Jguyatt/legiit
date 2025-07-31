@@ -88,19 +88,12 @@ const Dashboard = () => {
         setLastNotificationCheck(parseInt(savedLastNotificationCheck));
       }
       
-      // Clear all notifications for this user to reset the current state
-      console.log('🧹 Clearing all notifications for user:', userEmail);
-      setNotifications([]);
-      setUnreadCount(0);
-      setNotifiedMessages(new Set());
-      setLastNotificationCheck(null);
-      localStorage.setItem(notificationsKey, JSON.stringify([]));
-      localStorage.setItem(unreadCountKey, '0');
-      localStorage.setItem(notifiedMessagesKey, JSON.stringify([]));
-      localStorage.setItem(lastNotificationCheckKey, null);
-      
-      // Ensure unread count is always 0 for new users
-      console.log('✅ Reset notification count to 0 for user:', userEmail);
+      // Only clear notifications for new users who don't have any saved notifications
+      if (!savedNotifications) {
+        console.log('✅ New user - no notifications to clear for:', userEmail);
+      } else {
+        console.log('✅ Loaded existing notifications for user:', userEmail);
+      }
     }
   }, []);
 
@@ -193,7 +186,10 @@ const Dashboard = () => {
         // Mark this message as notified
         setNotifiedMessages(prev => {
           const updatedSet = new Set([...prev, message.id]);
-          localStorage.setItem('rankly360_notifiedMessages', JSON.stringify([...updatedSet]));
+          const userSession = userAuth.getSession();
+          if (userSession?.email) {
+            localStorage.setItem(`rankly360_notified_messages_${userSession.email}`, JSON.stringify([...updatedSet]));
+          }
           return updatedSet;
         });
       });
@@ -784,10 +780,13 @@ const Dashboard = () => {
     setUnreadCount(0);
     setNotifications(prev => {
       const updatedNotifications = prev.map(notif => ({ ...notif, unread: false }));
-      localStorage.setItem('rankly360_notifications', JSON.stringify(updatedNotifications));
+      const userSession = userAuth.getSession();
+      if (userSession?.email) {
+        localStorage.setItem(`rankly360_notifications_${userSession.email}`, JSON.stringify(updatedNotifications));
+        localStorage.setItem(`rankly360_unread_count_${userSession.email}`, '0');
+      }
       return updatedNotifications;
     });
-    localStorage.setItem('rankly360_unreadCount', '0');
   };
 
   // Clear all notifications
@@ -1192,12 +1191,18 @@ const Dashboard = () => {
                                 const updatedNotifications = prev.map(n => 
                                   n.id === notification.id ? { ...n, read: true } : n
                                 );
-                                localStorage.setItem('rankly360_notifications', JSON.stringify(updatedNotifications));
+                                const userSession = userAuth.getSession();
+                                if (userSession?.email) {
+                                  localStorage.setItem(`rankly360_notifications_${userSession.email}`, JSON.stringify(updatedNotifications));
+                                }
                                 return updatedNotifications;
                               });
                               setUnreadCount(prev => {
                                 const newCount = Math.max(0, prev - 1);
-                                localStorage.setItem('rankly360_unreadCount', newCount.toString());
+                                const userSession = userAuth.getSession();
+                                if (userSession?.email) {
+                                  localStorage.setItem(`rankly360_unread_count_${userSession.email}`, newCount.toString());
+                                }
                                 return newCount;
                               });
                             }}
