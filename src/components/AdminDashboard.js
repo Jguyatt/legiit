@@ -274,7 +274,13 @@ const AdminDashboard = () => {
     const uniqueUsers = allUsers.filter((user, index, self) => 
       index === self.findIndex(u => u.email.toLowerCase() === user.email.toLowerCase())
     );
-    return uniqueUsers;
+    
+    // Filter to show only users with active projects or completed projects
+    return uniqueUsers.filter(user => {
+      const hasActiveProjects = user.customerData?.activeProjects?.length > 0 || user.activeProjects?.length > 0;
+      const hasCompletedProjects = user.customerData?.completedProjects?.length > 0 || user.completedProjects?.length > 0;
+      return hasActiveProjects || hasCompletedProjects;
+    });
   };
 
   const getCompletedProjects = () => {
@@ -798,8 +804,12 @@ const AdminDashboard = () => {
                         <p className="text-xs text-gray-500">Account Type: {user.customerData?.activeProjects?.length > 0 ? 'Customer' : 'User'}</p>
                       </div>
                       <div className="text-right">
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                          Active
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                          user.customerData?.activeProjects?.length > 0 || user.activeProjects?.length > 0
+                            ? 'bg-green-100 text-green-800'
+                            : 'bg-gray-100 text-gray-800'
+                        }`}>
+                          {user.customerData?.activeProjects?.length > 0 || user.activeProjects?.length > 0 ? 'Active' : 'Inactive'}
                         </span>
                       </div>
                     </div>
