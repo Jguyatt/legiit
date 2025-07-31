@@ -599,6 +599,18 @@ const Dashboard = () => {
             }
           });
         }
+        
+        // Force sync with backend to get latest data
+        console.log('🔄 Force syncing with backend for latest purchase data...');
+        syncWithBackend(userSession.email).then(backendData => {
+          if (backendData) {
+            console.log('✅ Backend sync successful, updating dashboard');
+            setCustomerData(backendData);
+            fixProjectDurations(backendData);
+          }
+        }).catch(error => {
+          console.error('❌ Backend sync failed:', error);
+        });
       }
     }, []);
 
@@ -889,10 +901,9 @@ const Dashboard = () => {
         );
       }
       
-      const isCompleted = allStepsCompleted || 
-        project.progress === 100 || 
-        project.currentPhase === 'Order Complete' || 
-        project.status === 'Completed';
+      // Only mark as completed if ALL timeline steps are actually completed
+      const isCompleted = allStepsCompleted && 
+        (project.progress === 100 || project.status === 'Completed');
       
       console.log('📊 Project completion check:', {
         allStepsCompleted,
@@ -1236,6 +1247,23 @@ const Dashboard = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                 </svg>
                 {loading ? 'Refreshing...' : 'Refresh Data'}
+              </button>
+              <button
+                onClick={async () => {
+                  const userSession = userAuth.getSession();
+                  if (userSession?.email) {
+                    console.log('🔄 Manual force sync for user:', userSession.email);
+                    const backendData = await syncWithBackend(userSession.email);
+                    if (backendData) {
+                      console.log('✅ Manual sync successful:', backendData);
+                      setCustomerData(backendData);
+                      fixProjectDurations(backendData);
+                    }
+                  }
+                }}
+                className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors text-sm font-medium ml-2"
+              >
+                Force Sync
               </button>
 
 
