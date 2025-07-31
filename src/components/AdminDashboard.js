@@ -882,47 +882,12 @@ const AdminDashboard = () => {
                       
                       <div className="flex space-x-2">
                         <button
-                          onClick={() => {
-                            const customerSubmission = onboardingSubmissions.find(
-                              submission => submission.customerEmail.toLowerCase() === client.email.toLowerCase()
-                            );
-                            
-                            // Debug logging
-                            console.log('Client email:', client.email);
-                            console.log('Onboarding submissions:', onboardingSubmissions);
-                            console.log('Found submission:', customerSubmission);
-                            
-                            if (customerSubmission) {
-                              // Show customer dashboard view with submission status
-                              console.log('View dashboard for:', client.name);
-                              alert(`Viewing dashboard for ${client.name}\n\nEmail: ${client.email}\nService: ${projectName}\nProgress: ${client.progress || project?.progress || 0}%\n\nOnboarding form status: ${customerSubmission.status}`);
-                            } else {
-                              // Show customer dashboard view without submission
-                              console.log('View dashboard for:', client.name);
-                              alert(`Viewing dashboard for ${client.name}\n\nEmail: ${client.email}\nService: ${projectName}\nProgress: ${client.progress || project?.progress || 0}%\n\nOnboarding form not yet submitted.\n\nDebug: Found ${onboardingSubmissions.length} submissions total.`);
-                            }
-                          }}
-                          className="inline-flex items-center px-3 py-1.5 border border-white/20 rounded-md text-sm font-medium text-white hover:bg-white/10 transition-colors"
-                        >
-                          <Eye className="w-4 h-4 mr-1" />
-                          View Dashboard
-                        </button>
-                        <button
                           onClick={() => openChat(client)}
                           className="inline-flex items-center px-3 py-1.5 border border-blue-500/20 rounded-md text-sm font-medium text-blue-400 hover:bg-blue-500/10 transition-colors"
                         >
                           <MessageSquare className="w-4 h-4 mr-1" />
                           General Chat
                         </button>
-                        {project && (
-                          <button
-                            onClick={() => openChat(client, project.id)}
-                            className="inline-flex items-center px-3 py-1.5 border border-green-500/20 rounded-md text-sm font-medium text-green-400 hover:bg-green-500/10 transition-colors"
-                          >
-                            <MessageSquare className="w-4 h-4 mr-1" />
-                            Project Chat
-                          </button>
-                        )}
                         <button
                           onClick={() => {
                             const timelineSubmission = {
