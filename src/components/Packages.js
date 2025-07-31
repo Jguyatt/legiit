@@ -146,6 +146,27 @@ const Packages = () => {
         </div>
       </motion.div>
 
+      {/* Fulfillment Guarantee */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.15 }}
+        className="mb-8"
+      >
+        <div className="bg-gradient-to-r from-green-500/20 to-green-600/10 border border-green-400/30 rounded-2xl p-6 text-center">
+          <div className="flex items-center justify-center gap-3 mb-3">
+            <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+              <span className="text-white font-bold text-sm">✓</span>
+            </div>
+            <h3 className="text-lg font-bold text-white">Fast Fulfillment Guarantee</h3>
+          </div>
+          <p className="text-gray-200 text-sm leading-relaxed">
+            All of our one-off service orders will be fulfilled in <span className="text-green-400 font-semibold">14 days or less</span>. 
+            We're committed to delivering results quickly so you can start seeing improvements to your local SEO rankings.
+          </p>
+        </div>
+      </motion.div>
+
       {/* Bundles Section */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
