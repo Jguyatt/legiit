@@ -109,21 +109,21 @@ const Hero = () => {
           animate="animate"
           variants={fadeIn}
         >
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-light text-white mb-4 sm:mb-6 leading-tight tracking-tight px-2">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-6xl xl:text-7xl font-light text-white mb-3 sm:mb-4 leading-tight tracking-tight px-2">
             Dominate Your
             <span className="block bg-gradient-to-r from-[#3abef9] to-[#1e40af] bg-clip-text text-transparent font-light">
               Local Market
             </span>
           </h1>
           
-          <p className="text-lg sm:text-xl md:text-2xl text-gray-300 mb-6 sm:mb-8 max-w-3xl mx-auto leading-relaxed font-light tracking-wide px-4">
+          <p className="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl text-gray-300 mb-4 sm:mb-6 max-w-3xl mx-auto leading-relaxed font-light tracking-wide px-2">
             Transform your local business with AI-powered SEO strategies that put you on the map. 
             Get found first, every time.
           </p>
           
-          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center mb-6 sm:mb-8 px-4">
+          <div className="flex flex-col sm:flex-row gap-3 justify-center items-center mb-6 sm:mb-8 px-4">
             <motion.button
-              className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-[#3abef9] to-[#1e40af] text-white font-light rounded-lg text-base sm:text-lg hover:from-[#1e40af] hover:to-[#3abef9] transition-all duration-300 transform hover:scale-105 shadow-lg tracking-wide"
+              className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-[#3abef9] to-[#1e40af] text-white font-light rounded-lg text-sm sm:text-base hover:from-[#1e40af] hover:to-[#3abef9] transition-all duration-300 transform hover:scale-105 shadow-lg tracking-wide"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
@@ -131,7 +131,7 @@ const Hero = () => {
             </motion.button>
             
             <motion.button
-              className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 border-2 border-[#3abef9] text-[#3abef9] font-light rounded-lg text-base sm:text-lg hover:bg-[#3abef9] hover:text-white transition-all duration-300 transform hover:scale-105 tracking-wide"
+              className="w-full sm:w-auto px-6 py-3 border-2 border-[#3abef9] text-[#3abef9] font-light rounded-lg text-sm sm:text-base hover:bg-[#3abef9] hover:text-white transition-all duration-300 transform hover:scale-105 tracking-wide"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
@@ -139,125 +139,68 @@ const Hero = () => {
             </motion.button>
           </div>
           
-          <div className="inline-flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-3 bg-white/10 backdrop-blur-sm rounded-full text-white text-xs sm:text-sm font-light border border-white/20 tracking-wide">
+          <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-white text-xs sm:text-sm font-light border border-white/20 tracking-wide">
             <span className="text-[#3abef9]">✓</span>
             200+ Local Businesses Helped
           </div>
         </motion.div>
         
-        {/* Cool SEO Animation Widget - Mobile Optimized */}
+        {/* Simplified Mobile-Optimized Search Widget */}
         <motion.div
-          className="relative max-w-sm sm:max-w-md mx-auto px-4 sm:px-0"
+          className="relative max-w-xs sm:max-w-sm md:max-w-md mx-auto px-2 sm:px-4"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5, duration: 0.8 }}
         >
-          <div className="bg-gradient-to-br from-white/15 to-white/5 backdrop-blur-xl rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-white/30 shadow-2xl relative overflow-hidden">
-            {/* Animated Background Glow */}
-            <div className="absolute inset-0 bg-gradient-to-r from-[#3abef9]/20 via-[#1e40af]/10 to-[#3abef9]/20 rounded-2xl sm:rounded-3xl blur-xl animate-pulse" />
-            
-            {/* Search Header */}
-            <div className="relative z-10 flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-[#3abef9] to-[#1e40af] rounded-full flex items-center justify-center shadow-lg flex-shrink-0">
-                <span className="text-white text-xs sm:text-sm font-bold">G</span>
+          <div className="bg-gradient-to-br from-white/15 to-white/5 backdrop-blur-xl rounded-xl sm:rounded-2xl p-3 sm:p-4 border border-white/30 shadow-2xl relative overflow-hidden">
+            {/* Search Header - Simplified */}
+            <div className="relative z-10 flex items-center gap-2 mb-3 sm:mb-4">
+              <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-r from-[#3abef9] to-[#1e40af] rounded-full flex items-center justify-center shadow-lg flex-shrink-0">
+                <span className="text-white text-xs font-bold">G</span>
               </div>
               <div className="flex-1 min-w-0">
-                <div className="bg-white/90 backdrop-blur-sm rounded-lg sm:rounded-xl h-8 sm:h-10 flex items-center px-3 sm:px-4 text-xs sm:text-sm text-gray-700 font-light shadow-inner">
-                  <span className="text-[#3abef9] mr-2 text-xs sm:text-sm">🔍</span>
-                  <span className="truncate">"best local seo services near me"</span>
+                <div className="bg-white/90 backdrop-blur-sm rounded-lg h-7 sm:h-8 flex items-center px-2 sm:px-3 text-xs text-gray-700 font-light shadow-inner">
+                  <span className="text-[#3abef9] mr-1 text-xs">🔍</span>
+                  <span className="truncate text-xs">"local seo services"</span>
                 </div>
               </div>
             </div>
             
-            {/* Animated Search Results */}
-            <div className="relative z-10 space-y-3 sm:space-y-4">
-              <motion.div 
-                className="bg-gradient-to-r from-white/25 to-white/15 backdrop-blur-sm rounded-xl sm:rounded-2xl p-3 sm:p-4 border border-white/20 shadow-lg"
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.8, duration: 0.6 }}
-              >
-                <div className="flex items-start justify-between gap-2">
-                  <div className="flex-1 min-w-0">
-                    <div className="text-white font-semibold text-xs sm:text-sm mb-1 truncate">Rankly360 Local SEO</div>
-                    <div className="text-gray-300 text-xs mb-1 sm:mb-2">★★★★★ 4.9 (127 reviews)</div>
-                    <div className="text-[#3abef9] text-xs">rankly360.com</div>
-                  </div>
-                  <div className="ml-2 sm:ml-4 flex-shrink-0">
-                    <div className="bg-gradient-to-r from-green-500 to-green-600 text-white text-xs font-bold px-2 sm:px-3 py-1 rounded-full">
-                      #1
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-              
-              <motion.div 
-                className="bg-gradient-to-r from-white/20 to-white/10 backdrop-blur-sm rounded-xl sm:rounded-2xl p-3 sm:p-4 border border-white/15 shadow-lg"
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 1.0, duration: 0.6 }}
-              >
-                <div className="flex items-start justify-between gap-2">
-                  <div className="flex-1 min-w-0">
-                    <div className="text-white font-semibold text-xs sm:text-sm mb-1 truncate">Local SEO Domination</div>
-                    <div className="text-gray-300 text-xs mb-1 sm:mb-2">★★★★★ 4.8 (89 reviews)</div>
-                    <div className="text-[#3abef9] text-xs">rankly360.com</div>
-                  </div>
-                  <div className="ml-2 sm:ml-4 flex-shrink-0">
-                    <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white text-xs font-bold px-2 sm:px-3 py-1 rounded-full">
-                      #2
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            </div>
-            
-            {/* Live Data Footer */}
+            {/* Single Simplified Result */}
             <motion.div 
-              className="relative z-10 mt-4 sm:mt-6 pt-3 sm:pt-4 border-t border-white/20"
+              className="bg-gradient-to-r from-white/25 to-white/15 backdrop-blur-sm rounded-lg p-3 border border-white/20 shadow-lg"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.8, duration: 0.6 }}
+            >
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex-1 min-w-0">
+                  <div className="text-white font-semibold text-xs mb-1 truncate">Rankly360 Local SEO</div>
+                  <div className="text-gray-300 text-xs">★★★★★ 4.9 (127 reviews)</div>
+                  <div className="text-[#3abef9] text-xs">rankly360.com</div>
+                </div>
+                <div className="flex-shrink-0">
+                  <div className="bg-gradient-to-r from-green-500 to-green-600 text-white text-xs font-bold px-2 py-1 rounded-full">
+                    #1
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+            
+            {/* Simple Live Data Footer */}
+            <motion.div 
+              className="relative z-10 mt-3 pt-2 border-t border-white/20"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 1.2, duration: 0.6 }}
+              transition={{ delay: 1.0, duration: 0.6 }}
             >
               <div className="flex justify-between items-center text-xs text-gray-300 font-light">
-                <div className="flex items-center gap-1 sm:gap-2">
-                  <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-green-400 rounded-full animate-pulse"></div>
-                  <span className="text-xs">Live Data</span>
+                <div className="flex items-center gap-1">
+                  <div className="w-1 h-1 bg-green-400 rounded-full animate-pulse"></div>
+                  <span className="text-xs">Live</span>
                 </div>
                 <span className="text-xs">Updated 2 min ago</span>
               </div>
-            </motion.div>
-            
-            {/* Floating Success Indicators - Hidden on very small screens */}
-            <motion.div
-              className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 w-5 h-5 sm:w-6 sm:h-6 bg-gradient-to-r from-green-500 to-green-600 rounded-full flex items-center justify-center shadow-lg hidden sm:flex"
-              animate={{ 
-                scale: [1, 1.2, 1],
-                rotate: [0, 10, -10, 0]
-              }}
-              transition={{ 
-                duration: 2,
-                repeat: Infinity,
-                ease: "easeInOut"
-              }}
-            >
-              <span className="text-white text-xs">✓</span>
-            </motion.div>
-            
-            <motion.div
-              className="absolute -bottom-1 -left-1 sm:-bottom-2 sm:-left-2 w-4 h-4 sm:w-5 sm:h-5 bg-gradient-to-r from-[#3abef9] to-[#1e40af] rounded-full flex items-center justify-center shadow-lg hidden sm:flex"
-              animate={{ 
-                scale: [1, 1.3, 1],
-                y: [0, -5, 0]
-              }}
-              transition={{ 
-                duration: 3,
-                repeat: Infinity,
-                ease: "easeInOut",
-                delay: 1
-              }}
-            >
-              <span className="text-white text-xs">↑</span>
             </motion.div>
           </div>
         </motion.div>
