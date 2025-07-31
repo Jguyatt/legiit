@@ -914,7 +914,13 @@ const AdminDashboard = () => {
                                 firstName: client.name.split(' ')[0],
                                 lastName: client.name.split(' ').slice(1).join(' ')
                               },
-                              timelineStatus: client.customerData?.orderTimeline || {}
+                              timelineStatus: client.customerData?.orderTimeline || {
+                                orderPlaced: {
+                                  status: 'completed',
+                                  completed: true,
+                                  date: new Date().toISOString().split('T')[0]
+                                }
+                              }
                             };
                             setSelectedSubmission(timelineSubmission);
                             setShowSubmissionModal(true);
@@ -1027,7 +1033,20 @@ const AdminDashboard = () => {
                       { key: 'reviewDelivery', title: 'Review Delivery', description: 'Deliverables ready for customer review' },
                       { key: 'orderComplete', title: 'Order Complete', description: 'All work completed and delivered' }
                     ].map((step) => {
-                    const stepData = selectedSubmission.timelineStatus?.[step.key] || {};
+                    let stepData = selectedSubmission.timelineStatus?.[step.key] || {};
+                    
+                    // Auto-complete "Order Placed" if customer has active projects but no timeline data
+                    if (step.key === 'orderPlaced' && !stepData.completed && !stepData.status) {
+                      const customer = clients.find(c => c.email === selectedSubmission.formData.email);
+                      if (customer?.customerData?.activeProjects?.length > 0) {
+                        stepData = {
+                          status: 'completed',
+                          completed: true,
+                          date: new Date().toISOString().split('T')[0]
+                        };
+                      }
+                    }
+                    
                     const isCompleted = stepData.completed || false;
                     const isInProgress = stepData.status === 'in_progress';
                       
