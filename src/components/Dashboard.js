@@ -82,6 +82,17 @@ const Dashboard = () => {
       if (savedLastNotificationCheck) {
         setLastNotificationCheck(parseInt(savedLastNotificationCheck));
       }
+      
+      // Clear all notifications for this user to reset the current state
+      console.log('🧹 Clearing all notifications for user:', userEmail);
+      setNotifications([]);
+      setUnreadCount(0);
+      setNotifiedMessages(new Set());
+      setLastNotificationCheck(null);
+      localStorage.setItem(notificationsKey, JSON.stringify([]));
+      localStorage.setItem(unreadCountKey, '0');
+      localStorage.setItem(notifiedMessagesKey, JSON.stringify([]));
+      localStorage.setItem(lastNotificationCheckKey, null);
     }
   }, []);
 
@@ -152,6 +163,12 @@ const Dashboard = () => {
         };
         
         setNotifications(prev => {
+          // Check if this notification already exists to prevent duplicates
+          const notificationExists = prev.some(notification => notification.id === newNotification.id);
+          if (notificationExists) {
+            return prev; // Don't add duplicate
+          }
+          
           const updatedNotifications = [newNotification, ...prev];
           const userSession = userAuth.getSession();
           if (userSession?.email) {
